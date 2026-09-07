@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solera Energía · Autoconsumo solar en Jaén, Granada y Almería</title>
+  <meta
+    name="description"
+    content="Solera Energía diseña, instala y legaliza tu autoconsumo solar en Andalucía oriental. Vivienda, empresas y bombeo agrícola. Dimensionado a tu consumo real, con subvenciones y papeleo incluidos. Calcula tu ahorro."
+  />
+  <link rel="canonical" href="https://solera-energia.example/" />
+  <meta property="og:site_name" content="Solera Energía" />
+  <meta property="og:title" content="Solera Energía · Autoconsumo solar en Andalucía oriental" />
+  <meta property="og:description" content="Autoconsumo solar calculado al detalle. Estudio gratuito para vivienda, empresa y olivar en Jaén, Granada y Almería." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://solera-energia.example/" />
+  <meta property="og:locale" content="es_ES" />
+  <meta name="theme-color" content="#2e3a26" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Young+Serif&display=swap"
+    rel="stylesheet"
+  />
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Young Serif"', 'Georgia', 'serif'],
+            sans: ['"Hanken Grotesk"', 'system-ui', 'sans-serif'],
+            mono: ['"Spline Sans Mono"', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            paper: '#e9e7db',
+            'paper-raised': '#f2f0e5',
+            'paper-deep': '#dddbca',
+            olive: '#2e3a26',
+            'olive-700': '#3b4a30',
+            ink: '#232a1c',
+            'ink-soft': '#575c42',
+            line: '#d2ceb7',
+            'line-strong': '#b7b191',
+            ochre: '#a5611a',
+            'ochre-deep': '#834a12',
+            'on-olive': '#eae7d5',
+            'on-olive-soft': '#aeb397',
+            'ochre-bright': '#dc9142',
+          },
+          maxWidth: { shell: '72rem' },
+          boxShadow: {
+            field: '0 1px 2px rgba(35,42,28,0.05), 0 16px 34px -20px rgba(35,42,28,0.28)',
+            'field-lift': '0 2px 6px rgba(35,42,28,0.08), 0 30px 55px -24px rgba(35,42,28,0.34)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    :root { color-scheme: light; }
+    body {
+      background-color: #e9e7db;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.15 0 0 0 0 0.17 0 0 0 0 0.11 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    [hidden] { display: none !important; }
+
+    ::selection { background: #e6d3b1; color: #2c2410; }
+    ::-moz-selection { background: #e6d3b1; color: #2c2410; }
+    a, button, input, textarea, select { caret-color: #a5611a; }
+
+    :focus-visible { outline: 2px solid #a5611a; outline-offset: 3px; border-radius: 2px; }
+
+    * { scrollbar-width: thin; scrollbar-color: #b7b191 transparent; }
+    ::-webkit-scrollbar { width: 12px; height: 12px; }
+    ::-webkit-scrollbar-thumb { background: #b7b191; border: 3px solid #e9e7db; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9c9673; }
+
+    .measure { max-width: 66ch; }
+    .u-curve { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+
+    /* Papel cuadriculado — la sección de la calculadora es una "hoja de campo" */
+    .graph-paper {
+      background-color: #f2f0e5;
+      background-image:
+        linear-gradient(#d2ceb7 1px, transparent 1px),
+        linear-gradient(90deg, #d2ceb7 1px, transparent 1px);
+      background-size: 26px 26px;
+      background-position: -1px -1px;
+    }
+    .graph-paper-strong {
+      background-image:
+        linear-gradient(rgba(93,99,64,0.16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(93,99,64,0.16) 1px, transparent 1px),
+        linear-gradient(#d8d4bf 1px, transparent 1px),
+        linear-gradient(90deg, #d8d4bf 1px, transparent 1px);
+      background-size: 130px 130px, 130px 130px, 26px 26px, 26px 26px;
+    }
+
+    /* Enlace con subrayado que crece */
+    .ul-grow {
+      background-image: linear-gradient(currentColor, currentColor);
+      background-size: 0% 1.5px; background-position: 0 100%; background-repeat: no-repeat;
+      transition: background-size .34s cubic-bezier(0.16, 1, 0.3, 1); padding-bottom: 2px;
+    }
+    .ul-grow:hover { background-size: 100% 1.5px; }
+
+    /* Barra de resultado de la calculadora */
+    .bar-fill { transform-origin: left; transition: transform .6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .bar-fill { transition: none; }
+    }
+
+    details.faq > summary { list-style: none; }
+    details.faq > summary::-webkit-details-marker { display: none; }
+    details.faq > summary .chev { transition: transform .28s cubic-bezier(0.16, 1, 0.3, 1); }
+    details.faq[open] > summary .chev { transform: rotate(45deg); }
+
+    .seg-btn[aria-pressed="true"] { background: #2e3a26; color: #f1efe3; border-color: #2e3a26; }
+  </style>
+</head>
+
+<body class="font-sans text-ink antialiased">
+  <!--
+    ─────────────────────────────────────────────────────────────────────
+    DIRECCIÓN (contrato, impeccable · dirección FIJADA por el cliente:
+    "Cuaderno de campo"). No es un mood: es lo que esta página cumple.
+
+    THESIS         Autoconsumo como una página de manual agronómico: figura
+                   anotada + hoja de cálculo. Rechaza el hero centrado con tres
+                   tarjetas y el cian solar con foto de familia feliz.
+    OWN-WORLD      Papel manila con grano (#f1efe3), tinta oliva (#232a1c),
+                   una única mancha ocre (#a5611a) para el sol y las cifras.
+                   Secciones oscuras en oliva profundo (#2e3a26). Titulares en
+                   Young Serif (carácter de lámina botánica), texto Hanken
+                   Grotesk, cifras en Spline Sans Mono. Dibujos de línea de un
+                   solo trazo; nada de fotos de stock, nada de degradados.
+    STORY          El visitante entiende qué es el autoconsumo mirando la Fig. 1,
+                   calcula su ahorro en la hoja cuadriculada, y pide el estudio
+                   gratuito.
+    FIRST VIEWPORT Columna izq.: titular Young Serif grande + subrayado de una
+                   línea + dos acciones (primaria ocre "Calcula tu ahorro").
+                   Columna der.: Fig. 1, sección de una instalación con llamadas
+                   numeradas 1–5 que reaparecen en "Cómo funciona".
+    FORM           Página de cuaderno técnico: margen ancho con numeración de
+                   figuras, ritmo de lección. Dirección fijada por el cliente
+                   (brief-pinned), sin tirada de dados.
+    FINISH         unreviewed and undocumented is unfinished; this build ends
+                   with the finish review, the verdict, DESIGN.md, and every
+                   shipping raster carrying its provenance.
+
+    DEMO: Solera Energía es una marca ficticia. Datos de contacto = ejemplo.
+    Formulario sin backend (ver comentario en la sección #contacto).
+    ─────────────────────────────────────────────────────────────────────
+  -->
+
+  <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded focus:bg-olive focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-paper">
+    Saltar al contenido
+  </a>
+
+  <!-- ================= Header ================= -->
+  <header class="sticky top-0 z-50 border-b border-line bg-paper/90 supports-[backdrop-filter]:bg-paper/70 supports-[backdrop-filter]:backdrop-blur-md">
+    <div class="mx-auto flex max-w-shell items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+      <a href="#contenido" class="flex items-center gap-2.5 font-display text-lg text-ink">
+        <svg viewBox="0 0 32 32" class="h-7 w-7" aria-hidden="true" fill="none">
+          <path d="M4 23h24" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="16" cy="15" r="6.5" stroke="#a5611a" stroke-width="2"/>
+          <path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#a5611a" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Solera <span class="text-ink-soft">Energía</span>
+      </a>
+
+      <nav class="hidden items-center gap-7 text-sm lg:flex" aria-label="Principal">
+        <a href="#como-funciona" class="ul-grow text-ink-soft hover:text-ink">Cómo funciona</a>
+        <a href="#instalaciones" class="ul-grow text-ink-soft hover:text-ink">Instalaciones</a>
+        <a href="#calculadora" class="ul-grow text-ink-soft hover:text-ink">Calculadora</a>
+        <a href="#proceso" class="ul-grow text-ink-soft hover:text-ink">Proceso</a>
+        <a href="#preguntas" class="ul-grow text-ink-soft hover:text-ink">Preguntas</a>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <a href="#contacto" class="hidden rounded-full bg-ochre px-4 py-2 text-sm font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep sm:inline-block">
+          Pedir estudio
+        </a>
+        <button id="menu-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full border border-line-strong text-ink lg:hidden" aria-expanded="false" aria-controls="menu-panel" aria-label="Abrir menú">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="menu-panel" hidden class="border-t border-line bg-paper px-5 py-4 sm:px-8 lg:hidden">
+      <nav class="flex flex-col gap-1 text-[15px]" aria-label="Móvil">
+        <a href="#como-funciona" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Cómo funciona</a>
+        <a href="#instalaciones" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Instalaciones</a>
+        <a href="#calculadora" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Calculadora</a>
+        <a href="#proceso" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Proceso</a>
+        <a href="#preguntas" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Preguntas</a>
+        <a href="#contacto" class="mt-2 rounded-full bg-ochre px-4 py-2.5 text-center font-semibold text-paper-raised" data-close>Pedir estudio gratuito</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+
+    <!-- ================= Hero ================= -->
+    <section class="border-b border-line">
+      <div class="mx-auto grid max-w-shell gap-12 px-5 py-14 sm:px-8 sm:py-20 lg:grid-cols-[1.05fr_1.15fr] lg:items-center lg:gap-8 lg:py-24">
+        <div>
+          <p class="mb-5 font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">Autoconsumo solar · Andalucía oriental</p>
+          <h1 class="font-display text-[2.6rem] leading-[1.06] text-ink sm:text-[3.4rem] lg:text-[3.9rem]">
+            Ponemos el sol de Andalucía a trabajar en tu factura.
+          </h1>
+          <p class="measure mt-6 text-[17px] leading-relaxed text-ink-soft">
+            Solera Energía diseña, instala y legaliza tu instalación fotovoltaica en Jaén, Granada y Almería.
+            Dimensionada a tu consumo real —no a ojo—, con las subvenciones y el papeleo incluidos.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a href="#calculadora" class="rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep">
+              Calcula tu ahorro
+            </a>
+            <a href="#como-funciona" class="rounded-full border border-line-strong px-6 py-3 text-[15px] font-semibold text-ink u-curve transition hover:bg-paper-deep">
+              Cómo funciona
+            </a>
+          </div>
+          <dl class="mt-10 grid max-w-md grid-cols-3 gap-5 border-t border-line pt-6 text-sm">
+            <div>
+              <dt class="text-ink-soft">Amortización típica</dt>
+              <dd class="mt-1 font-mono text-lg text-ink">5–8 años</dd>
+            </div>
+            <div>
+              <dt class="text-ink-soft">Obra en vivienda</dt>
+              <dd class="mt-1 font-mono text-lg text-ink">1–2 días</dd>
+            </div>
+            <div>
+              <dt class="text-ink-soft">Radiación de la zona</dt>
+              <dd class="mt-1 font-mono text-lg text-ink">~1.650 h</dd>
+            </div>
+          </dl>
+        </div>
+
+        <figure class="lg:pl-2">
+          <div class="overflow-hidden rounded-xl border border-line-strong bg-paper-raised shadow-field-lift">
+            <svg class="fig-draw block w-full" viewBox="0 0 720 470" role="img" aria-labelledby="fig1-title fig1-desc">
+              <title id="fig1-title">Figura 1: instalación de autoconsumo solar</title>
+              <desc id="fig1-desc">Sección de una vivienda: los paneles de la cubierta (1) conectan con un inversor (2), una batería opcional (3), el consumo de la casa (4) y la red eléctrica, a la que se vierten los excedentes (5).</desc>
+
+              <defs>
+                <pattern id="fig-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                  <path d="M24 0H0V24" fill="none" stroke="#d2ceb7" stroke-width="1" opacity="0.5"/>
+                </pattern>
+                <marker id="ah" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M1 1 10 6 1 11" fill="none" stroke="#a5611a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </marker>
+              </defs>
+
+              <rect width="720" height="470" fill="url(#fig-grid)"/>
+
+              <!-- suelo + olivos -->
+              <line data-draw style="--len:700;--d:0ms" x1="24" y1="408" x2="696" y2="408" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/>
+              <g stroke="#7c7d5c" stroke-width="1.6" fill="none" data-fade style="--d:220ms">
+                <path d="M72 408v-15"/><circle cx="72" cy="384" r="11"/>
+                <path d="M118 408v-12"/><circle cx="118" cy="388" r="8"/>
+                <path d="M640 408v-14"/><circle cx="640" cy="386" r="10"/>
+                <path d="M672 408v-10"/><circle cx="672" cy="391" r="7"/>
+              </g>
+
+              <!-- casa -->
+              <path data-draw style="--len:900;--d:120ms" d="M250 408V250H470V408" fill="#f1efe3" stroke="#232a1c" stroke-width="2" stroke-linejoin="round"/>
+              <path data-draw style="--len:440;--d:240ms" d="M232 252 360 168 488 252" fill="#f1efe3" stroke="#232a1c" stroke-width="2" stroke-linejoin="round"/>
+              <path data-draw style="--len:230;--d:560ms" d="M338 408V330H382V408" fill="none" stroke="#232a1c" stroke-width="1.6"/>
+              <rect data-draw style="--len:150;--d:600ms" x="272" y="286" width="38" height="32" fill="none" stroke="#232a1c" stroke-width="1.6"/>
+              <path d="M291 286v32M272 302h38" stroke="#232a1c" stroke-width="1.1" data-fade style="--d:820ms"/>
+
+              <!-- 1 · paneles -->
+              <g data-draw style="--len:1300;--d:360ms">
+                <path d="M250 250 352 184 372 202 270 268Z" fill="#a5611a" fill-opacity="0.14" stroke="#a5611a" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M284 226 366 173M301 244 383 191M318 262 317 200M301 253 300 192" stroke="#a5611a" stroke-width="1.3"/>
+              </g>
+
+              <!-- sol -->
+              <circle data-draw style="--len:170;--d:80ms" cx="110" cy="110" r="23" fill="#f7f5ea" stroke="#a5611a" stroke-width="2"/>
+              <path data-draw style="--len:360;--d:160ms" d="M110 71V58M110 162v13M155 110h13M52 110H39M142 78l9-9M69 151l-9 9M142 142l9 9M69 69 60 60" stroke="#a5611a" stroke-width="2" stroke-linecap="round"/>
+              <path data-draw style="--len:130;--d:640ms" d="M136 128 224 190" stroke="#a5611a" stroke-width="1.6" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#ah)"/>
+              <path data-draw style="--len:130;--d:720ms" d="M148 92 262 150" stroke="#a5611a" stroke-width="1.6" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#ah)"/>
+
+              <!-- cableado: bus bajo el alero -->
+              <path data-draw style="--len:230;--d:820ms" d="M316 232V250H476V264" fill="none" stroke="#232a1c" stroke-width="1.8"/>
+
+              <!-- 2 · inversor -->
+              <rect data-draw style="--len:210;--d:900ms" x="456" y="264" width="40" height="52" rx="3" fill="#f7f5ea" stroke="#232a1c" stroke-width="2"/>
+              <path d="M464 278h24M464 288h24M464 298h14" stroke="#575c42" stroke-width="1.5" stroke-linecap="round" data-fade style="--d:1080ms"/>
+
+              <!-- 3 · batería -->
+              <path data-draw style="--len:40;--d:960ms" d="M476 316v16" fill="none" stroke="#232a1c" stroke-width="1.8"/>
+              <rect data-draw style="--len:190;--d:1000ms" x="456" y="332" width="40" height="40" rx="3" fill="#f7f5ea" stroke="#232a1c" stroke-width="2"/>
+              <path d="M464 344h24M464 352h24M464 360h24" stroke="#575c42" stroke-width="1.5" stroke-linecap="round" data-fade style="--d:1180ms"/>
+
+              <!-- 4 · consumo -->
+              <path data-draw style="--len:70;--d:940ms" d="M456 290H418v18" fill="none" stroke="#232a1c" stroke-width="1.8"/>
+              <circle data-draw style="--len:92;--d:1020ms" cx="418" cy="322" r="14" fill="#f7f5ea" stroke="#232a1c" stroke-width="2"/>
+              <path d="M418 312v20M410 318l16 8M426 318l-16 8" stroke="#a5611a" stroke-width="1.5" stroke-linecap="round" data-fade style="--d:1220ms"/>
+
+              <!-- 5 · red / poste -->
+              <path data-draw style="--len:200;--d:1000ms" d="M614 408V212" fill="none" stroke="#232a1c" stroke-width="2"/>
+              <path data-draw style="--len:110;--d:1060ms" d="M592 224h44M598 213v11M630 213v11" fill="none" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/>
+              <path data-draw style="--len:170;--d:1100ms" d="M598 224 528 262M630 224 612 250" fill="none" stroke="#232a1c" stroke-width="1.5"/>
+
+              <!-- excedentes -->
+              <path data-draw style="--len:70;--d:1200ms" d="M534 336h64" fill="none" stroke="#a5611a" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <text x="566" y="356" text-anchor="middle" font-family="'Spline Sans Mono', monospace" font-size="11" fill="#834a12" data-fade style="--d:1320ms">excedentes</text>
+
+              <!-- llamadas -->
+              <g font-family="'Spline Sans Mono', monospace" font-size="12" data-fade style="--d:1340ms">
+                <g transform="translate(176 214)">
+                  <line x1="13" y1="6" x2="96" y2="34" stroke="#232a1c" stroke-width="1"/>
+                  <circle r="11" fill="#2e3a26"/><text y="4" text-anchor="middle" fill="#f1efe3">1</text>
+                  <text x="-16" y="4" text-anchor="end" fill="#232a1c">Paneles</text>
+                </g>
+                <g transform="translate(524 274)">
+                  <circle r="11" fill="#2e3a26"/><text y="4" text-anchor="middle" fill="#f1efe3">2</text>
+                  <text x="18" y="4" fill="#232a1c">Inversor</text>
+                </g>
+                <g transform="translate(524 352)">
+                  <circle r="11" fill="#2e3a26"/><text y="4" text-anchor="middle" fill="#f1efe3">3</text>
+                  <text x="18" y="4" fill="#232a1c">Batería</text>
+                </g>
+                <g transform="translate(360 300)">
+                  <line x1="13" y1="4" x2="44" y2="18" stroke="#232a1c" stroke-width="1"/>
+                  <circle r="11" fill="#2e3a26"/><text y="4" text-anchor="middle" fill="#f1efe3">4</text>
+                  <text x="-16" y="4" text-anchor="end" fill="#232a1c">Consumo</text>
+                </g>
+                <g transform="translate(650 212)">
+                  <circle r="11" fill="#2e3a26"/><text y="4" text-anchor="middle" fill="#f1efe3">5</text>
+                  <text x="18" y="4" fill="#232a1c">Red</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <figcaption class="mt-3 pl-1 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">
+            Fig. 1 — Instalación de autoconsumo con vertido de excedentes a red
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= Cómo funciona ================= -->
+    <section id="como-funciona" class="scroll-mt-24 border-b border-line bg-paper-deep/60">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <h2 class="font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Cómo funciona el autoconsumo</h2>
+          <p class="measure text-[16px] leading-relaxed text-ink-soft">
+            Los cinco elementos de la Fig. 1, uno a uno. Cuando pidas el estudio, cada uno lleva su marca,
+            su modelo y su garantía en el proyecto que firmamos.
+          </p>
+        </div>
+
+        <ol class="mt-12 divide-y divide-line border-y border-line">
+          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-ochre">01</span>
+            <h3 class="font-display text-xl text-ink">Los paneles</h3>
+            <p class="text-[15px] leading-relaxed text-ink-soft">
+              Captan la radiación y generan corriente continua. En la cubierta, orientados y con la inclinación
+              que mejor rinde en tu tejado. Sin partes móviles: es la pieza que menos mantenimiento pide.
+            </p>
+          </li>
+          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-ochre">02</span>
+            <h3 class="font-display text-xl text-ink">El inversor</h3>
+            <p class="text-[15px] leading-relaxed text-ink-soft">
+              Convierte esa corriente en la que usan tus enchufes y la sincroniza con la red. Es el cerebro:
+              decide en cada momento si la energía va al consumo, a la batería o a la red.
+            </p>
+          </li>
+          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-ochre">03</span>
+            <h3 class="font-display text-xl text-ink">La batería <span class="text-ink-soft">(opcional)</span></h3>
+            <p class="text-[15px] leading-relaxed text-ink-soft">
+              Guarda lo que generas de día para usarlo de noche. No es obligatoria; sale a cuenta si consumes
+              mucho fuera de las horas de sol o si quieres respaldo en los cortes.
+            </p>
+          </li>
+          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-ochre">04</span>
+            <h3 class="font-display text-xl text-ink">Tu consumo</h3>
+            <p class="text-[15px] leading-relaxed text-ink-soft">
+              Cada kWh que produces y gastas en el momento es un kWh que no le compras a la comercializadora.
+              Ahí está el grueso del ahorro; por eso el sistema se dimensiona a tu curva de consumo, no a un número redondo.
+            </p>
+          </li>
+          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-ochre">05</span>
+            <h3 class="font-display text-xl text-ink">La red y los excedentes</h3>
+            <p class="text-[15px] leading-relaxed text-ink-soft">
+              Lo que te sobra se vierte a la red y te lo descuentan en la factura (compensación simplificada).
+              Y cuando no hay sol, sigues conectado con normalidad. Nosotros tramitamos el alta.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= Calculadora ================= -->
+    <section id="calculadora" class="scroll-mt-24 border-b border-line graph-paper graph-paper-strong">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <div class="max-w-2xl">
+          <h2 class="font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Calcula tu ahorro</h2>
+          <p class="mt-4 text-[16px] leading-relaxed text-ink-soft">
+            Una primera estimación con las medias de radiación de Andalucía oriental. Mueve los datos y la hoja se recalcula.
+          </p>
+        </div>
+
+        <div class="mt-10 grid gap-5 lg:grid-cols-[1fr_1fr] lg:gap-8">
+          <!-- Controles -->
+          <form id="calc-form" class="rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8" aria-describedby="calc-nota">
+            <fieldset>
+              <legend class="font-display text-lg text-ink">Tu factura de luz</legend>
+              <label for="gasto" class="mt-1 block text-sm text-ink-soft">Gasto medio al mes, todo incluido</label>
+              <div class="mt-3 flex items-baseline gap-2">
+                <output id="gasto-out" for="gasto" class="font-mono text-3xl text-ink">90</output>
+                <span class="font-mono text-lg text-ink-soft">€/mes</span>
+              </div>
+              <input id="gasto" name="gasto" type="range" min="30" max="600" step="10" value="90"
+                     class="mt-3 w-full accent-ochre" />
+              <div class="mt-1 flex justify-between font-mono text-[11px] text-ink-soft"><span>30 €</span><span>600 €</span></div>
+            </fieldset>
+
+            <fieldset class="mt-8">
+              <legend class="font-display text-lg text-ink">Tipo de instalación</legend>
+              <div class="mt-3 grid grid-cols-3 gap-2" role="group" id="grp-tipo">
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-2 py-2.5 text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="vivienda" aria-pressed="true">Vivienda</button>
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-2 py-2.5 text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="negocio" aria-pressed="false">Negocio</button>
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-2 py-2.5 text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="agricola" aria-pressed="false">Olivar / riego</button>
+              </div>
+            </fieldset>
+
+            <fieldset class="mt-8">
+              <legend class="font-display text-lg text-ink">Tu cubierta</legend>
+              <div class="mt-3 grid gap-2" role="group" id="grp-cubierta">
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-cubierta="buena" aria-pressed="true">Orientación buena — al sur, sin sombras</button>
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-cubierta="regular" aria-pressed="false">Regular — este/oeste o algo de sombra</button>
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-cubierta="nose" aria-pressed="false">No lo sé todavía</button>
+              </div>
+            </fieldset>
+          </form>
+
+          <!-- Hoja de resultados -->
+          <div class="rounded-xl border-2 border-olive bg-olive p-6 text-[#eae7d5] shadow-field-lift sm:p-8" aria-live="polite">
+            <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-[#aeb397]">Hoja de estimación — Solera Energía</p>
+
+            <div class="mt-6 border-b border-white/15 pb-6">
+              <p class="text-sm text-[#aeb397]">Ahorro estimado el primer año</p>
+              <p class="mt-1"><span id="r-ahorro" class="font-mono text-5xl text-[#dc9142]">720</span> <span class="font-mono text-xl text-[#aeb397]">€/año</span></p>
+            </div>
+
+            <dl class="mt-6 grid grid-cols-2 gap-x-6 gap-y-5">
+              <div>
+                <dt class="text-[13px] text-[#aeb397]">De tu factura actual</dt>
+                <dd class="mt-1 font-mono text-2xl"><span id="r-pct">66</span> %</dd>
+                <div class="mt-2 h-2 overflow-hidden rounded-full bg-white/12">
+                  <div id="r-bar" class="bar-fill h-full w-full rounded-full bg-[#dc9142]" style="transform:scaleX(0.66)"></div>
+                </div>
+              </div>
+              <div>
+                <dt class="text-[13px] text-[#aeb397]">Amortización aprox.</dt>
+                <dd class="mt-1 font-mono text-2xl"><span id="r-amort">5,8</span> años</dd>
+              </div>
+              <div>
+                <dt class="text-[13px] text-[#aeb397]">CO₂ evitado al año</dt>
+                <dd class="mt-1 font-mono text-2xl"><span id="r-co2">990</span> kg</dd>
+                <p class="mt-1 font-mono text-[11px] text-[#aeb397]">≈ <span id="r-olivos">99</span> olivos absorbiendo todo el año</p>
+              </div>
+              <div>
+                <dt class="text-[13px] text-[#aeb397]">Instalación estimada</dt>
+                <dd class="mt-1 font-mono text-2xl"><span id="r-kwp">3,0</span> kWp</dd>
+                <p class="mt-1 font-mono text-[11px] text-[#aeb397]">~<span id="r-paneles">7</span> paneles · inversión aprox. <span id="r-inv">3.900</span> € antes de subvención</p>
+              </div>
+            </dl>
+
+            <a href="#contacto" class="mt-8 block rounded-full bg-[#dc9142] px-5 py-3 text-center text-[15px] font-semibold text-olive u-curve transition hover:bg-[#e8a45f]">
+              Pedir estudio con estos datos
+            </a>
+          </div>
+        </div>
+
+        <p id="calc-nota" class="mt-6 max-w-3xl text-[13px] leading-relaxed text-ink-soft">
+          <strong class="text-ink">Estimación orientativa, no es un presupuesto.</strong> Usa medias de producción de
+          Andalucía oriental (1.400–1.650 kWh por kWp al año), precio de compra de 0,20 €/kWh y compensación de
+          excedentes a 0,06 €/kWh. El estudio real analiza tu cubierta, tu curva de consumo horaria y las
+          subvenciones y bonificaciones vigentes en tu municipio.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= Instalaciones ================= -->
+    <section id="instalaciones" class="scroll-mt-24 border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <h2 class="font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Lo que instalamos</h2>
+          <p class="measure text-[16px] leading-relaxed text-ink-soft">
+            Cuatro tipos de instalación, cada una con su forma de dimensionar y su papeleo. Las cifras son
+            rangos habituales en la zona; tu estudio lleva las tuyas.
+          </p>
+        </div>
+
+        <div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-line-strong bg-line-strong sm:grid-cols-2">
+          <!-- Vivienda -->
+          <article class="bg-paper-raised p-7 sm:p-8">
+            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 22 24 9l16 13v17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z"/><path d="M12 21l9-7M17 24l9-7" stroke-width="1.3"/>
+            </svg>
+            <h3 class="mt-4 font-display text-xl text-ink">Vivienda</h3>
+            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
+              Unifamiliar o adosado. Con o sin batería, y dejamos preparada la ampliación futura (batería, coche eléctrico).
+            </p>
+            <dl class="mt-5 flex gap-8 font-mono text-[13px] text-ink">
+              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">2–6 kWp</dd></div>
+              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">5–8 años</dd></div>
+            </dl>
+          </article>
+
+          <!-- Empresa -->
+          <article class="bg-paper-raised p-7 sm:p-8">
+            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 40V22l7-5 7 5 7-5 7 5 7-5v23a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z"/><path d="M13 17v6M27 17v6M20 22v6M34 22v6" stroke-width="1.3"/>
+            </svg>
+            <h3 class="mt-4 font-display text-xl text-ink">Empresas y naves</h3>
+            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
+              Talleres, comercios, hoteles, industria. Consumo de día y mucha cubierta: la mejor relación entre inversión y ahorro.
+            </p>
+            <dl class="mt-5 flex gap-8 font-mono text-[13px] text-ink">
+              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">15–100 kWp</dd></div>
+              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">3–5 años</dd></div>
+            </dl>
+          </article>
+
+          <!-- Agrícola -->
+          <article class="bg-paper-raised p-7 sm:p-8">
+            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
+              <path d="M24 42V26"/><circle cx="24" cy="17" r="9"/><path d="M24 26c-4 0-7-2-8-5M24 26c4 0 7-2 8-5" stroke-width="1.3"/>
+              <path d="M37 34c0 2.8-2.2 5-5 5s-5-2.2-5-5c0-3 5-8 5-8s5 5 5 8z" stroke="#a5611a"/>
+            </svg>
+            <h3 class="mt-4 font-display text-xl text-ink">Bombeo solar agrícola</h3>
+            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
+              Riego del olivar y regadío directamente con el sol. Sustituye o acompaña al grupo diésel y baja el coste del agua.
+            </p>
+            <dl class="mt-5 flex gap-8 font-mono text-[13px] text-ink">
+              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">5–40 kWp</dd></div>
+              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">3–5 años</dd></div>
+            </dl>
+          </article>
+
+          <!-- Baterías -->
+          <article class="bg-paper-raised p-7 sm:p-8">
+            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="14" width="30" height="22" rx="2"/><path d="M20 10h8v4h-8z"/><path d="M15 20v10M22 20v10M29 20v10" stroke-width="1.3"/>
+              <path d="M33 20l-4 6h4l-4 6" stroke="#a5611a" stroke-width="1.5"/>
+            </svg>
+            <h3 class="mt-4 font-display text-xl text-ink">Baterías y respaldo</h3>
+            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
+              Almacenamiento para aprovechar de noche y función de respaldo para mantener la casa con luz durante un corte.
+            </p>
+            <dl class="mt-5 flex gap-8 font-mono text-[13px] text-ink">
+              <div><dt class="text-ink-soft">Capacidad</dt><dd class="mt-0.5">5–15 kWh</dd></div>
+              <div><dt class="text-ink-soft">Se añade</dt><dd class="mt-0.5">antes o después</dd></div>
+            </dl>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Proceso ================= -->
+    <section id="proceso" class="scroll-mt-24 border-b border-line bg-olive text-[#eae7d5]">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <h2 class="font-display text-3xl text-[#f1efe3] sm:text-[2.6rem] sm:leading-tight">El proceso, de principio a fin</h2>
+          <p class="measure text-[16px] leading-relaxed text-[#c7c9b2]">
+            Cuatro fases. Nosotros llevamos la ingeniería, los permisos y la relación con la distribuidora;
+            tú apruebas y firmas.
+          </p>
+        </div>
+
+        <ol class="mt-12 grid gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+          <li class="bg-olive p-6 sm:p-7">
+            <span class="font-mono text-sm text-[#dc9142]">Fase 1</span>
+            <h3 class="mt-2 font-display text-lg text-[#f1efe3]">Estudio y visita técnica</h3>
+            <p class="mt-2 text-[14px] leading-relaxed text-[#c7c9b2]">Analizamos tus facturas y subimos a la cubierta. Sin coste y sin compromiso.</p>
+          </li>
+          <li class="bg-olive p-6 sm:p-7">
+            <span class="font-mono text-sm text-[#dc9142]">Fase 2</span>
+            <h3 class="mt-2 font-display text-lg text-[#f1efe3]">Proyecto y subvención</h3>
+            <p class="mt-2 text-[14px] leading-relaxed text-[#c7c9b2]">Ingeniería, presupuesto cerrado y tramitación de ayudas y bonificación de IBI e ICIO.</p>
+          </li>
+          <li class="bg-olive p-6 sm:p-7">
+            <span class="font-mono text-sm text-[#dc9142]">Fase 3</span>
+            <h3 class="mt-2 font-display text-lg text-[#f1efe3]">Instalación</h3>
+            <p class="mt-2 text-[14px] leading-relaxed text-[#c7c9b2]">Montaje con equipo propio. En vivienda, 1–2 días. Dejamos todo probado y en marcha.</p>
+          </li>
+          <li class="bg-olive p-6 sm:p-7">
+            <span class="font-mono text-sm text-[#dc9142]">Fase 4</span>
+            <h3 class="mt-2 font-display text-lg text-[#f1efe3]">Legalización y seguimiento</h3>
+            <p class="mt-2 text-[14px] leading-relaxed text-[#c7c9b2]">Alta de excedentes, monitorización en tu móvil y revisión anual. Un teléfono que responde.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= Por qué Solera ================= -->
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <h2 class="max-w-2xl font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Por qué Solera Energía</h2>
+
+        <div class="mt-12 grid gap-x-10 gap-y-9 sm:grid-cols-2">
+          <div class="flex gap-4 border-t border-line pt-6">
+            <span class="mt-1 font-mono text-sm text-ochre">A</span>
+            <div>
+              <h3 class="font-display text-lg text-ink">Ingeniería, no comerciales</h3>
+              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">Cada proyecto lo firma un técnico y se dimensiona a tu curva de consumo horaria. Números honestos, sin promesas redondas.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 border-t border-line pt-6">
+            <span class="mt-1 font-mono text-sm text-ochre">B</span>
+            <div>
+              <h3 class="font-display text-lg text-ink">El papeleo, incluido</h3>
+              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">Subvención según convocatoria, legalización, alta de compensación de excedentes y bonificación de IBI e ICIO. Tú no persigues a nadie.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 border-t border-line pt-6">
+            <span class="mt-1 font-mono text-sm text-ochre">C</span>
+            <div>
+              <h3 class="font-display text-lg text-ink">Equipos con garantía larga</h3>
+              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">Paneles con 25–30 años de garantía de producción e inversores con 10–12, ampliables. Nada de marca blanca sin respaldo.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 border-t border-line pt-6">
+            <span class="mt-1 font-mono text-sm text-ochre">D</span>
+            <div>
+              <h3 class="font-display text-lg text-ink">Después de la instalación</h3>
+              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">Monitorización de producción y consumo en el móvil, revisión anual y aviso si algo rinde por debajo de lo previsto.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-12 flex flex-wrap items-center gap-x-10 gap-y-4 rounded-xl border border-line-strong bg-paper-raised px-7 py-6">
+          <div>
+            <p class="font-mono text-3xl text-ink">+180</p>
+            <p class="text-[13px] text-ink-soft">instalaciones en la provincia <span class="text-ochre-deep">· dato de ejemplo</span></p>
+          </div>
+          <div>
+            <p class="font-mono text-3xl text-ink">2014</p>
+            <p class="text-[13px] text-ink-soft">desde <span class="text-ochre-deep">· dato de ejemplo</span></p>
+          </div>
+          <div>
+            <p class="font-mono text-3xl text-ink">RC</p>
+            <p class="text-[13px] text-ink-soft">seguro de responsabilidad civil e instalador autorizado</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Zona ================= -->
+    <section class="border-b border-line bg-paper-deep/60">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
+            <h2 class="font-display text-3xl text-ink sm:text-[2.4rem] sm:leading-tight">Dónde trabajamos</h2>
+            <p class="measure mt-4 text-[16px] leading-relaxed text-ink-soft">
+              Andalucía oriental. Base en Úbeda (Jaén), y desplazamiento por toda la provincia,
+              la Vega y la costa de Granada, y el valle del Almanzora y el Poniente de Almería.
+            </p>
+          </div>
+          <ul class="flex flex-wrap gap-2 font-mono text-[13px]">
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Úbeda</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Baeza</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Jaén</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Linares</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Andújar</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Cazorla</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Granada</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Guadix</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Motril</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Almuñécar</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Baza</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Huércal-Overa</li>
+            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink-soft">y comarcas</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Preguntas ================= -->
+    <section id="preguntas" class="scroll-mt-24 border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <h2 class="max-w-2xl font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Preguntas frecuentes</h2>
+
+        <div class="mt-10 divide-y divide-line border-y border-line">
+          <details class="faq group py-2">
+            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
+              ¿Qué subvenciones hay ahora mismo?
+              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+            </summary>
+            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
+              Las convocatorias de la Junta de Andalucía y las ayudas de fondos europeos suelen cubrir una parte de
+              la inversión, pero cambian cada año y se agotan. Además, muchos ayuntamientos bonifican el IBI (con
+              frecuencia hasta el 50 % durante varios años) y el ICIO de la obra. Lo revisamos por tu municipio antes de firmar nada.
+            </p>
+          </details>
+          <details class="faq group py-2">
+            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
+              ¿Me pagan la energía que no consumo?
+              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+            </summary>
+            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
+              Sí, con la compensación simplificada de excedentes: lo que viertes a la red te lo descuentan en la
+              factura, a un precio menor que el de compra. No se acumula de un mes para otro más allá del importe de
+              tu término de energía, así que el sistema se dimensiona para autoconsumir, no para vender.
+            </p>
+          </details>
+          <details class="faq group py-2">
+            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
+              ¿Necesito batería?
+              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+            </summary>
+            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
+              No es obligatoria. Compensa si consumes mucho de noche, si tienes cortes frecuentes o si quieres
+              respaldo. En muchas viviendas se empieza sin batería y se añade después: dejamos el inversor y el
+              espacio preparados para no repetir obra.
+            </p>
+          </details>
+          <details class="faq group py-2">
+            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
+              Vivo en un piso o en una comunidad de vecinos, ¿puedo?
+              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+            </summary>
+            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
+              Sí, mediante autoconsumo colectivo: una instalación en la cubierta comunitaria repartida entre los
+              vecinos que participen. Hace falta un acuerdo de la comunidad; preparamos la propuesta, los coeficientes
+              de reparto y la documentación para la junta.
+            </p>
+          </details>
+          <details class="faq group py-2">
+            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
+              ¿Cuánto se tarda?
+              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+            </summary>
+            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
+              La obra en una vivienda normal son 1–2 días. El plazo total —estudio, permisos, instalación y
+              legalización— suele ir de 4 a 8 semanas, según el ritmo del ayuntamiento y de la distribuidora.
+            </p>
+          </details>
+          <details class="faq group py-2">
+            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
+              ¿Funciona si hay un apagón?
+              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+            </summary>
+            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
+              Una instalación estándar se desconecta por seguridad cuando cae la red. Para tener luz durante un corte
+              necesitas una batería con función de respaldo; lo dejamos indicado en el estudio si te interesa esa opción.
+            </p>
+          </details>
+          <details class="faq group py-2">
+            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
+              ¿Y el mantenimiento?
+              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+            </summary>
+            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
+              Poco. Los paneles no tienen partes móviles: una revisión anual y una limpieza cuando toca. La
+              monitorización avisa si algo rinde por debajo de lo esperado, así que rara vez hay sorpresas.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Contacto ================= -->
+    <!--
+      DEMO: este formulario NO tiene backend. Al enviar, hace preventDefault y
+      muestra la pantalla de confirmación. Para un cliente real: conectar a
+      Supabase (tabla public.leads, insert vía fetch a la API REST) como en el
+      proyecto de Óptica Nazareth, o a un servicio tipo Formspree.
+    -->
+    <section id="contacto" class="scroll-mt-24">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+          <div>
+            <h2 class="font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Pide tu estudio gratuito</h2>
+            <p class="measure mt-4 text-[16px] leading-relaxed text-ink-soft">
+              Cuéntanos qué tienes y para qué. Te llamamos en 24–48 h laborables, miramos tus facturas y, si encaja,
+              subimos a ver la cubierta. Sin coste y sin compromiso.
+            </p>
+
+            <dl class="mt-8 space-y-4 text-[15px]">
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6c0 8 6 14 14 14l2-3-4-3-2 2c-2-1-5-4-6-6l2-2-3-4z"/></svg>
+                <a href="tel:+34600000000" class="ul-grow text-ink hover:text-ochre-deep">600 00 00 00</a>
+                <span class="font-mono text-[11px] text-ink-soft">· número de ejemplo</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                <a href="mailto:hola@soleraenergia.example" class="ul-grow text-ink hover:text-ochre-deep">hola@soleraenergia.example</a>
+              </div>
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 21s7-6.2 7-12A7 7 0 0 0 5 9c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                <span class="text-ink">Polígono San Nicasio, Úbeda (Jaén) <span class="font-mono text-[11px] text-ink-soft">· dirección de ejemplo</span></span>
+              </div>
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                <span class="text-ink">L–V · 9:00–14:00 y 16:30–19:30</span>
+              </div>
+            </dl>
+          </div>
+
+          <div class="rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8">
+            <form id="lead-form" class="grid gap-4">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block text-sm">
+                  <span class="font-semibold text-ink">Nombre</span>
+                  <input name="nombre" type="text" required autocomplete="name" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+                </label>
+                <label class="block text-sm">
+                  <span class="font-semibold text-ink">Teléfono</span>
+                  <input name="telefono" type="tel" required autocomplete="tel" inputmode="tel" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+                </label>
+              </div>
+              <label class="block text-sm">
+                <span class="font-semibold text-ink">Municipio</span>
+                <input name="municipio" type="text" required class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              </label>
+              <label class="block text-sm">
+                <span class="font-semibold text-ink">¿Qué quieres instalar?</span>
+                <select name="tipo" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre">
+                  <option>Autoconsumo para vivienda</option>
+                  <option>Autoconsumo para empresa o nave</option>
+                  <option>Bombeo solar agrícola</option>
+                  <option>Batería / respaldo</option>
+                  <option>Aún no lo sé</option>
+                </select>
+              </label>
+              <label class="block text-sm">
+                <span class="font-semibold text-ink">Cuéntanos un poco más <span class="font-normal text-ink-soft">(opcional)</span></span>
+                <textarea name="mensaje" rows="3" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre"></textarea>
+              </label>
+              <button type="submit" class="mt-1 rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">
+                Enviar solicitud
+              </button>
+              <p class="text-[12px] leading-relaxed text-ink-soft">
+                Al enviar aceptas que te contactemos sobre tu solicitud. No cedemos tus datos a terceros.
+              </p>
+            </form>
+
+            <div id="lead-ok" hidden class="py-10 text-center">
+              <svg class="mx-auto h-14 w-14 text-ochre" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="28" cy="28" r="24" stroke="#d2ceb7"/><path d="m18 29 7 7 14-16"/>
+              </svg>
+              <h3 class="mt-5 font-display text-xl text-ink">Solicitud recibida</h3>
+              <p class="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-ink-soft">
+                Te llamamos en 24–48 h laborables. <span class="font-mono text-[12px] text-ochre-deep">(Demo: no se ha enviado nada.)</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= Footer ================= -->
+  <footer class="border-t border-line bg-olive text-[#c7c9b2]">
+    <div class="mx-auto max-w-shell px-5 py-14 sm:px-8">
+      <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <p class="flex items-center gap-2.5 font-display text-lg text-[#f1efe3]">
+            <svg viewBox="0 0 32 32" class="h-6 w-6" aria-hidden="true" fill="none">
+              <path d="M4 23h24" stroke="#c7c9b2" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="16" cy="15" r="6.5" stroke="#dc9142" stroke-width="2"/>
+              <path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#dc9142" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Solera Energía
+          </p>
+          <p class="mt-3 max-w-xs text-[14px] leading-relaxed">Autoconsumo solar calculado al detalle. Jaén, Granada y Almería.</p>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Instalaciones</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            <li><a href="#instalaciones" class="ul-grow hover:text-[#f1efe3]">Vivienda</a></li>
+            <li><a href="#instalaciones" class="ul-grow hover:text-[#f1efe3]">Empresas y naves</a></li>
+            <li><a href="#instalaciones" class="ul-grow hover:text-[#f1efe3]">Bombeo solar agrícola</a></li>
+            <li><a href="#instalaciones" class="ul-grow hover:text-[#f1efe3]">Baterías y respaldo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Zona</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            <li>Provincia de Jaén</li>
+            <li>Granada y Costa Tropical</li>
+            <li>Almería — Almanzora y Poniente</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Contacto</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            <li><a href="tel:+34600000000" class="ul-grow hover:text-[#f1efe3]">600 00 00 00</a></li>
+            <li><a href="mailto:hola@soleraenergia.example" class="ul-grow hover:text-[#f1efe3]">hola@soleraenergia.example</a></li>
+            <li>Úbeda (Jaén)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 flex flex-col gap-3 border-t border-white/12 pt-6 text-[12px] text-[#8f9277] sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 Solera Energía — <span class="text-[#c7c9b2]">marca ficticia</span>. Proyecto de demostración · diseño de <span class="text-[#c7c9b2]">[TU ESTUDIO]</span>.</p>
+        <p class="flex gap-4">
+          <a href="#" class="ul-grow hover:text-[#f1efe3]">Aviso legal</a>
+          <a href="#" class="ul-grow hover:text-[#f1efe3]">Privacidad</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp flotante -->
+  <a href="https://wa.me/34600000000?text=Hola%2C%20me%20interesa%20un%20estudio%20de%20autoconsumo"
+     class="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-olive px-4 py-3 text-[14px] font-semibold text-[#f1efe3] shadow-field-lift u-curve transition hover:bg-olive-700"
+     aria-label="Escríbenos por WhatsApp">
+    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.9.9-2.8-.2-.3A8 8 0 1 1 12 20zm4.6-5.9c-.3-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3A3 3 0 0 0 6 8.9c0 1.8 1.3 3.5 1.5 3.8s2.6 4 6.3 5.3c2.3.8 2.7.6 3.2.6s1.5-.6 1.7-1.2.2-1.1.2-1.2-.2-.2-.5-.3z"/></svg>
+    <span class="hidden sm:inline">WhatsApp</span>
+  </a>
+
+  <script>
+    // ---- Menú móvil ----
+    (function () {
+      const btn = document.getElementById('menu-btn');
+      const panel = document.getElementById('menu-panel');
+      if (!btn || !panel) return;
+      const set = (open) => { panel.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+      btn.addEventListener('click', () => set(panel.hidden));
+      panel.querySelectorAll('[data-close]').forEach((a) => a.addEventListener('click', () => set(false)));
+    })();
+
+    // ---- Calculadora de ahorro ----
+    (function () {
+      const C = {
+        precioKwh: 0.20,
+        precioExc: 0.06,
+        prodKwp: { buena: 1650, regular: 1400, nose: 1500 },
+        ratio: { vivienda: 0.60, negocio: 0.75, agricola: 0.85 },
+        co2Kwh: 0.20,
+        co2PorOlivo: 10,
+      };
+      const state = { gasto: 90, tipo: 'vivienda', cubierta: 'buena' };
+
+      const $ = (id) => document.getElementById(id);
+      const gasto = $('gasto');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const costeKwp = (k) => (k < 4 ? 1300 : k < 10 ? 1050 : k < 25 ? 900 : 820);
+
+      function compute() {
+        const gastoAnual = state.gasto * 12;
+        const consumo = gastoAnual / C.precioKwh;
+        const prod = C.prodKwp[state.cubierta];
+        let kWp = Math.round((consumo * 0.9 / prod) * 2) / 2;
+        kWp = Math.min(Math.max(kWp, 1.5), 120);
+        const generacion = kWp * prod;
+        const autoc = Math.min(generacion * C.ratio[state.tipo], consumo);
+        const exced = Math.max(generacion - autoc, 0);
+        const ahorro = autoc * C.precioKwh + exced * C.precioExc;
+        const pct = Math.min(0.95, ahorro / gastoAnual);
+        const inversion = kWp * costeKwp(kWp);
+        return {
+          ahorro: Math.round(ahorro / 10) * 10,
+          pct: Math.round(pct * 100),
+          amort: inversion / ahorro,
+          co2: Math.round(generacion * C.co2Kwh / 10) * 10,
+          olivos: Math.round(generacion * C.co2Kwh / C.co2PorOlivo),
+          kWp: kWp,
+          paneles: Math.max(4, Math.round(kWp / 0.45)),
+          inversion: Math.round(inversion / 100) * 100,
+        };
+      }
+
+      const fmt = (n) => n.toLocaleString('es-ES');
+      const fmt1 = (n) => n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+      function tween(el, to, render) {
+        const from = parseFloat(el.dataset.v || String(to));
+        el.dataset.v = String(to);
+        const gen = (el._gen = (el._gen || 0) + 1); // invalida animaciones anteriores
+        const finalize = () => { if (el._gen === gen) el.textContent = render(to); };
+        // red de seguridad: el valor exacto siempre acaba en pantalla aunque rAF
+        // esté ralentizado (pestaña en segundo plano, dispositivo lento).
+        clearTimeout(el._ft);
+        el._ft = setTimeout(finalize, 460);
+        if (reduce || Math.abs(to - from) < 0.5) { finalize(); return; }
+        const t0 = performance.now(), dur = 420;
+        (function step(now) {
+          if (el._gen !== gen) return; // otra actualización tomó el relevo
+          const p = Math.min((now - t0) / dur, 1);
+          if (p >= 1) { finalize(); return; }
+          el.textContent = render(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+          requestAnimationFrame(step);
+        })(performance.now());
+      }
+
+      function render() {
+        const r = compute();
+        tween($('r-ahorro'), r.ahorro, (v) => fmt(Math.round(v)));
+        tween($('r-pct'), r.pct, (v) => String(Math.round(v)));
+        tween($('r-amort'), r.amort, (v) => fmt1(v).replace('.', ','));
+        tween($('r-co2'), r.co2, (v) => fmt(Math.round(v)));
+        tween($('r-olivos'), r.olivos, (v) => fmt(Math.round(v)));
+        tween($('r-kwp'), r.kWp, (v) => fmt1(v).replace('.', ','));
+        tween($('r-paneles'), r.paneles, (v) => String(Math.round(v)));
+        tween($('r-inv'), r.inversion, (v) => fmt(Math.round(v)));
+        $('r-bar').style.transform = 'scaleX(' + (r.pct / 100).toFixed(3) + ')';
+      }
+
+      gasto.addEventListener('input', () => {
+        state.gasto = +gasto.value;
+        $('gasto-out').textContent = fmt(state.gasto);
+        render();
+      });
+
+      function wireGroup(id, key) {
+        const grp = document.getElementById(id);
+        grp.querySelectorAll('button').forEach((b) => {
+          b.addEventListener('click', () => {
+            grp.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+            b.setAttribute('aria-pressed', 'true');
+            state[key] = b.dataset[key];
+            render();
+          });
+        });
+      }
+      wireGroup('grp-tipo', 'tipo');
+      wireGroup('grp-cubierta', 'cubierta');
+
+      render();
+    })();
+
+    // ---- Formulario (demo, sin backend) ----
+    (function () {
+      const form = document.getElementById('lead-form');
+      const ok = document.getElementById('lead-ok');
+      if (!form || !ok) return;
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!form.reportValidity()) return;
+        form.hidden = true;
+        ok.hidden = false;
+        ok.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    })();
+  </script>
+</body>
+</html>

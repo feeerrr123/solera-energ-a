@@ -6,11 +6,15 @@ cálculo. Modo **Persuade**.
 
 ## Idea rectora
 
-El autoconsumo explicado como una lámina técnica: la **Fig. 1** (sección de una
-instalación con llamadas numeradas 1–5) demuestra el mecanismo en el primer
-viewport; las llamadas reaparecen en "Cómo funciona". La **calculadora** es una
-hoja cuadriculada de campo. Rechaza: hero centrado con tres tarjetas, cian solar,
-foto de familia feliz con placas, degradados.
+El bombeo solar agrícola explicado como una lámina técnica: la **Fig. 1**
+(sección de un sistema de bombeo — paneles, controlador, bomba, depósito, riego
+— con llamadas numeradas 1–5) demuestra el mecanismo en el primer viewport; las
+llamadas reaparecen en "Cómo funciona". La **Fig. 2**, más pequeña, es una
+gráfica de campo (sol vs. nivel del depósito a lo largo del día) que resuelve
+la duda real más frecuente: por qué el sistema no lleva batería, sino depósito.
+La **calculadora** es una hoja cuadriculada de campo, y calcula frente al coste
+del diésel, no frente a una factura de luz genérica. Rechaza: hero centrado con
+tres tarjetas, cian solar, foto de familia feliz con placas, degradados.
 
 ## Color
 

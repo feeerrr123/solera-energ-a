@@ -2,51 +2,72 @@
 
 > **Proyecto de demostración.** Solera Energía es una **marca ficticia**. Esta web
 > se usa como muestra de trabajo en la captación de clientes reales del nicho
-> "instaladores de autoconsumo solar". Ningún dato representa a una empresa real.
+> "instaladores de bombeo solar agrícola". Ningún dato representa a una empresa real.
 
 ## Qué es
 
-Instaladora de autoconsumo solar fotovoltaico en **Andalucía oriental** (Jaén,
-Granada, Almería). Base ficticia en Úbeda (Jaén). Hace el proyecto completo:
-estudio y visita técnica, ingeniería, tramitación de subvenciones y legalización,
-instalación y puesta en marcha, monitorización y mantenimiento.
+Instaladora **especializada en bombeo solar para riego** en Andalucía oriental
+(Jaén, Granada, Almería), con base en Úbeda (Jaén). Sustituye grupos diésel y
+bombeo por red en pozos, sondeos, balsas y canales de riego por sistemas
+fotovoltaicos. Hace el proyecto completo: estudio del pozo y del caudal,
+dimensionado, tramitación de subvenciones, instalación y mantenimiento.
+
+**Pivote (2026-09-14):** la demo original cubría vivienda + empresa + agrícola.
+Se ha estrechado a un solo nicho — bombeo solar agrícola — tras confirmar con
+investigación real que: (1) hay demanda estructural (sequía, coste del diésel,
+líneas de subvención activas del PEPAC/FEADER y de la Junta de Andalucía con
+prioridad para bombeo renovable) y (2) las instaladoras que ya operan aquí en
+Jaén (INELSUR, FERCAM, RBCSUR, SolarChain, Aficlima, Varitech) tienen webs
+anticuadas o genéricas — hueco real para una demo con más criterio de diseño.
 
 ## A quién sirve
 
-- **Vivienda unifamiliar**: familias con factura de luz alta que quieren bajarla y
-  ganar independencia. La mayoría llegan desde el móvil y desde búsquedas locales.
-- **Empresas y naves**: PYMES, comercios, talleres, hoteles con consumo diurno y
-  cubierta grande. Buscan amortización rápida y previsibilidad de costes.
-- **Explotaciones agrícolas**: olivar y regadío. Bombeo solar para riego,
-  sustitución de grupos diésel. Nicho fuerte y propio de la zona.
+- **Agricultor particular con pozo o sondeo**: olivar de regadío sobre todo
+  (Jaén es la mayor provincia productora de aceite de oliva del mundo; el 93 %
+  de su superficie regada es olivar). Paga diésel o electricidad para bombear
+  y quiere bajar ese coste operativo.
+- **Comunidades de regantes**: gestionan el riego de muchas hectáreas juntas
+  (ejemplos reales de la zona: comunidades de 400 a 1.600 ha). Cliente
+  institucional, proyectos más grandes, acceso a líneas de subvención propias
+  (FEADER, convocatorias de la Junta de Andalucía para infraestructuras de
+  regadío con objetivos ambientales).
+- **Otros cultivos de regadío**: almendro, frutales, hortícola — mismo
+  mecanismo, menor peso en la demo.
 
 ## Posicionamiento
 
-"El autoconsumo **calculado al detalle**." Frente a la competencia (webs con foto
-de placas y promesas redondas), Solera vende **rigor de ingeniería**: números
-honestos, dimensionado a la curva de consumo real, papeleo incluido, y
-seguimiento después de la instalación. Tono: técnico, cercano, sin humo.
+"El bombeo solar que sustituye a tu diésel." Frente a las instaladoras solares
+generalistas (que hablan de "vivienda y empresa" y tratan el riego como una
+línea más), Solera vende **especialización de campo**: dimensionado al pozo,
+al caudal y al cultivo reales — no a una factura de luz genérica. Tono:
+técnico, cercano, sin humo. El ahorro se demuestra frente al diésel, no frente
+a una factura abstracta.
 
 ## Modo (impeccable)
 
-**Persuade.** El visitante debe entender qué es el autoconsumo, creer que Solera
-lo hace bien y con seriedad, y pedir un estudio gratuito. La prueba es la
-**calculadora de ahorro** y los diagramas de instalación explicados.
+**Persuade.** El visitante debe entender cómo se bombea agua con sol (y por
+qué hace falta depósito, no batería), creer que Solera lo dimensiona bien, y
+pedir un estudio gratuito. La prueba es la **calculadora de ahorro frente al
+diésel** y los diagramas de la instalación explicados.
 
 ## Servicios
 
-1. **Autoconsumo para vivienda** — con o sin batería.
-2. **Autoconsumo para empresas y naves** — cubierta industrial, mayor potencia.
-3. **Bombeo solar agrícola** — riego del olivar, sustitución de diésel.
-4. **Baterías y respaldo** — almacenamiento y respaldo ante cortes.
-   (transversal: monitorización y mantenimiento)
+1. **Bombeo en pozo o sondeo** — bombeo profundo, el caso más común en olivar.
+2. **Bombeo en balsa o canal** — captación superficial, más sencilla de
+   dimensionar.
+3. **Sustitución de grupo diésel** — retrofit de una instalación de bombeo ya
+   existente; amortización más rápida porque parte de un coste de combustible
+   alto y conocido.
+4. **Comunidades de regantes** — proyectos colectivos, mayor potencia,
+   tramitación de subvenciones específicas para regadío.
 
 ## El proceso
 
-1. Estudio y visita técnica gratuita.
-2. Proyecto, tramitación de subvención y legalización.
-3. Instalación (1–2 días en vivienda).
-4. Legalización, alta de compensación de excedentes, monitorización.
+1. Estudio del pozo, el caudal y la curva de riego del cultivo. Gratis.
+2. Proyecto, dimensionado y tramitación de subvenciones (PEPAC/FEADER,
+   convocatorias autonómicas para regadío).
+3. Instalación en campo: paneles, controlador, bomba y depósito.
+4. Puesta en marcha, legalización si aplica, y seguimiento del caudal.
 
 ## Datos (ficticios / marcador de posición)
 
@@ -59,10 +80,12 @@ lo hace bien y con seriedad, y pedir un estudio gratuito. La prueba es la
 
 ## Qué NO inventar / NO presentar como real
 
-- Reseñas, testimonios con nombre y apellido, logos de clientes.
+- Reseñas, testimonios con nombre y apellido, logos de clientes o fabricantes.
 - Certificaciones concretas, acuerdos con fabricantes, premios.
 - Precios cerrados: la calculadora da **estimación orientativa**, nunca "presupuesto".
 - Subvenciones con importe garantizado: se mencionan como "según convocatoria vigente".
+- Cifras de subvención/coste de diésel como si fueran actuales de verdad — son
+  de referencia para ilustrar el mecanismo, no un dato de mercado en tiempo real.
 
 ## Créditos
 

@@ -9,9 +9,18 @@ captar clientes reales de ese nicho concreto (no autoconsumo generalista). Ver
 
 ## Qué es
 
-- **Una sola página**: `index.html` (monolito ~1.100 líneas). Al editar una sección,
-  comprueba que no rompes otra. El `tailwind.config` y el `<style>` van en el `<head>`.
-- Sin build. Sin `node_modules`. Sin tests.
+- **Multipágina, 6 archivos HTML planos**: `index.html` · `como-funciona.html` ·
+  `instalaciones.html` (incluye Proceso) · `casos.html` (incluye Por qué Solera)
+  · `calculadora.html` · `contacto.html` (incluye Zona y Preguntas).
+- **Sin build, sin `node_modules`, sin includes/partials** — es la contrapartida de
+  no meter un framework. El `<head>` (Tailwind config + `<style>`) y el
+  header/footer/botón de WhatsApp/script del menú móvil están **duplicados en
+  los 6 archivos, byte a byte**. Si tocas cualquiera de esas piezas compartidas,
+  cámbialo en los 6 — no hay un solo sitio de verdad. Es la razón por la que este
+  proyecto sigue sin backend/build: si la duplicación se vuelve un problema real
+  (más páginas, más cambios de header), ese es el momento de reconsiderar pasar
+  a algo con partials o a React como Óptica, no antes.
+- Sin tests.
 - Dirección visual **fijada por el cliente**: "Cuaderno de campo" (manual agronómico).
 
 ## Stack
@@ -25,9 +34,27 @@ captar clientes reales de ese nicho concreto (no autoconsumo generalista). Ver
   `fetch`) como en Óptica Nazareth, o Formspree.
 - Deploy previsto: **Vercel**.
 
+## Vidrio esmerilado (glass) e interactividad (2026-09-14)
+
+- `.glass` / `.glass-dark`: `backdrop-filter: blur + saturate`, borde translúcido,
+  sombra interior sutil. Se usa en el header sticky, el menú móvil, botones
+  secundarios, el botón de WhatsApp y paneles flotantes (tarjetas de Casos,
+  panel de Fig. 2). **Nunca** en el botón primario (sigue siendo ochre sólido)
+  ni en superficies donde hay texto de formulario — ahí prima la legibilidad.
+- `.lift`: eleva 3px + sombra al hover, en tarjetas/chips clicables. Respeta
+  `prefers-reduced-motion`.
+- Widget "diésel vs. sol" en `index.html`: toggle de dos botones que cambia una
+  cifra, una nota y un icono SVG (mostrar/ocultar, no redibujar). Es el ejemplo
+  de "interactividad + dibujo" que pidió el cliente sin tocar la paleta.
+- Las tarjetas de Instalaciones y Proceso **ya no son cajas con sombra** — son
+  listas con filete (`divide-y border-y`), igual que "Cómo funciona". Si añades
+  una sección nueva de tipo "N cosas en grid", entra por aquí, no por una tarjeta
+  con `rounded-xl shadow`: eso es justo el patrón que se pidió quitar por
+  parecer genérico/IA.
+
 ## Calculadora de ahorro frente al diésel (lo más delicado)
 
-- Lógica en el IIFE `// ---- Calculadora de ahorro ----` al final del `<body>`.
+- Vive en `calculadora.html`; lógica en el IIFE al final del `<body>` de ese archivo.
 - Constantes en el objeto `C` (precio €/kWh equivalente, producción por kWp
   según dificultad de captación, ratio de aprovechamiento por tipo de
   explotación, factor CO₂, litros de diésel por kg de CO₂). Si cambian los
@@ -66,18 +93,25 @@ captar clientes reales de ese nicho concreto (no autoconsumo generalista). Ver
 - Cualquier cifra de negocio (nº de instalaciones, año) lleva "· dato de ejemplo".
 - El footer dice "marca ficticia · proyecto de demostración · diseño de [TU ESTUDIO]".
   Sustituir `[TU ESTUDIO]`.
-- Sin reseñas ni testimonios con nombre. Sin logos de fabricantes o acuerdos.
+- **Sin reseñas ni testimonios con nombre. Sin logos de fabricantes o acuerdos.**
+  `casos.html` existe precisamente para dar prueba social sin romper esta regla:
+  son "casos ilustrativos" explícitamente marcados como ejemplo, sin nombre de
+  cliente. Si algún día hay clientes reales, sus casos sustituyen a estos — no
+  se añaden reseñas inventadas encima.
 
 ## Estado
 
 Pivotada de "autoconsumo solar generalista" a **bombeo solar agrícola**
 (2026-09-14), tras validar el nicho con investigación real (demanda,
-subvenciones activas, competencia local floja en web). Contenido, calculadora,
-tarjetas de instalaciones, FAQ y ambos diagramas rehechos para el nuevo enfoque.
+subvenciones activas, competencia local floja en web). Misma sesión: pasada de
+página única a **multipágina** (6 archivos), añadido vidrio esmerilado,
+interactividad (widget diésel/sol) y la página `casos.html`, a petición
+explícita del cliente tras ver la v1 de página única y encontrarla "con partes
+que parecen hechas con IA".
 
 ## Pendiente
 
-- [ ] Sustituir `[TU ESTUDIO]` en el footer.
+- [ ] Sustituir `[TU ESTUDIO]` en el footer (los 6 archivos).
 - [ ] Poner un número de WhatsApp/teléfono real (o dejar claro que es demo).
 - [ ] Pase de revisión visual completo (idealmente con la web ya en Vercel) y
       `impeccable-finish-reviewer`.
@@ -86,6 +120,8 @@ tarjetas de instalaciones, FAQ y ambos diagramas rehechos para el nuevo enfoque.
 - [ ] `og:image` (ahora no hay). Aviso legal / privacidad (enlaces placeholder).
 - [ ] Si se despliega de verdad: añadir JSON-LD `LocalBusiness` **solo** con datos
       reales, no ficticios.
+- [ ] Si el proyecto crece más allá de 6 páginas, reconsiderar la duplicación de
+      header/footer (ver "Qué es" arriba).
 
 ## Verificación en local
 
@@ -93,5 +129,7 @@ tarjetas de instalaciones, FAQ y ambos diagramas rehechos para el nuevo enfoque.
 npx serve . -l 4177
 ```
 
-Revisar `index.html` en móvil (375 px) y escritorio. Comprobar la calculadora con
-varios valores y la confirmación del formulario.
+Revisar en móvil (375 px) y escritorio. Comprobar la calculadora con varios
+valores, la confirmación del formulario en `contacto.html`, el widget diésel/sol
+en `index.html`, y que los enlaces entre las 6 páginas y sus anclas (p. ej.
+`instalaciones.html#pozo`) funcionan.

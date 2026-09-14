@@ -6,7 +6,7 @@
   <title>Solera Energía · Bombeo solar agrícola en Jaén y Andalucía oriental</title>
   <meta
     name="description"
-    content="Solera Energía diseña e instala bombeo solar para riego en Jaén, Granada y Almería. Sustituye tu grupo diésel, dimensionado a tu pozo y tu caudal real, con subvenciones y papeleo incluidos. Calcula tu ahorro."
+    content="Solera Energía diseña e instala bombeo solar para riego en Jaén, Granada y Almería. Sustituye tu grupo diésel, dimensionado a tu pozo y tu caudal real, con subvenciones y papeleo incluidos."
   />
   <link rel="canonical" href="https://solera-energia.example/" />
   <meta property="og:site_name" content="Solera Energía" />
@@ -85,6 +85,30 @@
     .measure { max-width: 66ch; }
     .u-curve { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
 
+    /* Vidrio — botones y paneles secundarios sobre el papel con grano.
+       Nunca sustituye al botón primario ochre; es la capa "flotante". */
+    .glass {
+      background: rgba(242, 240, 229, 0.55);
+      -webkit-backdrop-filter: blur(10px) saturate(1.15);
+      backdrop-filter: blur(10px) saturate(1.15);
+      border: 1px solid rgba(183, 177, 145, 0.5);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 10px 26px -16px rgba(35,42,28,0.35);
+    }
+    .glass:hover { background: rgba(242, 240, 229, 0.72); }
+    .glass-dark {
+      background: rgba(46, 58, 38, 0.62);
+      -webkit-backdrop-filter: blur(10px) saturate(1.15);
+      backdrop-filter: blur(10px) saturate(1.15);
+      border: 1px solid rgba(234, 231, 213, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 26px -16px rgba(0,0,0,0.4);
+    }
+    .glass-dark:hover { background: rgba(46, 58, 38, 0.78); }
+
+    /* Levanta ligeramente al pasar el ratón — el único "movimiento moderno" que se permite en tarjetas */
+    .lift { transition: transform .32s cubic-bezier(0.16,1,0.3,1), box-shadow .32s cubic-bezier(0.16,1,0.3,1); }
+    .lift:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -18px rgba(35,42,28,0.35); }
+    @media (prefers-reduced-motion: reduce) { .lift { transition: none; } .lift:hover { transform: none; } }
+
     /* Papel cuadriculado — la sección de la calculadora es una "hoja de campo" */
     .graph-paper {
       background-color: #f2f0e5;
@@ -125,6 +149,7 @@
     details.faq[open] > summary .chev { transform: rotate(45deg); }
 
     .seg-btn[aria-pressed="true"] { background: #2e3a26; color: #f1efe3; border-color: #2e3a26; }
+    .seg-btn.on-glass[aria-pressed="true"] { background: rgba(46,58,38,0.85); }
   </style>
 </head>
 
@@ -132,40 +157,18 @@
   <!--
     ─────────────────────────────────────────────────────────────────────
     DIRECCIÓN (contrato, impeccable · dirección FIJADA por el cliente:
-    "Cuaderno de campo"). No es un mood: es lo que esta página cumple.
+    "Cuaderno de campo", capa 2). No es un mood: es lo que esta página cumple.
 
-    THESIS         El bombeo solar agrícola como una página de manual
-                   agronómico: figura anotada + hoja de cálculo frente al
-                   diésel. Rechaza el hero centrado con tres tarjetas y el
-                   cian solar con foto de familia feliz.
-    OWN-WORLD      Papel manila con grano (#f1efe3), tinta oliva (#232a1c),
-                   una única mancha ocre (#a5611a) para el sol y las cifras.
-                   Secciones oscuras en oliva profundo (#2e3a26) — que aquí
-                   además es literalmente el color del olivar. Titulares en
-                   Young Serif (carácter de lámina botánica), texto Hanken
-                   Grotesk, cifras en Spline Sans Mono. Dibujos de línea de un
-                   solo trazo; nada de fotos de stock, nada de degradados.
-    STORY          El visitante entiende cómo se bombea agua con sol mirando
-                   la Fig. 1, entiende por qué hace falta depósito y no
-                   batería con la Fig. 2, calcula su ahorro frente al diésel
-                   en la hoja cuadriculada, y pide el estudio gratuito.
-    FIRST VIEWPORT Columna izq.: titular Young Serif grande + subrayado de una
-                   línea + dos acciones (primaria ocre "Calcula tu ahorro").
-                   Columna der.: Fig. 1, sección de un sistema de bombeo solar
-                   con llamadas numeradas 1–5 que reaparecen en "Cómo funciona".
-    FORM           Página de cuaderno técnico: margen ancho con numeración de
-                   figuras, ritmo de lección. Dirección fijada por el cliente
-                   (brief-pinned), sin tirada de dados.
-    FINISH         unreviewed and undocumented is unfinished; this build ends
-                   with the finish review, the verdict, DESIGN.md, and every
-                   shipping raster carrying its provenance.
+    PIVOTE 2026-09-14: bombeo solar agrícola (ver commit anterior).
+    CAPA 2026-09-14 (misma sesión): multipágina de verdad (6 páginas, sin
+    framework — header/footer se repiten y se sincronizan a mano, ver
+    CLAUDE.md) + vidrio esmerilado en botones/paneles secundarios sobre el
+    papel con grano + tarjetas de "cajas con sombra" convertidas a listas de
+    filete (Instalaciones, Proceso) + un widget interactivo nuevo
+    (diésel/sol) + página "Casos" con ejemplos ilustrativos, sin testimonios
+    inventados (PRODUCT.md lo prohíbe explícitamente). Paleta intacta.
 
     DEMO: Solera Energía es una marca ficticia. Datos de contacto = ejemplo.
-    Formulario sin backend (ver comentario en la sección #contacto).
-
-    PIVOTE 2026-09-14: de autoconsumo generalista a bombeo solar agrícola
-    (nicho validado con investigación real — ver PRODUCT.md). Fig. 1 y Fig. 2
-    rehechas desde cero para el nuevo sistema (pozo/bomba/depósito/riego).
     ─────────────────────────────────────────────────────────────────────
   -->
 
@@ -174,9 +177,9 @@
   </a>
 
   <!-- ================= Header ================= -->
-  <header class="sticky top-0 z-50 border-b border-line bg-paper/90 supports-[backdrop-filter]:bg-paper/70 supports-[backdrop-filter]:backdrop-blur-md">
+  <header class="glass sticky top-0 z-50 border-b-0">
     <div class="mx-auto flex max-w-shell items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-      <a href="#contenido" class="flex items-center gap-2.5 font-display text-lg text-ink">
+      <a href="index.html" class="flex items-center gap-2.5 font-display text-lg text-ink">
         <svg viewBox="0 0 32 32" class="h-7 w-7" aria-hidden="true" fill="none">
           <path d="M4 23h24" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/>
           <circle cx="16" cy="15" r="6.5" stroke="#a5611a" stroke-width="2"/>
@@ -186,15 +189,15 @@
       </a>
 
       <nav class="hidden items-center gap-7 text-sm lg:flex" aria-label="Principal">
-        <a href="#como-funciona" class="ul-grow text-ink-soft hover:text-ink">Cómo funciona</a>
-        <a href="#instalaciones" class="ul-grow text-ink-soft hover:text-ink">Instalaciones</a>
-        <a href="#calculadora" class="ul-grow text-ink-soft hover:text-ink">Calculadora</a>
-        <a href="#proceso" class="ul-grow text-ink-soft hover:text-ink">Proceso</a>
-        <a href="#preguntas" class="ul-grow text-ink-soft hover:text-ink">Preguntas</a>
+        <a href="como-funciona.html" class="ul-grow text-ink-soft hover:text-ink">Cómo funciona</a>
+        <a href="instalaciones.html" class="ul-grow text-ink-soft hover:text-ink">Instalaciones</a>
+        <a href="casos.html" class="ul-grow text-ink-soft hover:text-ink">Casos</a>
+        <a href="calculadora.html" class="ul-grow text-ink-soft hover:text-ink">Calculadora</a>
+        <a href="contacto.html" class="ul-grow text-ink-soft hover:text-ink">Contacto</a>
       </nav>
 
       <div class="flex items-center gap-2">
-        <a href="#contacto" class="hidden rounded-full bg-ochre px-4 py-2 text-sm font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep sm:inline-block">
+        <a href="contacto.html" class="hidden rounded-full bg-ochre px-4 py-2 text-sm font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep sm:inline-block">
           Pedir estudio
         </a>
         <button id="menu-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full border border-line-strong text-ink lg:hidden" aria-expanded="false" aria-controls="menu-panel" aria-label="Abrir menú">
@@ -203,14 +206,14 @@
       </div>
     </div>
 
-    <div id="menu-panel" hidden class="border-t border-line bg-paper px-5 py-4 sm:px-8 lg:hidden">
+    <div id="menu-panel" hidden class="glass border-t border-line-strong/40 px-5 py-4 sm:px-8 lg:hidden">
       <nav class="flex flex-col gap-1 text-[15px]" aria-label="Móvil">
-        <a href="#como-funciona" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Cómo funciona</a>
-        <a href="#instalaciones" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Instalaciones</a>
-        <a href="#calculadora" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Calculadora</a>
-        <a href="#proceso" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Proceso</a>
-        <a href="#preguntas" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink" data-close>Preguntas</a>
-        <a href="#contacto" class="mt-2 rounded-full bg-ochre px-4 py-2.5 text-center font-semibold text-paper-raised" data-close>Pedir estudio gratuito</a>
+        <a href="como-funciona.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Cómo funciona</a>
+        <a href="instalaciones.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Instalaciones</a>
+        <a href="casos.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Casos</a>
+        <a href="calculadora.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Calculadora</a>
+        <a href="contacto.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Contacto</a>
+        <a href="contacto.html" class="mt-2 rounded-full bg-ochre px-4 py-2.5 text-center font-semibold text-paper-raised">Pedir estudio gratuito</a>
       </nav>
     </div>
   </header>
@@ -231,10 +234,10 @@
             con las subvenciones y el papeleo incluidos.
           </p>
           <div class="mt-8 flex flex-wrap items-center gap-3">
-            <a href="#calculadora" class="rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep">
+            <a href="calculadora.html" class="rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep">
               Calcula tu ahorro
             </a>
-            <a href="#como-funciona" class="rounded-full border border-line-strong px-6 py-3 text-[15px] font-semibold text-ink u-curve transition hover:bg-paper-deep">
+            <a href="como-funciona.html" class="glass rounded-full px-6 py-3 text-[15px] font-semibold text-ink u-curve transition">
               Cómo funciona
             </a>
           </div>
@@ -271,10 +274,8 @@
 
               <rect width="720" height="470" fill="url(#fig-grid)"/>
 
-              <!-- suelo -->
               <line x1="24" y1="360" x2="696" y2="360" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/>
 
-              <!-- olivos a ambos lados -->
               <g stroke="#575c42" stroke-width="1.6" fill="none">
                 <path d="M56 360v-13"/><circle cx="56" cy="337" r="10"/>
                 <path d="M92 360v-10"/><circle cx="92" cy="341" r="7.5"/>
@@ -283,7 +284,6 @@
                 <path d="M668 360v-15"/><circle cx="668" cy="335" r="11"/>
               </g>
 
-              <!-- riego por goteo bajo los olivos de la derecha: 5 -->
               <g stroke="#a5611a" stroke-width="1.4" stroke-dasharray="1 5" stroke-linecap="round">
                 <path d="M556 360v14M600 360v14M636 360v14M668 360v14"/>
               </g>
@@ -292,39 +292,30 @@
                 <circle cx="636" cy="376" r="2"/><circle cx="668" cy="376" r="2"/>
               </g>
 
-              <!-- sol -->
               <circle cx="108" cy="96" r="22" fill="#f7f5ea" stroke="#a5611a" stroke-width="2"/>
               <path d="M108 59V47M108 145v12M151 96h12M53 96H41M139 65l8.5-8.5M69 134l-8.5 8.5M139 127l8.5 8.5M69 58l-8.5-8.5" stroke="#a5611a" stroke-width="2" stroke-linecap="round"/>
 
-              <!-- 1 · paneles: estructura elevada sobre dos apoyos -->
               <path d="M150 210 300 178 316 206 166 240Z" fill="#a5611a" fill-opacity="0.14" stroke="#a5611a" stroke-width="2" stroke-linejoin="round"/>
               <path d="M180 216 296 190M198 234 314 208" stroke="#a5611a" stroke-width="1.3"/>
               <path d="M186 220v54M270 195v40" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/>
               <path d="M108 108 200 190" stroke="#a5611a" stroke-width="1.6" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#ah)"/>
               <path d="M122 78 260 175" stroke="#a5611a" stroke-width="1.6" stroke-dasharray="1 7" stroke-linecap="round" marker-end="url(#ah)"/>
 
-              <!-- cableado hasta el controlador -->
               <path d="M228 274 300 274 300 300" fill="none" stroke="#232a1c" stroke-width="1.8"/>
 
-              <!-- 2 · controlador -->
               <rect x="280" y="300" width="40" height="46" rx="3" fill="#f7f5ea" stroke="#232a1c" stroke-width="2"/>
               <path d="M288 313h24M288 322h24M288 331h14" stroke="#575c42" stroke-width="1.5" stroke-linecap="round"/>
 
-              <!-- pozo: boca a nivel de suelo, tubo bajando -->
               <path d="M320 323h40" fill="none" stroke="#232a1c" stroke-width="1.8"/>
               <path d="M374 360V330a10 10 0 0 0-10-10h-4" fill="none" stroke="#232a1c" stroke-width="2" stroke-linejoin="round"/>
               <rect x="360" y="360" width="16" height="72" fill="#dddbca" stroke="#232a1c" stroke-width="1.8"/>
               <path d="M362 372h12M362 384h12M362 396h12M362 408h12M362 420h12" stroke="#b7b191" stroke-width="1"/>
 
-              <!-- 3 · bomba sumergible, al fondo del pozo -->
               <circle cx="368" cy="424" r="9" fill="#f7f5ea" stroke="#a5611a" stroke-width="2"/>
               <path d="M368 418v12M363 424h10" stroke="#a5611a" stroke-width="1.5" stroke-linecap="round"/>
 
-              <!-- tubería del pozo al depósito -->
-              <path d="M368 360V300h96v20" fill="none" stroke="#232a1c" stroke-width="1.8" stroke-dasharray="1 0"/>
               <path d="M368 360V300h96" fill="none" stroke="#232a1c" stroke-width="1.8"/>
 
-              <!-- 4 · depósito, elevado sobre torre para dar presión al riego -->
               <path d="M464 322v26" fill="none" stroke="#232a1c" stroke-width="1.8"/>
               <g stroke="#232a1c" stroke-width="1.6">
                 <path d="M454 360v-30M474 360v-30"/>
@@ -334,11 +325,9 @@
               <path d="M440 282h48" stroke="#232a1c" stroke-width="1.2"/>
               <path d="M448 296h32M448 306h32" stroke="#575c42" stroke-width="1.3"/>
 
-              <!-- salida del depósito hacia el riego -->
               <path d="M488 296h68v64" fill="none" stroke="#232a1c" stroke-width="1.8"/>
               <path d="M556 360v14" fill="none" stroke="#a5611a" stroke-width="1.4"/>
 
-              <!-- llamadas -->
               <g font-family="'Spline Sans Mono', monospace" font-size="12">
                 <g transform="translate(150 196)">
                   <line x1="-13" y1="4" x2="-52" y2="-18" stroke="#232a1c" stroke-width="1"/>
@@ -372,584 +361,133 @@
       </div>
     </section>
 
-    <!-- ================= Cómo funciona ================= -->
-    <section id="como-funciona" class="scroll-mt-24 border-b border-line bg-paper-deep/60">
-      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
-        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <h2 class="font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Cómo funciona el bombeo solar</h2>
-          <p class="measure text-[16px] leading-relaxed text-ink-soft">
-            Los cinco elementos de la Fig. 1, uno a uno. Cuando pidas el estudio, cada uno lleva su marca,
-            su modelo y su garantía en el proyecto que firmamos.
-          </p>
-        </div>
-
-        <ol class="mt-12 divide-y divide-line border-y border-line">
-          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
-            <span class="font-mono text-sm text-ochre">01</span>
-            <h3 class="font-display text-xl text-ink">Los paneles</h3>
-            <p class="text-[15px] leading-relaxed text-ink-soft">
-              En el suelo, sobre una estructura orientada al sur. Sin partes móviles y sin ocupar cubierta:
-              se colocan junto al pozo o la balsa, donde ya tienes el espacio.
+    <!-- ================= Widget interactivo: diésel vs. sol ================= -->
+    <section class="border-b border-line bg-paper-deep/60">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+          <div>
+            <p class="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">Toca el interruptor</p>
+            <h2 class="mt-2 font-display text-3xl text-ink sm:text-[2.4rem] sm:leading-tight">Mismo pozo, dos formas de bombear</h2>
+            <p class="measure mt-4 text-[16px] leading-relaxed text-ink-soft">
+              Un olivar de 8 ha con pozo propio, gasto medio de riego en temporada alta. Mira lo que
+              cambia cada mes según con qué lo bombees.
             </p>
-          </li>
-          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
-            <span class="font-mono text-sm text-ochre">02</span>
-            <h3 class="font-display text-xl text-ink">El controlador</h3>
-            <p class="text-[15px] leading-relaxed text-ink-soft">
-              Convierte la corriente de los paneles en la que necesita la bomba y ajusta la velocidad según
-              la luz disponible. Con poco sol, bombea más despacio; no se para hasta que no hay luz de verdad.
-            </p>
-          </li>
-          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
-            <span class="font-mono text-sm text-ochre">03</span>
-            <h3 class="font-display text-xl text-ink">La bomba sumergible</h3>
-            <p class="text-[15px] leading-relaxed text-ink-soft">
-              Va dentro del pozo o el sondeo, al nivel del agua. Es la pieza que sustituye a tu grupo diésel
-              o al enganche de red; se elige según la profundidad y el caudal que necesitas.
-            </p>
-          </li>
-          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
-            <span class="font-mono text-sm text-ochre">04</span>
-            <h3 class="font-display text-xl text-ink">El depósito <span class="text-ink-soft">(no batería)</span></h3>
-            <p class="text-[15px] leading-relaxed text-ink-soft">
-              Aquí no se acumula electricidad, se acumula agua: el depósito se llena mientras hay sol y
-              riega cuando haga falta, aunque sea de noche. Ver Fig. 2 más abajo.
-            </p>
-          </li>
-          <li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
-            <span class="font-mono text-sm text-ochre">05</span>
-            <h3 class="font-display text-xl text-ink">El riego</h3>
-            <p class="text-[15px] leading-relaxed text-ink-soft">
-              Desde el depósito, por gravedad o con un pequeño impulso, el agua llega al goteo del olivar.
-              Nosotros dimensionamos también esa presión, no solo el bombeo.
-            </p>
-          </li>
-        </ol>
-
-        <!-- ===== Fig. 2 ===== -->
-        <div class="mt-14 rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8">
-          <div class="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-            <div>
-              <p class="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">Fig. 2 — un día del sistema</p>
-              <h3 class="mt-2 font-display text-xl text-ink sm:text-2xl">¿Y si necesito regar de noche?</h3>
-              <p class="measure mt-3 text-[15px] leading-relaxed text-ink-soft">
-                No hace falta batería. El controlador bombea mientras hay sol y llena el depósito; muchos
-                cultivos —el olivar entre ellos— riegan mejor de madrugada, cuando se evapora menos agua.
-                El depósito guarda durante el día lo que vas a regar esa noche.
-              </p>
+            <div class="mt-6 inline-flex gap-1 rounded-full p-1" role="group" aria-label="Comparar diésel y sol">
+              <button type="button" id="tg-diesel" class="seg-btn on-glass glass rounded-full px-5 py-2.5 text-sm font-semibold text-ink u-curve transition" aria-pressed="true">Con diésel</button>
+              <button type="button" id="tg-sol" class="seg-btn on-glass glass rounded-full px-5 py-2.5 text-sm font-semibold text-ink u-curve transition" aria-pressed="false">Con sol</button>
             </div>
-
-            <svg viewBox="0 0 620 210" class="w-full" role="img" aria-labelledby="fig2-title fig2-desc">
-              <title id="fig2-title">Figura 2: curva de sol y nivel del depósito a lo largo del día</title>
-              <desc id="fig2-desc">La bomba trabaja con el sol, entre las 7 y las 19 h, y llena el depósito. El nivel del depósito baja de madrugada, entre las 4 y las 7 h, cuando se usa para el riego nocturno.</desc>
-
-              <rect width="620" height="210" fill="url(#fig-grid)"/>
-
-              <!-- ejes -->
-              <line x1="40" y1="160" x2="580" y2="160" stroke="#232a1c" stroke-width="1.6"/>
-              <g font-family="'Spline Sans Mono', monospace" font-size="10" fill="#575c42">
-                <text x="40" y="178">0h</text>
-                <text x="170" y="178" text-anchor="middle">6h</text>
-                <text x="305" y="178" text-anchor="middle">12h</text>
-                <text x="440" y="178" text-anchor="middle">18h</text>
-                <text x="580" y="178" text-anchor="end">24h</text>
-              </g>
-              <g stroke="#d2ceb7" stroke-width="1" stroke-dasharray="2 4">
-                <line x1="170" y1="40" x2="170" y2="160"/>
-                <line x1="305" y1="40" x2="305" y2="160"/>
-                <line x1="440" y1="40" x2="440" y2="160"/>
-              </g>
-
-              <!-- curva de sol / bombeo -->
-              <path d="M40,160 L175,160 C230,90 260,55 310,55 C360,55 390,90 445,160 L580,160"
-                    fill="none" stroke="#a5611a" stroke-width="2.2" stroke-linecap="round"/>
-
-              <!-- nivel del depósito -->
-              <polyline points="40,70 130,70 197,140 310,95 445,58 580,58"
-                        fill="none" stroke="#2e3a26" stroke-width="2.2" stroke-dasharray="1 6" stroke-linecap="round"/>
-
-              <!-- etiquetas -->
-              <text x="315" y="48" font-family="'Spline Sans Mono', monospace" font-size="11" fill="#834a12">sol / bombeo</text>
-              <text x="450" y="50" font-family="'Spline Sans Mono', monospace" font-size="11" fill="#2e3a26">depósito</text>
-
-              <!-- llamada al riego nocturno -->
-              <line x1="163" y1="105" x2="163" y2="70" stroke="#575c42" stroke-width="1" stroke-dasharray="1 3"/>
-              <text x="60" y="105" font-family="'Spline Sans Mono', monospace" font-size="10.5" fill="#575c42">riego de madrugada,</text>
-              <text x="60" y="118" font-family="'Spline Sans Mono', monospace" font-size="10.5" fill="#575c42">con el agua ya guardada</text>
-            </svg>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ================= Calculadora ================= -->
-    <section id="calculadora" class="scroll-mt-24 border-b border-line graph-paper graph-paper-strong">
-      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
-        <div class="max-w-2xl">
-          <h2 class="font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Calcula tu ahorro frente al diésel</h2>
-          <p class="mt-4 text-[16px] leading-relaxed text-ink-soft">
-            Una primera estimación con las medias de radiación de Andalucía oriental. Mueve los datos y la hoja se recalcula.
-          </p>
-        </div>
-
-        <div class="mt-10 grid gap-5 lg:grid-cols-[1fr_1fr] lg:gap-8">
-          <!-- Controles -->
-          <form id="calc-form" class="rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8" aria-describedby="calc-nota">
-            <fieldset>
-              <legend class="font-display text-lg text-ink">Tu gasto en bombeo</legend>
-              <label for="gasto" class="mt-1 block text-sm text-ink-soft">Gasto medio al mes en diésel o luz para regar</label>
-              <div class="mt-3 flex items-baseline gap-2">
-                <output id="gasto-out" for="gasto" class="font-mono text-3xl text-ink">180</output>
-                <span class="font-mono text-lg text-ink-soft">€/mes</span>
+          <div class="glass rounded-2xl p-6 sm:p-8" aria-live="polite">
+            <div class="flex items-start justify-between gap-6">
+              <div>
+                <p class="text-sm text-ink-soft">Gasto de bombeo al mes</p>
+                <p class="mt-1 font-mono text-5xl text-ink"><span id="tg-cifra">380</span> <span class="text-2xl text-ink-soft">€</span></p>
+                <p id="tg-nota" class="mt-2 max-w-xs text-[13px] leading-relaxed text-ink-soft">Motor diésel, precio de gasóleo agrícola actual. <span class="text-ochre-deep">· dato de ejemplo</span></p>
               </div>
-              <input id="gasto" name="gasto" type="range" min="60" max="1200" step="10" value="180"
-                     class="mt-3 w-full accent-ochre" />
-              <div class="mt-1 flex justify-between font-mono text-[11px] text-ink-soft"><span>60 €</span><span>1.200 €</span></div>
-            </fieldset>
-
-            <fieldset class="mt-8">
-              <legend class="font-display text-lg text-ink">Tipo de explotación</legend>
-              <div class="mt-3 grid gap-2" role="group" id="grp-tipo">
-                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="particular" aria-pressed="true">Olivar particular, con pozo propio</button>
-                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="comunidad" aria-pressed="false">Comunidad de regantes</button>
-                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="otro" aria-pressed="false">Otro cultivo de regadío</button>
-              </div>
-            </fieldset>
-
-            <fieldset class="mt-8">
-              <legend class="font-display text-lg text-ink">Tu captación</legend>
-              <div class="mt-3 grid gap-2" role="group" id="grp-captacion">
-                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-captacion="pozo" aria-pressed="true">Pozo o sondeo — bombeo profundo</button>
-                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-captacion="balsa" aria-pressed="false">Balsa o canal — bombeo superficial</button>
-                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-captacion="nose" aria-pressed="false">No lo sé todavía</button>
-              </div>
-            </fieldset>
-          </form>
-
-          <!-- Hoja de resultados -->
-          <div class="rounded-xl border-2 border-olive bg-olive p-6 text-[#eae7d5] shadow-field-lift sm:p-8" aria-live="polite">
-            <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-[#aeb397]">Hoja de estimación — Solera Energía</p>
-
-            <div class="mt-6 border-b border-white/15 pb-6">
-              <p class="text-sm text-[#aeb397]">Ahorro estimado el primer año</p>
-              <p class="mt-1"><span id="r-ahorro" class="font-mono text-5xl text-[#dc9142]">1.360</span> <span class="font-mono text-xl text-[#aeb397]">€/año</span></p>
+              <svg id="tg-icon-diesel" viewBox="0 0 64 64" class="h-16 w-16 shrink-0 text-olive" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+                <rect x="10" y="26" width="30" height="18" rx="2"/><circle cx="18" cy="48" r="4"/><circle cx="34" cy="48" r="4"/>
+                <path d="M40 30h8l6 8v6h-14" stroke-width="1.5"/>
+                <path d="M14 20c2-4 6-6 10-6M14 20l-3-2M14 20l1-4" stroke="#a5611a" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <svg id="tg-icon-sol" viewBox="0 0 64 64" class="hidden h-16 w-16 shrink-0 text-olive" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="24" cy="16" r="8" fill="none" stroke="#a5611a"/>
+                <path d="M24 4V2M24 30v-2M8 16H6M13 5l-1-1M35 5l1-1" stroke="#a5611a" stroke-linecap="round"/>
+                <path d="M8 40 26 30l6 6 22-12" stroke-width="1.6"/><rect x="40" y="20" width="18" height="9" rx="1" transform="rotate(-24 40 20)"/>
+              </svg>
             </div>
-
-            <dl class="mt-6 grid grid-cols-2 gap-x-6 gap-y-5">
-              <div>
-                <dt class="text-[13px] text-[#aeb397]">De tu gasto actual</dt>
-                <dd class="mt-1 font-mono text-2xl"><span id="r-pct">63</span> %</dd>
-                <div class="mt-2 h-2 overflow-hidden rounded-full bg-white/12">
-                  <div id="r-bar" class="bar-fill h-full w-full rounded-full bg-[#dc9142]" style="transform:scaleX(0.63)"></div>
-                </div>
-              </div>
-              <div>
-                <dt class="text-[13px] text-[#aeb397]">Amortización aprox.</dt>
-                <dd class="mt-1 font-mono text-2xl"><span id="r-amort">4,3</span> años</dd>
-              </div>
-              <div>
-                <dt class="text-[13px] text-[#aeb397]">Diésel evitado al año</dt>
-                <dd class="mt-1 font-mono text-2xl"><span id="r-diesel">683</span> L</dd>
-                <p class="mt-1 font-mono text-[11px] text-[#aeb397]">≈ <span id="r-co2">1.830</span> kg de CO₂ que no emites</p>
-              </div>
-              <div>
-                <dt class="text-[13px] text-[#aeb397]">Instalación estimada</dt>
-                <dd class="mt-1 font-mono text-2xl"><span id="r-kwp">5,5</span> kWp</dd>
-                <p class="mt-1 font-mono text-[11px] text-[#aeb397]">~<span id="r-paneles">12</span> paneles · inversión aprox. <span id="r-inv">5.800</span> € antes de subvención</p>
-              </div>
-            </dl>
-
-            <a href="#contacto" class="mt-8 block rounded-full bg-[#dc9142] px-5 py-3 text-center text-[15px] font-semibold text-olive u-curve transition hover:bg-[#e8a45f]">
-              Pedir estudio con estos datos
+            <div class="mt-6 h-2 overflow-hidden rounded-full bg-line">
+              <div id="tg-bar" class="h-full rounded-full bg-ochre-bright u-curve transition-all duration-500" style="width:100%"></div>
+            </div>
+            <a href="calculadora.html" class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-ochre-deep ul-grow">
+              Calcula el tuyo con tus datos →
             </a>
           </div>
         </div>
-
-        <p id="calc-nota" class="mt-6 max-w-3xl text-[13px] leading-relaxed text-ink-soft">
-          <strong class="text-ink">Estimación orientativa, no es un presupuesto.</strong> Usa medias de producción de
-          Andalucía oriental (1.400–1.650 kWh por kWp al año) y un coste de bombeo equivalente a 0,20 €/kWh, sin
-          contar venta de excedentes —se asume autoconsumo directo para riego, no vertido a red. El CO₂ evitado se
-          traduce a litros de diésel con el factor de emisión habitual del gasóleo (2,68 kg CO₂/L). El estudio real
-          analiza tu pozo, tu caudal y las subvenciones vigentes en tu municipio.
-        </p>
       </div>
     </section>
 
-    <!-- ================= Instalaciones ================= -->
-    <section id="instalaciones" class="scroll-mt-24 border-b border-line">
-      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
-        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <h2 class="font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Lo que instalamos</h2>
-          <p class="measure text-[16px] leading-relaxed text-ink-soft">
-            Cuatro formas de llegar al mismo sitio: menos gasto de bombeo. Las cifras son rangos habituales
-            en la zona; tu estudio lleva las tuyas.
-          </p>
-        </div>
-
-        <div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-line-strong bg-line-strong sm:grid-cols-2">
-          <!-- Pozo o sondeo -->
-          <article class="bg-paper-raised p-7 sm:p-8">
-            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
-              <rect x="17" y="10" width="14" height="30" rx="1"/><path d="M13 10h22" stroke-width="2" stroke-linecap="round"/>
-              <path d="M21 18h6M21 24h6M21 30h6" stroke-width="1.3"/><circle cx="24" cy="40" r="3" stroke="#a5611a"/>
-            </svg>
-            <h3 class="mt-4 font-display text-xl text-ink">Pozo o sondeo</h3>
-            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
-              Bombeo profundo, el caso más habitual en olivar. Dimensionamos la bomba a tu nivel de agua
-              y a tu caudal real, no a un número redondo.
-            </p>
-            <dl class="mt-5 flex gap-8 font-mono text-[13px] text-ink">
-              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">5–30 kWp</dd></div>
-              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">3–5 años</dd></div>
-            </dl>
-          </article>
-
-          <!-- Balsa o canal -->
-          <article class="bg-paper-raised p-7 sm:p-8">
-            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
-              <path d="M6 30c4-4 8-4 12 0s8 4 12 0 8-4 12 0" stroke="#a5611a"/>
-              <ellipse cx="24" cy="34" rx="16" ry="6"/><path d="M8 34v-8a16 6 0 0 1 32 0v8" stroke-width="1.4"/>
-            </svg>
-            <h3 class="mt-4 font-display text-xl text-ink">Balsa o canal</h3>
-            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
-              Captación superficial: bombeo más sencillo, menos altura que salvar. Suele ser la instalación
-              más rápida de rentabilizar.
-            </p>
-            <dl class="mt-5 flex gap-8 font-mono text-[13px] text-ink">
-              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">3–20 kWp</dd></div>
-              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">3–4 años</dd></div>
-            </dl>
-          </article>
-
-          <!-- Sustitución de diésel -->
-          <article class="bg-paper-raised p-7 sm:p-8">
-            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
-              <rect x="8" y="20" width="22" height="14" rx="2"/><circle cx="14" cy="36" r="3"/><circle cx="26" cy="36" r="3"/>
-              <path d="M30 24h6l4 6v4h-10" stroke-width="1.4"/>
-              <path d="M8 12 34 38" stroke="#a5611a" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-            <h3 class="mt-4 font-display text-xl text-ink">Sustitución de grupo diésel</h3>
-            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
-              Si ya bombeas con un motor diésel, es la instalación que más rápido se paga: partes de un
-              coste de combustible alto y conocido.
-            </p>
-            <dl class="mt-5 flex gap-8 font-mono text-[13px] text-ink">
-              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">según tu equipo</dd></div>
-              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">2–4 años</dd></div>
-            </dl>
-          </article>
-
-          <!-- Comunidades de regantes -->
-          <article class="bg-paper-raised p-7 sm:p-8">
-            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="24" cy="12" r="5"/><circle cx="10" cy="34" r="5"/><circle cx="38" cy="34" r="5"/>
-              <path d="M24 17v8M17 30l3-4M31 30l-3-4" stroke="#a5611a" stroke-width="1.5"/>
-            </svg>
-            <h3 class="mt-4 font-display text-xl text-ink">Comunidades de regantes</h3>
-            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">
-              Proyectos colectivos para muchas hectáreas a la vez. Ayudamos también con la tramitación de
-              subvenciones específicas para infraestructura de regadío.
-            </p>
-            <dl class="mt-5 flex gap-8 font-mono text-[13px] text-ink">
-              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">30–150 kWp</dd></div>
-              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">4–7 años</dd></div>
-            </dl>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= Proceso ================= -->
-    <section id="proceso" class="scroll-mt-24 border-b border-line bg-olive text-[#eae7d5]">
-      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
-        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <h2 class="font-display text-3xl text-[#f1efe3] sm:text-[2.6rem] sm:leading-tight">El proceso, de principio a fin</h2>
-          <p class="measure text-[16px] leading-relaxed text-[#c7c9b2]">
-            Cuatro fases. Nosotros llevamos la ingeniería, los permisos y la tramitación de subvenciones;
-            tú apruebas y firmas.
-          </p>
-        </div>
-
-        <ol class="mt-12 grid gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-          <li class="bg-olive p-6 sm:p-7">
-            <span class="font-mono text-sm text-[#dc9142]">Fase 1</span>
-            <h3 class="mt-2 font-display text-lg text-[#f1efe3]">Estudio del pozo y el caudal</h3>
-            <p class="mt-2 text-[14px] leading-relaxed text-[#c7c9b2]">Analizamos tu gasto actual, tu pozo o balsa y tu curva de riego. Sin coste y sin compromiso.</p>
-          </li>
-          <li class="bg-olive p-6 sm:p-7">
-            <span class="font-mono text-sm text-[#dc9142]">Fase 2</span>
-            <h3 class="mt-2 font-display text-lg text-[#f1efe3]">Proyecto y subvención</h3>
-            <p class="mt-2 text-[14px] leading-relaxed text-[#c7c9b2]">Ingeniería, presupuesto cerrado y tramitación de ayudas PEPAC/FEADER y de la Junta de Andalucía para regadío.</p>
-          </li>
-          <li class="bg-olive p-6 sm:p-7">
-            <span class="font-mono text-sm text-[#dc9142]">Fase 3</span>
-            <h3 class="mt-2 font-display text-lg text-[#f1efe3]">Instalación en campo</h3>
-            <p class="mt-2 text-[14px] leading-relaxed text-[#c7c9b2]">Paneles, controlador, bomba y depósito. Con equipo propio; 2–4 días según el terreno.</p>
-          </li>
-          <li class="bg-olive p-6 sm:p-7">
-            <span class="font-mono text-sm text-[#dc9142]">Fase 4</span>
-            <h3 class="mt-2 font-display text-lg text-[#f1efe3]">Puesta en marcha y seguimiento</h3>
-            <p class="mt-2 text-[14px] leading-relaxed text-[#c7c9b2]">Legalización si aplica, ajuste del caudal y revisión anual. Un teléfono que responde.</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- ================= Por qué Solera ================= -->
+    <!-- ================= Teaser: Cómo funciona ================= -->
     <section class="border-b border-line">
-      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
-        <h2 class="max-w-2xl font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Por qué Solera Energía</h2>
-
-        <div class="mt-12 grid gap-x-10 gap-y-9 sm:grid-cols-2">
-          <div class="flex gap-4 border-t border-line pt-6">
-            <span class="mt-1 font-mono text-sm text-ochre">A</span>
-            <div>
-              <h3 class="font-display text-lg text-ink">Ingeniería, no comerciales</h3>
-              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">Cada proyecto lo firma un técnico y se dimensiona a tu pozo, tu profundidad y tu caudal real. Números honestos, sin promesas redondas.</p>
-            </div>
-          </div>
-          <div class="flex gap-4 border-t border-line pt-6">
-            <span class="mt-1 font-mono text-sm text-ochre">B</span>
-            <div>
-              <h3 class="font-display text-lg text-ink">El papeleo, incluido</h3>
-              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">Tramitación de subvenciones PEPAC/FEADER y de la Junta de Andalucía para regadío, también para comunidades de regantes. Tú no persigues a nadie.</p>
-            </div>
-          </div>
-          <div class="flex gap-4 border-t border-line pt-6">
-            <span class="mt-1 font-mono text-sm text-ochre">C</span>
-            <div>
-              <h3 class="font-display text-lg text-ink">Equipos con garantía larga</h3>
-              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">Paneles con 25–30 años de garantía de producción, bombas y controladores con 5–10, ampliables. Nada de marca blanca sin respaldo.</p>
-            </div>
-          </div>
-          <div class="flex gap-4 border-t border-line pt-6">
-            <span class="mt-1 font-mono text-sm text-ochre">D</span>
-            <div>
-              <h3 class="font-display text-lg text-ink">Después de la instalación</h3>
-              <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">Monitorización del caudal y la producción en el móvil, revisión anual y aviso si el pozo o la bomba rinden por debajo de lo previsto.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-12 flex flex-wrap items-center gap-x-10 gap-y-4 rounded-xl border border-line-strong bg-paper-raised px-7 py-6">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-20">
+        <div class="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <div>
-            <p class="font-mono text-3xl text-ink">+45</p>
-            <p class="text-[13px] text-ink-soft">sistemas de bombeo instalados <span class="text-ochre-deep">· dato de ejemplo</span></p>
+            <h2 class="font-display text-3xl text-ink sm:text-[2.4rem] sm:leading-tight">Cómo funciona el bombeo solar</h2>
+            <p class="measure mt-4 text-[16px] leading-relaxed text-ink-soft">
+              De los paneles al goteo, en cinco pasos — y por qué el sistema lleva depósito, no batería.
+            </p>
+            <a href="como-funciona.html" class="glass mt-6 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-ink u-curve transition">
+              Ver los cinco pasos →
+            </a>
           </div>
-          <div>
-            <p class="font-mono text-3xl text-ink">2014</p>
-            <p class="text-[13px] text-ink-soft">desde <span class="text-ochre-deep">· dato de ejemplo</span></p>
-          </div>
-          <div>
-            <p class="font-mono text-3xl text-ink">RC</p>
-            <p class="text-[13px] text-ink-soft">seguro de responsabilidad civil e instalador autorizado</p>
-          </div>
+          <ol class="divide-y divide-line border-y border-line font-mono text-sm">
+            <li class="grid grid-cols-[2.5rem_1fr] items-baseline gap-4 py-3.5"><span class="text-ochre">01</span><span class="font-sans text-[15px] font-semibold text-ink">Paneles en el suelo, junto al pozo</span></li>
+            <li class="grid grid-cols-[2.5rem_1fr] items-baseline gap-4 py-3.5"><span class="text-ochre">02</span><span class="font-sans text-[15px] font-semibold text-ink">Controlador ajusta la bomba a la luz</span></li>
+            <li class="grid grid-cols-[2.5rem_1fr] items-baseline gap-4 py-3.5"><span class="text-ochre">03</span><span class="font-sans text-[15px] font-semibold text-ink">Bomba sumergible sustituye al diésel</span></li>
+            <li class="grid grid-cols-[2.5rem_1fr] items-baseline gap-4 py-3.5"><span class="text-ochre">04</span><span class="font-sans text-[15px] font-semibold text-ink">Depósito guarda el agua, no la batería</span></li>
+            <li class="grid grid-cols-[2.5rem_1fr] items-baseline gap-4 py-3.5"><span class="text-ochre">05</span><span class="font-sans text-[15px] font-semibold text-ink">Riega por gravedad, de día o de noche</span></li>
+          </ol>
         </div>
       </div>
     </section>
 
-    <!-- ================= Zona ================= -->
+    <!-- ================= Teaser: Instalaciones ================= -->
     <section class="border-b border-line bg-paper-deep/60">
-      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
-        <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div>
-            <h2 class="font-display text-3xl text-ink sm:text-[2.4rem] sm:leading-tight">Dónde trabajamos</h2>
-            <p class="measure mt-4 text-[16px] leading-relaxed text-ink-soft">
-              Andalucía oriental. Base en Úbeda (Jaén), y desplazamiento por toda la provincia —el olivar de
-              regadío más grande de España—, la Vega de Granada, y el valle del Almanzora y el Poniente de Almería.
-            </p>
-          </div>
-          <ul class="flex flex-wrap gap-2 font-mono text-[13px]">
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Úbeda</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Baeza</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Jaén</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Linares</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Andújar</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Cazorla</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Granada</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Guadix</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Motril</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Almuñécar</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Baza</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">Huércal-Overa</li>
-            <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink-soft">y comarcas</li>
-          </ul>
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-20">
+        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <h2 class="font-display text-3xl text-ink sm:text-[2.4rem] sm:leading-tight">Lo que instalamos</h2>
+          <p class="measure text-[16px] leading-relaxed text-ink-soft">Cuatro formas de llegar al mismo sitio: menos gasto de bombeo.</p>
         </div>
+        <div class="mt-8 flex flex-wrap gap-2">
+          <a href="instalaciones.html#pozo" class="glass lift rounded-full px-4 py-2 text-sm font-semibold text-ink">Pozo o sondeo</a>
+          <a href="instalaciones.html#balsa" class="glass lift rounded-full px-4 py-2 text-sm font-semibold text-ink">Balsa o canal</a>
+          <a href="instalaciones.html#diesel" class="glass lift rounded-full px-4 py-2 text-sm font-semibold text-ink">Sustitución de diésel</a>
+          <a href="instalaciones.html#comunidad" class="glass lift rounded-full px-4 py-2 text-sm font-semibold text-ink">Comunidades de regantes</a>
+        </div>
+        <a href="instalaciones.html" class="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-ochre-deep ul-grow">Ver el detalle y el proceso →</a>
       </div>
     </section>
 
-    <!-- ================= Preguntas ================= -->
-    <section id="preguntas" class="scroll-mt-24 border-b border-line">
-      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
-        <h2 class="max-w-2xl font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Preguntas frecuentes</h2>
-
-        <div class="mt-10 divide-y divide-line border-y border-line">
-          <details class="faq group py-2" open>
-            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
-              ¿Qué subvenciones hay ahora mismo?
-              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
-            </summary>
-            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
-              Hay líneas activas de fondos europeos (PEPAC/FEADER) y convocatorias de la Junta de Andalucía para
-              infraestructuras de regadío, con prioridad para quien use energía renovable en el bombeo —
-              especialmente para comunidades de regantes. Cambian cada convocatoria y tienen plazo; lo revisamos
-              contigo antes de firmar nada.
-            </p>
-          </details>
-          <details class="faq group py-2">
-            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
-              ¿Necesito batería para regar de noche?
-              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
-            </summary>
-            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
-              No. El depósito hace ese trabajo: se llena mientras hay sol y riega cuando toque, de día o de noche,
-              por gravedad. Es más barato y más simple que una batería, y es lo estándar en bombeo solar agrícola
-              (ver Fig. 2 más arriba).
-            </p>
-          </details>
-          <details class="faq group py-2">
-            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
-              ¿Sustituye del todo a mi grupo diésel?
-              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
-            </summary>
-            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
-              En la mayoría de explotaciones sí, dimensionando bien el depósito para los días de poco sol.
-              Si tu caudal necesario es muy alto y constante, a veces dejamos el grupo diésel como respaldo
-              puntual; te lo decimos claro en el estudio, no después.
-            </p>
-          </details>
-          <details class="faq group py-2">
-            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
-              ¿Sirve para una comunidad de regantes, o solo para un agricultor particular?
-              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
-            </summary>
-            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
-              Los dos. Con una comunidad trabajamos el proyecto colectivo desde el principio —reparto de costes,
-              subvención específica y la asamblea que hay que convencer—; con un particular es un proyecto
-              más simple, centrado en tu pozo y tu parcela.
-            </p>
-          </details>
-          <details class="faq group py-2">
-            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
-              ¿Cuánto se tarda?
-              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
-            </summary>
-            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
-              La obra en campo son 2–4 días, según haya que preparar la estructura de los paneles y la torre del
-              depósito. El plazo total —estudio, permisos si hacen falta, instalación— suele ir de 4 a 8 semanas.
-            </p>
-          </details>
-          <details class="faq group py-2">
-            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
-              ¿Qué pasa en un día muy nublado?
-              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
-            </summary>
-            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
-              Bombea más despacio, pero bombea —el controlador se ajusta a la luz disponible. Dimensionamos el
-              depósito con margen para varios días seguidos de poco sol, así que un nublado no te deja sin riego.
-            </p>
-          </details>
-          <details class="faq group py-2">
-            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">
-              ¿Y el mantenimiento?
-              <svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
-            </summary>
-            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">
-              Los paneles casi no piden nada: revisión anual y una limpieza cuando toca. La bomba sumergible es
-              la pieza con más desgaste, igual que con diésel o red; la monitorización avisa si el caudal baja
-              antes de que sea un problema.
-            </p>
-          </details>
+    <!-- ================= Teaser: Casos ================= -->
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-20">
+        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <h2 class="font-display text-3xl text-ink sm:text-[2.4rem] sm:leading-tight">Casos parecidos al tuyo</h2>
+          <p class="measure text-[16px] leading-relaxed text-ink-soft">
+            Ejemplos ilustrativos de proyectos tipo, para hacerte una idea de números reales.
+          </p>
         </div>
+        <div class="mt-10 grid gap-5 sm:grid-cols-3">
+          <a href="casos.html#olivar" class="glass lift block rounded-xl p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Olivar particular</p>
+            <p class="mt-2 font-display text-xl text-ink">De 340 a 80 €/mes</p>
+            <p class="mt-2 text-[14px] text-ink-soft">12 ha, pozo propio, sustitución de diésel.</p>
+          </a>
+          <a href="casos.html#comunidad" class="glass lift block rounded-xl p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Comunidad de regantes</p>
+            <p class="mt-2 font-display text-xl text-ink">210 ha compartidas</p>
+            <p class="mt-2 text-[14px] text-ink-soft">Proyecto colectivo con subvención FEADER.</p>
+          </a>
+          <a href="casos.html#balsa" class="glass lift block rounded-xl p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Balsa de riego</p>
+            <p class="mt-2 font-display text-xl text-ink">Amortizado en 3,2 años</p>
+            <p class="mt-2 text-[14px] text-ink-soft">Captación superficial, la más rápida de rentabilizar.</p>
+          </a>
+        </div>
+        <p class="mt-4 text-[12px] text-ink-soft">Ejemplos ilustrativos con cifras de referencia, no proyectos reales — <a href="casos.html" class="ul-grow text-ochre-deep">ver por qué</a>.</p>
       </div>
     </section>
 
-    <!-- ================= Contacto ================= -->
-    <!--
-      DEMO: este formulario NO tiene backend. Al enviar, hace preventDefault y
-      muestra la pantalla de confirmación. Para un cliente real: conectar a
-      Supabase (tabla public.leads, insert vía fetch a la API REST) como en el
-      proyecto de Óptica Nazareth, o a un servicio tipo Formspree.
-    -->
-    <section id="contacto" class="scroll-mt-24">
-      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
-        <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-          <div>
-            <h2 class="font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">Pide tu estudio gratuito</h2>
-            <p class="measure mt-4 text-[16px] leading-relaxed text-ink-soft">
-              Cuéntanos tu pozo, tu balsa o tu comunidad de regantes, y para qué riegas. Te llamamos en 24–48 h
-              laborables, miramos tu gasto actual y, si encaja, subimos a ver la parcela. Sin coste y sin compromiso.
-            </p>
-
-            <dl class="mt-8 space-y-4 text-[15px]">
-              <div class="flex items-center gap-3">
-                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6c0 8 6 14 14 14l2-3-4-3-2 2c-2-1-5-4-6-6l2-2-3-4z"/></svg>
-                <a href="tel:+34600000000" class="ul-grow text-ink hover:text-ochre-deep">600 00 00 00</a>
-                <span class="font-mono text-[11px] text-ink-soft">· número de ejemplo</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-                <a href="mailto:hola@soleraenergia.example" class="ul-grow text-ink hover:text-ochre-deep">hola@soleraenergia.example</a>
-              </div>
-              <div class="flex items-center gap-3">
-                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 21s7-6.2 7-12A7 7 0 0 0 5 9c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
-                <span class="text-ink">Polígono San Nicasio, Úbeda (Jaén) <span class="font-mono text-[11px] text-ink-soft">· dirección de ejemplo</span></span>
-              </div>
-              <div class="flex items-center gap-3">
-                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-                <span class="text-ink">L–V · 9:00–14:00 y 16:30–19:30</span>
-              </div>
-            </dl>
-          </div>
-
-          <div class="rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8">
-            <form id="lead-form" class="grid gap-4">
-              <div class="grid gap-4 sm:grid-cols-2">
-                <label class="block text-sm">
-                  <span class="font-semibold text-ink">Nombre</span>
-                  <input name="nombre" type="text" required autocomplete="name" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
-                </label>
-                <label class="block text-sm">
-                  <span class="font-semibold text-ink">Teléfono</span>
-                  <input name="telefono" type="tel" required autocomplete="tel" inputmode="tel" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
-                </label>
-              </div>
-              <label class="block text-sm">
-                <span class="font-semibold text-ink">Municipio</span>
-                <input name="municipio" type="text" required class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
-              </label>
-              <label class="block text-sm">
-                <span class="font-semibold text-ink">¿Qué quieres instalar?</span>
-                <select name="tipo" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre">
-                  <option>Bombeo para pozo o sondeo</option>
-                  <option>Bombeo para balsa o canal</option>
-                  <option>Sustituir mi grupo diésel</option>
-                  <option>Somos una comunidad de regantes</option>
-                  <option>Aún no lo sé</option>
-                </select>
-              </label>
-              <label class="block text-sm">
-                <span class="font-semibold text-ink">Cuéntanos un poco más <span class="font-normal text-ink-soft">(opcional)</span></span>
-                <textarea name="mensaje" rows="3" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre"></textarea>
-              </label>
-              <button type="submit" class="mt-1 rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">
-                Enviar solicitud
-              </button>
-              <p class="text-[12px] leading-relaxed text-ink-soft">
-                Al enviar aceptas que te contactemos sobre tu solicitud. No cedemos tus datos a terceros.
-              </p>
-            </form>
-
-            <div id="lead-ok" hidden class="py-10 text-center">
-              <svg class="mx-auto h-14 w-14 text-ochre" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="28" cy="28" r="24" stroke="#d2ceb7"/><path d="m18 29 7 7 14-16"/>
-              </svg>
-              <h3 class="mt-5 font-display text-xl text-ink">Solicitud recibida</h3>
-              <p class="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-ink-soft">
-                Te llamamos en 24–48 h laborables. <span class="font-mono text-[12px] text-ochre-deep">(Demo: no se ha enviado nada.)</span>
-              </p>
-            </div>
-          </div>
+    <!-- ================= CTA final ================= -->
+    <section class="bg-olive text-[#eae7d5]">
+      <div class="mx-auto max-w-shell px-5 py-16 text-center sm:px-8 sm:py-20">
+        <h2 class="font-display text-3xl text-[#f1efe3] sm:text-[2.6rem]">¿Cuánto te está costando bombear hoy?</h2>
+        <p class="measure mx-auto mt-4 text-[16px] leading-relaxed text-[#c7c9b2]">
+          Calcula tu ahorro en dos minutos, o pide directamente el estudio del pozo. Es gratis y no compromete a nada.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="calculadora.html" class="rounded-full bg-[#dc9142] px-6 py-3 text-[15px] font-semibold text-olive u-curve transition hover:bg-[#e8a45f]">Calcula tu ahorro</a>
+          <a href="contacto.html" class="glass-dark rounded-full px-6 py-3 text-[15px] font-semibold text-[#f1efe3] u-curve transition">Pide tu estudio</a>
         </div>
       </div>
     </section>
@@ -971,12 +509,12 @@
           <p class="mt-3 max-w-xs text-[14px] leading-relaxed">Bombeo solar agrícola calculado al detalle. Jaén, Granada y Almería.</p>
         </div>
         <div>
-          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Instalaciones</h3>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Site</h3>
           <ul class="mt-3 space-y-2 text-[14px]">
-            <li><a href="#instalaciones" class="ul-grow hover:text-[#f1efe3]">Pozo o sondeo</a></li>
-            <li><a href="#instalaciones" class="ul-grow hover:text-[#f1efe3]">Balsa o canal</a></li>
-            <li><a href="#instalaciones" class="ul-grow hover:text-[#f1efe3]">Sustitución de grupo diésel</a></li>
-            <li><a href="#instalaciones" class="ul-grow hover:text-[#f1efe3]">Comunidades de regantes</a></li>
+            <li><a href="como-funciona.html" class="ul-grow hover:text-[#f1efe3]">Cómo funciona</a></li>
+            <li><a href="instalaciones.html" class="ul-grow hover:text-[#f1efe3]">Instalaciones</a></li>
+            <li><a href="casos.html" class="ul-grow hover:text-[#f1efe3]">Casos</a></li>
+            <li><a href="calculadora.html" class="ul-grow hover:text-[#f1efe3]">Calculadora</a></li>
           </ul>
         </div>
         <div>
@@ -1009,7 +547,7 @@
 
   <!-- WhatsApp flotante -->
   <a href="https://wa.me/34600000000?text=Hola%2C%20me%20interesa%20un%20estudio%20de%20bombeo%20solar"
-     class="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-olive px-4 py-3 text-[14px] font-semibold text-[#f1efe3] shadow-field-lift u-curve transition hover:bg-olive-700"
+     class="glass-dark fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full px-4 py-3 text-[14px] font-semibold text-[#f1efe3] u-curve transition"
      aria-label="Escríbenos por WhatsApp">
     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.9.9-2.8-.2-.3A8 8 0 1 1 12 20zm4.6-5.9c-.3-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3A3 3 0 0 0 6 8.9c0 1.8 1.3 3.5 1.5 3.8s2.6 4 6.3 5.3c2.3.8 2.7.6 3.2.6s1.5-.6 1.7-1.2.2-1.1.2-1.2-.2-.2-.5-.3z"/></svg>
     <span class="hidden sm:inline">WhatsApp</span>
@@ -1023,120 +561,35 @@
       if (!btn || !panel) return;
       const set = (open) => { panel.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
       btn.addEventListener('click', () => set(panel.hidden));
-      panel.querySelectorAll('[data-close]').forEach((a) => a.addEventListener('click', () => set(false)));
+      panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
     })();
 
-    // ---- Calculadora de ahorro frente al diésel ----
+    // ---- Widget diésel / sol ----
     (function () {
-      const C = {
-        precioKwh: 0.20,                                   // €/kWh equivalente de bombeo (diésel o red)
-        prodKwp: { pozo: 1450, balsa: 1650, nose: 1550 },   // kWh/kWp/año según dificultad de captación
-        ratio: { particular: 0.75, comunidad: 0.85, otro: 0.70 }, // aprovechamiento de la generación en el bombeo
-        co2Kwh: 0.20,                                       // kg CO2 evitado por kWh generado
-        co2PorLitroDiesel: 2.68,                            // kg CO2 por litro de gasóleo quemado
+      const bd = document.getElementById('tg-diesel');
+      const bs = document.getElementById('tg-sol');
+      if (!bd || !bs) return;
+      const cifra = document.getElementById('tg-cifra');
+      const nota = document.getElementById('tg-nota');
+      const bar = document.getElementById('tg-bar');
+      const iconD = document.getElementById('tg-icon-diesel');
+      const iconS = document.getElementById('tg-icon-sol');
+      const data = {
+        diesel: { v: 380, n: 'Motor diésel, precio de gasóleo agrícola actual.' },
+        sol: { v: 90, n: 'Bombeo solar, mismo pozo y mismo caudal.' },
       };
-      const state = { gasto: 180, tipo: 'particular', captacion: 'pozo' };
-
-      const $ = (id) => document.getElementById(id);
-      const gasto = $('gasto');
-      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      const costeKwp = (k) => (k < 4 ? 1300 : k < 10 ? 1050 : k < 25 ? 900 : 820);
-
-      function compute() {
-        const gastoAnual = state.gasto * 12;
-        const consumo = gastoAnual / C.precioKwh;
-        const prod = C.prodKwp[state.captacion];
-        let kWp = Math.round((consumo * 0.9 / prod) * 2) / 2;
-        kWp = Math.min(Math.max(kWp, 2), 150);
-        const generacion = kWp * prod;
-        const autoc = Math.min(generacion * C.ratio[state.tipo], consumo);
-        const ahorro = autoc * C.precioKwh;
-        const pct = Math.min(0.95, ahorro / gastoAnual);
-        const inversion = kWp * costeKwp(kWp);
-        return {
-          ahorro: Math.round(ahorro / 10) * 10,
-          pct: Math.round(pct * 100),
-          amort: inversion / ahorro,
-          co2: Math.round(generacion * C.co2Kwh / 10) * 10,
-          diesel: Math.round(generacion * C.co2Kwh / C.co2PorLitroDiesel),
-          kWp: kWp,
-          paneles: Math.max(5, Math.round(kWp / 0.45)),
-          inversion: Math.round(inversion / 100) * 100,
-        };
+      function set(mode) {
+        const d = data[mode];
+        cifra.textContent = d.v;
+        nota.innerHTML = d.n + ' <span class="text-ochre-deep">· dato de ejemplo</span>';
+        bar.style.width = Math.round((d.v / data.diesel.v) * 100) + '%';
+        iconD.classList.toggle('hidden', mode !== 'diesel');
+        iconS.classList.toggle('hidden', mode !== 'sol');
+        bd.setAttribute('aria-pressed', String(mode === 'diesel'));
+        bs.setAttribute('aria-pressed', String(mode === 'sol'));
       }
-
-      const fmt = (n) => n.toLocaleString('es-ES');
-      const fmt1 = (n) => n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-
-      function tween(el, to, render) {
-        const from = parseFloat(el.dataset.v || String(to));
-        el.dataset.v = String(to);
-        const gen = (el._gen = (el._gen || 0) + 1); // invalida animaciones anteriores
-        const finalize = () => { if (el._gen === gen) el.textContent = render(to); };
-        // red de seguridad: el valor exacto siempre acaba en pantalla aunque rAF
-        // esté ralentizado (pestaña en segundo plano, dispositivo lento).
-        clearTimeout(el._ft);
-        el._ft = setTimeout(finalize, 460);
-        if (reduce || Math.abs(to - from) < 0.5) { finalize(); return; }
-        const t0 = performance.now(), dur = 420;
-        (function step(now) {
-          if (el._gen !== gen) return; // otra actualización tomó el relevo
-          const p = Math.min((now - t0) / dur, 1);
-          if (p >= 1) { finalize(); return; }
-          el.textContent = render(from + (to - from) * (1 - Math.pow(1 - p, 3)));
-          requestAnimationFrame(step);
-        })(performance.now());
-      }
-
-      function render() {
-        const r = compute();
-        tween($('r-ahorro'), r.ahorro, (v) => fmt(Math.round(v)));
-        tween($('r-pct'), r.pct, (v) => String(Math.round(v)));
-        tween($('r-amort'), r.amort, (v) => fmt1(v).replace('.', ','));
-        tween($('r-diesel'), r.diesel, (v) => fmt(Math.round(v)));
-        tween($('r-co2'), r.co2, (v) => fmt(Math.round(v)));
-        tween($('r-kwp'), r.kWp, (v) => fmt1(v).replace('.', ','));
-        tween($('r-paneles'), r.paneles, (v) => String(Math.round(v)));
-        tween($('r-inv'), r.inversion, (v) => fmt(Math.round(v)));
-        $('r-bar').style.transform = 'scaleX(' + (r.pct / 100).toFixed(3) + ')';
-      }
-
-      gasto.addEventListener('input', () => {
-        state.gasto = +gasto.value;
-        $('gasto-out').textContent = fmt(state.gasto);
-        render();
-      });
-
-      function wireGroup(id, key) {
-        const grp = document.getElementById(id);
-        grp.querySelectorAll('button').forEach((b) => {
-          b.addEventListener('click', () => {
-            grp.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', 'false'));
-            b.setAttribute('aria-pressed', 'true');
-            state[key] = b.dataset[key];
-            render();
-          });
-        });
-      }
-      wireGroup('grp-tipo', 'tipo');
-      wireGroup('grp-captacion', 'captacion');
-
-      render();
-    })();
-
-    // ---- Formulario (demo, sin backend) ----
-    (function () {
-      const form = document.getElementById('lead-form');
-      const ok = document.getElementById('lead-ok');
-      if (!form || !ok) return;
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (!form.reportValidity()) return;
-        form.hidden = true;
-        ok.hidden = false;
-        ok.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
+      bd.addEventListener('click', () => set('diesel'));
+      bs.addEventListener('click', () => set('sol'));
     })();
   </script>
 </body>

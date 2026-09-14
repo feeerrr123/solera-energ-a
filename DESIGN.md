@@ -47,6 +47,17 @@ enteras (proceso, footer, tarjeta de resultados) para que no sea solo un acento.
   con `tracking` amplio, numeración de figuras y fases. Mono **solo** para
   medida/dato, no como disfraz "técnico".
 
+## Vidrio (2026-09-14)
+
+Capa nueva, a petición del cliente ("botones tipo glass, quiero hacerlo
+moderno"). `.glass` (sobre el papel) y `.glass-dark` (sobre oliva): fondo
+translúcido + `backdrop-filter: blur/saturate` + borde de 1px translúcido. Vive
+**solo** en superficies flotantes o secundarias — header sticky, menú móvil,
+botón de WhatsApp, CTA secundario, tarjetas de Casos, el panel de la Fig. 2.
+El botón primario sigue siendo ochre sólido; los paneles con texto de
+formulario siguen siendo papel sólido. El vidrio es un acento de "modernidad",
+no un reemplazo del sistema de color.
+
 ## Forma, profundidad, movimiento
 
 - Filetes de 1px oliva; nada de border-left de color grueso.

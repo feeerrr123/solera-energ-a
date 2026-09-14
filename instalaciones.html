@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instalaciones y proceso · Solera Energía</title>
+  <meta name="description" content="Pozo o sondeo, balsa o canal, sustitución de grupo diésel, comunidades de regantes. Cuatro formas de instalar bombeo solar agrícola, y el proceso completo en cuatro fases." />
+  <link rel="canonical" href="https://solera-energia.example/instalaciones.html" />
+  <meta property="og:site_name" content="Solera Energía" />
+  <meta property="og:title" content="Instalaciones de bombeo solar agrícola" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#2e3a26" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Young+Serif&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { display: ['"Young Serif"', 'Georgia', 'serif'], sans: ['"Hanken Grotesk"', 'system-ui', 'sans-serif'], mono: ['"Spline Sans Mono"', 'ui-monospace', 'monospace'] },
+        colors: { paper: '#e9e7db', 'paper-raised': '#f2f0e5', 'paper-deep': '#dddbca', olive: '#2e3a26', 'olive-700': '#3b4a30', ink: '#232a1c', 'ink-soft': '#575c42', line: '#d2ceb7', 'line-strong': '#b7b191', ochre: '#a5611a', 'ochre-deep': '#834a12', 'on-olive': '#eae7d5', 'on-olive-soft': '#aeb397', 'ochre-bright': '#dc9142' },
+        maxWidth: { shell: '72rem' },
+        boxShadow: { field: '0 1px 2px rgba(35,42,28,0.05), 0 16px 34px -20px rgba(35,42,28,0.28)', 'field-lift': '0 2px 6px rgba(35,42,28,0.08), 0 30px 55px -24px rgba(35,42,28,0.34)' },
+      } },
+    };
+  </script>
+  <style>
+    :root { color-scheme: light; }
+    body { background-color: #e9e7db; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.15 0 0 0 0 0.17 0 0 0 0 0.11 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    [hidden] { display: none !important; }
+    ::selection { background: #e6d3b1; color: #2c2410; }
+    a, button, input, textarea, select { caret-color: #a5611a; }
+    :focus-visible { outline: 2px solid #a5611a; outline-offset: 3px; border-radius: 2px; }
+    * { scrollbar-width: thin; scrollbar-color: #b7b191 transparent; }
+    ::-webkit-scrollbar { width: 12px; height: 12px; }
+    ::-webkit-scrollbar-thumb { background: #b7b191; border: 3px solid #e9e7db; border-radius: 999px; }
+    .measure { max-width: 66ch; }
+    .u-curve { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+    .glass { background: rgba(242, 240, 229, 0.55); -webkit-backdrop-filter: blur(10px) saturate(1.15); backdrop-filter: blur(10px) saturate(1.15); border: 1px solid rgba(183, 177, 145, 0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 10px 26px -16px rgba(35,42,28,0.35); }
+    .glass:hover { background: rgba(242, 240, 229, 0.72); }
+    .glass-dark { background: rgba(46, 58, 38, 0.62); -webkit-backdrop-filter: blur(10px) saturate(1.15); backdrop-filter: blur(10px) saturate(1.15); border: 1px solid rgba(234, 231, 213, 0.2); }
+    .glass-dark:hover { background: rgba(46, 58, 38, 0.78); }
+    .lift { transition: transform .32s cubic-bezier(0.16,1,0.3,1), box-shadow .32s cubic-bezier(0.16,1,0.3,1); }
+    .lift:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -18px rgba(35,42,28,0.35); }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .lift { transition: none; } .lift:hover { transform: none; } }
+    .ul-grow { background-image: linear-gradient(currentColor, currentColor); background-size: 0% 1.5px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .34s cubic-bezier(0.16, 1, 0.3, 1); padding-bottom: 2px; }
+    .ul-grow:hover { background-size: 100% 1.5px; }
+    .scroll-mt-24 { scroll-margin-top: 6rem; }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+  <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded focus:bg-olive focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-paper">Saltar al contenido</a>
+
+  <header class="glass sticky top-0 z-50">
+    <div class="mx-auto flex max-w-shell items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+      <a href="index.html" class="flex items-center gap-2.5 font-display text-lg text-ink">
+        <svg viewBox="0 0 32 32" class="h-7 w-7" aria-hidden="true" fill="none"><path d="M4 23h24" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="15" r="6.5" stroke="#a5611a" stroke-width="2"/><path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#a5611a" stroke-width="2" stroke-linecap="round"/></svg>
+        Solera <span class="text-ink-soft">Energía</span>
+      </a>
+      <nav class="hidden items-center gap-7 text-sm lg:flex" aria-label="Principal">
+        <a href="como-funciona.html" class="ul-grow text-ink-soft hover:text-ink">Cómo funciona</a>
+        <a href="instalaciones.html" class="text-ink" aria-current="page">Instalaciones</a>
+        <a href="casos.html" class="ul-grow text-ink-soft hover:text-ink">Casos</a>
+        <a href="calculadora.html" class="ul-grow text-ink-soft hover:text-ink">Calculadora</a>
+        <a href="contacto.html" class="ul-grow text-ink-soft hover:text-ink">Contacto</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="contacto.html" class="hidden rounded-full bg-ochre px-4 py-2 text-sm font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep sm:inline-block">Pedir estudio</a>
+        <button id="menu-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full border border-line-strong text-ink lg:hidden" aria-expanded="false" aria-controls="menu-panel" aria-label="Abrir menú">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="menu-panel" hidden class="glass border-t border-line-strong/40 px-5 py-4 sm:px-8 lg:hidden">
+      <nav class="flex flex-col gap-1 text-[15px]" aria-label="Móvil">
+        <a href="como-funciona.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Cómo funciona</a>
+        <a href="instalaciones.html" class="rounded px-2 py-2.5 text-ink">Instalaciones</a>
+        <a href="casos.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Casos</a>
+        <a href="calculadora.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Calculadora</a>
+        <a href="contacto.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Contacto</a>
+        <a href="contacto.html" class="mt-2 rounded-full bg-ochre px-4 py-2.5 text-center font-semibold text-paper-raised">Pedir estudio gratuito</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">Instalaciones</p>
+        <h1 class="mt-2 max-w-3xl font-display text-[2.4rem] leading-[1.1] text-ink sm:text-[3.2rem]">Lo que instalamos</h1>
+        <p class="measure mt-5 text-[17px] leading-relaxed text-ink-soft">
+          Cuatro formas de llegar al mismo sitio: menos gasto de bombeo. Las cifras son rangos habituales
+          en la zona; tu estudio lleva las tuyas.
+        </p>
+      </div>
+    </section>
+
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <ul class="divide-y divide-line border-y border-line">
+          <li id="pozo" class="scroll-mt-24 grid gap-5 py-8 sm:grid-cols-[3.5rem_1fr_auto] sm:items-center sm:gap-8">
+            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
+              <rect x="17" y="10" width="14" height="30" rx="1"/><path d="M13 10h22" stroke-width="2" stroke-linecap="round"/>
+              <path d="M21 18h6M21 24h6M21 30h6" stroke-width="1.3"/><circle cx="24" cy="40" r="3" stroke="#a5611a"/>
+            </svg>
+            <div>
+              <h2 class="font-display text-xl text-ink">Pozo o sondeo</h2>
+              <p class="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-soft">Bombeo profundo, el caso más habitual en olivar. Dimensionamos la bomba a tu nivel de agua y a tu caudal real, no a un número redondo.</p>
+            </div>
+            <dl class="flex gap-8 font-mono text-[13px] text-ink sm:justify-self-end">
+              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">5–30 kWp</dd></div>
+              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">3–5 años</dd></div>
+            </dl>
+          </li>
+          <li id="balsa" class="scroll-mt-24 grid gap-5 py-8 sm:grid-cols-[3.5rem_1fr_auto] sm:items-center sm:gap-8">
+            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 30c4-4 8-4 12 0s8 4 12 0 8-4 12 0" stroke="#a5611a"/>
+              <ellipse cx="24" cy="34" rx="16" ry="6"/><path d="M8 34v-8a16 6 0 0 1 32 0v8" stroke-width="1.4"/>
+            </svg>
+            <div>
+              <h2 class="font-display text-xl text-ink">Balsa o canal</h2>
+              <p class="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-soft">Captación superficial: bombeo más sencillo, menos altura que salvar. Suele ser la instalación más rápida de rentabilizar.</p>
+            </div>
+            <dl class="flex gap-8 font-mono text-[13px] text-ink sm:justify-self-end">
+              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">3–20 kWp</dd></div>
+              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">3–4 años</dd></div>
+            </dl>
+          </li>
+          <li id="diesel" class="scroll-mt-24 grid gap-5 py-8 sm:grid-cols-[3.5rem_1fr_auto] sm:items-center sm:gap-8">
+            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
+              <rect x="8" y="20" width="22" height="14" rx="2"/><circle cx="14" cy="36" r="3"/><circle cx="26" cy="36" r="3"/>
+              <path d="M30 24h6l4 6v4h-10" stroke-width="1.4"/><path d="M8 12 34 38" stroke="#a5611a" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+            <div>
+              <h2 class="font-display text-xl text-ink">Sustitución de grupo diésel</h2>
+              <p class="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-soft">Si ya bombeas con un motor diésel, es la instalación que más rápido se paga: partes de un coste de combustible alto y conocido.</p>
+            </div>
+            <dl class="flex gap-8 font-mono text-[13px] text-ink sm:justify-self-end">
+              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">según tu equipo</dd></div>
+              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">2–4 años</dd></div>
+            </dl>
+          </li>
+          <li id="comunidad" class="scroll-mt-24 grid gap-5 py-8 sm:grid-cols-[3.5rem_1fr_auto] sm:items-center sm:gap-8">
+            <svg viewBox="0 0 48 48" class="h-11 w-11 text-olive" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="24" cy="12" r="5"/><circle cx="10" cy="34" r="5"/><circle cx="38" cy="34" r="5"/>
+              <path d="M24 17v8M17 30l3-4M31 30l-3-4" stroke="#a5611a" stroke-width="1.5"/>
+            </svg>
+            <div>
+              <h2 class="font-display text-xl text-ink">Comunidades de regantes</h2>
+              <p class="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-soft">Proyectos colectivos para muchas hectáreas a la vez. Ayudamos también con la tramitación de subvenciones específicas para infraestructura de regadío.</p>
+            </div>
+            <dl class="flex gap-8 font-mono text-[13px] text-ink sm:justify-self-end">
+              <div><dt class="text-ink-soft">Potencia</dt><dd class="mt-0.5">30–150 kWp</dd></div>
+              <div><dt class="text-ink-soft">Amortización</dt><dd class="mt-0.5">4–7 años</dd></div>
+            </dl>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="proceso" class="scroll-mt-24 bg-olive text-[#eae7d5]">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <h2 class="font-display text-3xl text-[#f1efe3] sm:text-[2.6rem] sm:leading-tight">El proceso, de principio a fin</h2>
+          <p class="measure text-[16px] leading-relaxed text-[#c7c9b2]">Cuatro fases. Nosotros llevamos la ingeniería, los permisos y la tramitación de subvenciones; tú apruebas y firmas.</p>
+        </div>
+        <ol class="mt-12 divide-y divide-white/15 border-y border-white/15">
+          <li class="grid gap-2 py-6 sm:grid-cols-[4rem_14rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-[#dc9142]">Fase 1</span>
+            <h3 class="font-display text-lg text-[#f1efe3]">Estudio del pozo y el caudal</h3>
+            <p class="text-[14px] leading-relaxed text-[#c7c9b2]">Analizamos tu gasto actual, tu pozo o balsa y tu curva de riego. Sin coste y sin compromiso.</p>
+          </li>
+          <li class="grid gap-2 py-6 sm:grid-cols-[4rem_14rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-[#dc9142]">Fase 2</span>
+            <h3 class="font-display text-lg text-[#f1efe3]">Proyecto y subvención</h3>
+            <p class="text-[14px] leading-relaxed text-[#c7c9b2]">Ingeniería, presupuesto cerrado y tramitación de ayudas PEPAC/FEADER y de la Junta de Andalucía para regadío.</p>
+          </li>
+          <li class="grid gap-2 py-6 sm:grid-cols-[4rem_14rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-[#dc9142]">Fase 3</span>
+            <h3 class="font-display text-lg text-[#f1efe3]">Instalación en campo</h3>
+            <p class="text-[14px] leading-relaxed text-[#c7c9b2]">Paneles, controlador, bomba y depósito. Con equipo propio; 2–4 días según el terreno.</p>
+          </li>
+          <li class="grid gap-2 py-6 sm:grid-cols-[4rem_14rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-[#dc9142]">Fase 4</span>
+            <h3 class="font-display text-lg text-[#f1efe3]">Puesta en marcha y seguimiento</h3>
+            <p class="text-[14px] leading-relaxed text-[#c7c9b2]">Legalización si aplica, ajuste del caudal y revisión anual. Un teléfono que responde.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <div class="mx-auto max-w-shell px-5 py-14 text-center sm:px-8 sm:py-16">
+        <a href="calculadora.html" class="rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep">Calcula tu ahorro</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-line bg-olive text-[#c7c9b2]">
+    <div class="mx-auto max-w-shell px-5 py-14 sm:px-8">
+      <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <p class="flex items-center gap-2.5 font-display text-lg text-[#f1efe3]">
+            <svg viewBox="0 0 32 32" class="h-6 w-6" aria-hidden="true" fill="none"><path d="M4 23h24" stroke="#c7c9b2" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="15" r="6.5" stroke="#dc9142" stroke-width="2"/><path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#dc9142" stroke-width="2" stroke-linecap="round"/></svg>
+            Solera Energía
+          </p>
+          <p class="mt-3 max-w-xs text-[14px] leading-relaxed">Bombeo solar agrícola calculado al detalle. Jaén, Granada y Almería.</p>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Site</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            <li><a href="como-funciona.html" class="ul-grow hover:text-[#f1efe3]">Cómo funciona</a></li>
+            <li><a href="instalaciones.html" class="ul-grow hover:text-[#f1efe3]">Instalaciones</a></li>
+            <li><a href="casos.html" class="ul-grow hover:text-[#f1efe3]">Casos</a></li>
+            <li><a href="calculadora.html" class="ul-grow hover:text-[#f1efe3]">Calculadora</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Zona</h3>
+          <ul class="mt-3 space-y-2 text-[14px]"><li>Provincia de Jaén</li><li>Granada y Costa Tropical</li><li>Almería — Almanzora y Poniente</li></ul>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Contacto</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            <li><a href="tel:+34600000000" class="ul-grow hover:text-[#f1efe3]">600 00 00 00</a></li>
+            <li><a href="mailto:hola@soleraenergia.example" class="ul-grow hover:text-[#f1efe3]">hola@soleraenergia.example</a></li>
+            <li>Úbeda (Jaén)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-12 flex flex-col gap-3 border-t border-white/12 pt-6 text-[12px] text-[#8f9277] sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 Solera Energía — <span class="text-[#c7c9b2]">marca ficticia</span>. Proyecto de demostración · diseño de <span class="text-[#c7c9b2]">[TU ESTUDIO]</span>.</p>
+        <p class="flex gap-4"><a href="#" class="ul-grow hover:text-[#f1efe3]">Aviso legal</a><a href="#" class="ul-grow hover:text-[#f1efe3]">Privacidad</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/34600000000?text=Hola%2C%20me%20interesa%20un%20estudio%20de%20bombeo%20solar" class="glass-dark fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full px-4 py-3 text-[14px] font-semibold text-[#f1efe3] u-curve transition" aria-label="Escríbenos por WhatsApp">
+    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.9.9-2.8-.2-.3A8 8 0 1 1 12 20zm4.6-5.9c-.3-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3A3 3 0 0 0 6 8.9c0 1.8 1.3 3.5 1.5 3.8s2.6 4 6.3 5.3c2.3.8 2.7.6 3.2.6s1.5-.6 1.7-1.2.2-1.1.2-1.2-.2-.2-.5-.3z"/></svg>
+    <span class="hidden sm:inline">WhatsApp</span>
+  </a>
+
+  <script>
+    (function () {
+      const btn = document.getElementById('menu-btn');
+      const panel = document.getElementById('menu-panel');
+      if (!btn || !panel) return;
+      const set = (open) => { panel.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+      btn.addEventListener('click', () => set(panel.hidden));
+      panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
+    })();
+  </script>
+</body>
+</html>

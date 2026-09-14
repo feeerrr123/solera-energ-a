@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calcula tu ahorro · Solera Energía</title>
+  <meta name="description" content="Calculadora orientativa de ahorro frente al diésel para bombeo solar agrícola en Jaén, Granada y Almería. Introduce tu gasto y tu tipo de captación." />
+  <link rel="canonical" href="https://solera-energia.example/calculadora.html" />
+  <meta property="og:site_name" content="Solera Energía" />
+  <meta property="og:title" content="Calcula tu ahorro frente al diésel" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#2e3a26" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Young+Serif&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: { display: ['"Young Serif"', 'Georgia', 'serif'], sans: ['"Hanken Grotesk"', 'system-ui', 'sans-serif'], mono: ['"Spline Sans Mono"', 'ui-monospace', 'monospace'] },
+        colors: { paper: '#e9e7db', 'paper-raised': '#f2f0e5', 'paper-deep': '#dddbca', olive: '#2e3a26', 'olive-700': '#3b4a30', ink: '#232a1c', 'ink-soft': '#575c42', line: '#d2ceb7', 'line-strong': '#b7b191', ochre: '#a5611a', 'ochre-deep': '#834a12', 'on-olive': '#eae7d5', 'on-olive-soft': '#aeb397', 'ochre-bright': '#dc9142' },
+        maxWidth: { shell: '72rem' },
+        boxShadow: { field: '0 1px 2px rgba(35,42,28,0.05), 0 16px 34px -20px rgba(35,42,28,0.28)', 'field-lift': '0 2px 6px rgba(35,42,28,0.08), 0 30px 55px -24px rgba(35,42,28,0.34)' },
+      } },
+    };
+  </script>
+  <style>
+    :root { color-scheme: light; }
+    body { background-color: #e9e7db; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.15 0 0 0 0 0.17 0 0 0 0 0.11 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    [hidden] { display: none !important; }
+    ::selection { background: #e6d3b1; color: #2c2410; }
+    a, button, input, textarea, select { caret-color: #a5611a; }
+    :focus-visible { outline: 2px solid #a5611a; outline-offset: 3px; border-radius: 2px; }
+    * { scrollbar-width: thin; scrollbar-color: #b7b191 transparent; }
+    ::-webkit-scrollbar { width: 12px; height: 12px; }
+    ::-webkit-scrollbar-thumb { background: #b7b191; border: 3px solid #e9e7db; border-radius: 999px; }
+    .measure { max-width: 66ch; }
+    .u-curve { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+    .glass { background: rgba(242, 240, 229, 0.55); -webkit-backdrop-filter: blur(10px) saturate(1.15); backdrop-filter: blur(10px) saturate(1.15); border: 1px solid rgba(183, 177, 145, 0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 10px 26px -16px rgba(35,42,28,0.35); }
+    .glass:hover { background: rgba(242, 240, 229, 0.72); }
+    .glass-dark { background: rgba(46, 58, 38, 0.62); -webkit-backdrop-filter: blur(10px) saturate(1.15); backdrop-filter: blur(10px) saturate(1.15); border: 1px solid rgba(234, 231, 213, 0.2); }
+    .glass-dark:hover { background: rgba(46, 58, 38, 0.78); }
+    .ul-grow { background-image: linear-gradient(currentColor, currentColor); background-size: 0% 1.5px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size .34s cubic-bezier(0.16, 1, 0.3, 1); padding-bottom: 2px; }
+    .ul-grow:hover { background-size: 100% 1.5px; }
+    .graph-paper { background-color: #f2f0e5; background-image: linear-gradient(#d2ceb7 1px, transparent 1px), linear-gradient(90deg, #d2ceb7 1px, transparent 1px); background-size: 26px 26px; background-position: -1px -1px; }
+    .graph-paper-strong { background-image: linear-gradient(rgba(93,99,64,0.16) 1px, transparent 1px), linear-gradient(90deg, rgba(93,99,64,0.16) 1px, transparent 1px), linear-gradient(#d8d4bf 1px, transparent 1px), linear-gradient(90deg, #d8d4bf 1px, transparent 1px); background-size: 130px 130px, 130px 130px, 26px 26px, 26px 26px; }
+    .bar-fill { transform-origin: left; transition: transform .6s cubic-bezier(0.16, 1, 0.3, 1); }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .bar-fill { transition: none; } }
+    .seg-btn[aria-pressed="true"] { background: #2e3a26; color: #f1efe3; border-color: #2e3a26; }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+  <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded focus:bg-olive focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-paper">Saltar al contenido</a>
+
+  <header class="glass sticky top-0 z-50">
+    <div class="mx-auto flex max-w-shell items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+      <a href="index.html" class="flex items-center gap-2.5 font-display text-lg text-ink">
+        <svg viewBox="0 0 32 32" class="h-7 w-7" aria-hidden="true" fill="none"><path d="M4 23h24" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="15" r="6.5" stroke="#a5611a" stroke-width="2"/><path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#a5611a" stroke-width="2" stroke-linecap="round"/></svg>
+        Solera <span class="text-ink-soft">Energía</span>
+      </a>
+      <nav class="hidden items-center gap-7 text-sm lg:flex" aria-label="Principal">
+        <a href="como-funciona.html" class="ul-grow text-ink-soft hover:text-ink">Cómo funciona</a>
+        <a href="instalaciones.html" class="ul-grow text-ink-soft hover:text-ink">Instalaciones</a>
+        <a href="casos.html" class="ul-grow text-ink-soft hover:text-ink">Casos</a>
+        <a href="calculadora.html" class="text-ink" aria-current="page">Calculadora</a>
+        <a href="contacto.html" class="ul-grow text-ink-soft hover:text-ink">Contacto</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="contacto.html" class="hidden rounded-full bg-ochre px-4 py-2 text-sm font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep sm:inline-block">Pedir estudio</a>
+        <button id="menu-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full border border-line-strong text-ink lg:hidden" aria-expanded="false" aria-controls="menu-panel" aria-label="Abrir menú">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="menu-panel" hidden class="glass border-t border-line-strong/40 px-5 py-4 sm:px-8 lg:hidden">
+      <nav class="flex flex-col gap-1 text-[15px]" aria-label="Móvil">
+        <a href="como-funciona.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Cómo funciona</a>
+        <a href="instalaciones.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Instalaciones</a>
+        <a href="casos.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Casos</a>
+        <a href="calculadora.html" class="rounded px-2 py-2.5 text-ink">Calculadora</a>
+        <a href="contacto.html" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">Contacto</a>
+        <a href="contacto.html" class="mt-2 rounded-full bg-ochre px-4 py-2.5 text-center font-semibold text-paper-raised">Pedir estudio gratuito</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="graph-paper graph-paper-strong">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">Calculadora</p>
+        <h1 class="mt-2 max-w-2xl font-display text-[2.4rem] leading-[1.1] text-ink sm:text-[3.2rem]">Calcula tu ahorro frente al diésel</h1>
+        <p class="measure mt-5 text-[17px] leading-relaxed text-ink-soft">
+          Una primera estimación con las medias de radiación de Andalucía oriental. Mueve los datos y la hoja se recalcula.
+        </p>
+
+        <div class="mt-10 grid gap-5 lg:grid-cols-[1fr_1fr] lg:gap-8">
+          <form id="calc-form" class="rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8" aria-describedby="calc-nota">
+            <fieldset>
+              <legend class="font-display text-lg text-ink">Tu gasto en bombeo</legend>
+              <label for="gasto" class="mt-1 block text-sm text-ink-soft">Gasto medio al mes en diésel o luz para regar</label>
+              <div class="mt-3 flex items-baseline gap-2">
+                <output id="gasto-out" for="gasto" class="font-mono text-3xl text-ink">180</output>
+                <span class="font-mono text-lg text-ink-soft">€/mes</span>
+              </div>
+              <input id="gasto" name="gasto" type="range" min="60" max="1200" step="10" value="180" class="mt-3 w-full accent-ochre" />
+              <div class="mt-1 flex justify-between font-mono text-[11px] text-ink-soft"><span>60 €</span><span>1.200 €</span></div>
+            </fieldset>
+
+            <fieldset class="mt-8">
+              <legend class="font-display text-lg text-ink">Tipo de explotación</legend>
+              <div class="mt-3 grid gap-2" role="group" id="grp-tipo">
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="particular" aria-pressed="true">Olivar particular, con pozo propio</button>
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="comunidad" aria-pressed="false">Comunidad de regantes</button>
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-tipo="otro" aria-pressed="false">Otro cultivo de regadío</button>
+              </div>
+            </fieldset>
+
+            <fieldset class="mt-8">
+              <legend class="font-display text-lg text-ink">Tu captación</legend>
+              <div class="mt-3 grid gap-2" role="group" id="grp-captacion">
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-captacion="pozo" aria-pressed="true">Pozo o sondeo — bombeo profundo</button>
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-captacion="balsa" aria-pressed="false">Balsa o canal — bombeo superficial</button>
+                <button type="button" class="seg-btn rounded-lg border border-line-strong px-3 py-2.5 text-left text-[13px] font-semibold text-ink u-curve transition hover:bg-paper-deep" data-captacion="nose" aria-pressed="false">No lo sé todavía</button>
+              </div>
+            </fieldset>
+          </form>
+
+          <div class="rounded-xl border-2 border-olive bg-olive p-6 text-[#eae7d5] shadow-field-lift sm:p-8" aria-live="polite">
+            <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-[#aeb397]">Hoja de estimación — Solera Energía</p>
+            <div class="mt-6 border-b border-white/15 pb-6">
+              <p class="text-sm text-[#aeb397]">Ahorro estimado el primer año</p>
+              <p class="mt-1"><span id="r-ahorro" class="font-mono text-5xl text-[#dc9142]">1.360</span> <span class="font-mono text-xl text-[#aeb397]">€/año</span></p>
+            </div>
+            <dl class="mt-6 grid grid-cols-2 gap-x-6 gap-y-5">
+              <div>
+                <dt class="text-[13px] text-[#aeb397]">De tu gasto actual</dt>
+                <dd class="mt-1 font-mono text-2xl"><span id="r-pct">63</span> %</dd>
+                <div class="mt-2 h-2 overflow-hidden rounded-full bg-white/12"><div id="r-bar" class="bar-fill h-full w-full rounded-full bg-[#dc9142]" style="transform:scaleX(0.63)"></div></div>
+              </div>
+              <div><dt class="text-[13px] text-[#aeb397]">Amortización aprox.</dt><dd class="mt-1 font-mono text-2xl"><span id="r-amort">4,3</span> años</dd></div>
+              <div>
+                <dt class="text-[13px] text-[#aeb397]">Diésel evitado al año</dt>
+                <dd class="mt-1 font-mono text-2xl"><span id="r-diesel">683</span> L</dd>
+                <p class="mt-1 font-mono text-[11px] text-[#aeb397]">≈ <span id="r-co2">1.830</span> kg de CO₂ que no emites</p>
+              </div>
+              <div>
+                <dt class="text-[13px] text-[#aeb397]">Instalación estimada</dt>
+                <dd class="mt-1 font-mono text-2xl"><span id="r-kwp">5,5</span> kWp</dd>
+                <p class="mt-1 font-mono text-[11px] text-[#aeb397]">~<span id="r-paneles">12</span> paneles · inversión aprox. <span id="r-inv">5.800</span> € antes de subvención</p>
+              </div>
+            </dl>
+            <a href="contacto.html" class="mt-8 block rounded-full bg-[#dc9142] px-5 py-3 text-center text-[15px] font-semibold text-olive u-curve transition hover:bg-[#e8a45f]">Pedir estudio con estos datos</a>
+          </div>
+        </div>
+
+        <p id="calc-nota" class="mt-6 max-w-3xl text-[13px] leading-relaxed text-ink-soft">
+          <strong class="text-ink">Estimación orientativa, no es un presupuesto.</strong> Usa medias de producción de
+          Andalucía oriental (1.400–1.650 kWh por kWp al año) y un coste de bombeo equivalente a 0,20 €/kWh, sin
+          contar venta de excedentes —se asume autoconsumo directo para riego, no vertido a red. El CO₂ evitado se
+          traduce a litros de diésel con el factor de emisión habitual del gasóleo (2,68 kg CO₂/L). El estudio real
+          analiza tu pozo, tu caudal y las subvenciones vigentes en tu municipio.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-line bg-olive text-[#c7c9b2]">
+    <div class="mx-auto max-w-shell px-5 py-14 sm:px-8">
+      <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <p class="flex items-center gap-2.5 font-display text-lg text-[#f1efe3]">
+            <svg viewBox="0 0 32 32" class="h-6 w-6" aria-hidden="true" fill="none"><path d="M4 23h24" stroke="#c7c9b2" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="15" r="6.5" stroke="#dc9142" stroke-width="2"/><path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#dc9142" stroke-width="2" stroke-linecap="round"/></svg>
+            Solera Energía
+          </p>
+          <p class="mt-3 max-w-xs text-[14px] leading-relaxed">Bombeo solar agrícola calculado al detalle. Jaén, Granada y Almería.</p>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Site</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            <li><a href="como-funciona.html" class="ul-grow hover:text-[#f1efe3]">Cómo funciona</a></li>
+            <li><a href="instalaciones.html" class="ul-grow hover:text-[#f1efe3]">Instalaciones</a></li>
+            <li><a href="casos.html" class="ul-grow hover:text-[#f1efe3]">Casos</a></li>
+            <li><a href="calculadora.html" class="ul-grow hover:text-[#f1efe3]">Calculadora</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Zona</h3>
+          <ul class="mt-3 space-y-2 text-[14px]"><li>Provincia de Jaén</li><li>Granada y Costa Tropical</li><li>Almería — Almanzora y Poniente</li></ul>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">Contacto</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            <li><a href="tel:+34600000000" class="ul-grow hover:text-[#f1efe3]">600 00 00 00</a></li>
+            <li><a href="mailto:hola@soleraenergia.example" class="ul-grow hover:text-[#f1efe3]">hola@soleraenergia.example</a></li>
+            <li>Úbeda (Jaén)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-12 flex flex-col gap-3 border-t border-white/12 pt-6 text-[12px] text-[#8f9277] sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 Solera Energía — <span class="text-[#c7c9b2]">marca ficticia</span>. Proyecto de demostración · diseño de <span class="text-[#c7c9b2]">[TU ESTUDIO]</span>.</p>
+        <p class="flex gap-4"><a href="#" class="ul-grow hover:text-[#f1efe3]">Aviso legal</a><a href="#" class="ul-grow hover:text-[#f1efe3]">Privacidad</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/34600000000?text=Hola%2C%20me%20interesa%20un%20estudio%20de%20bombeo%20solar" class="glass-dark fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full px-4 py-3 text-[14px] font-semibold text-[#f1efe3] u-curve transition" aria-label="Escríbenos por WhatsApp">
+    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.9.9-2.8-.2-.3A8 8 0 1 1 12 20zm4.6-5.9c-.3-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2a.4.4 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3A3 3 0 0 0 6 8.9c0 1.8 1.3 3.5 1.5 3.8s2.6 4 6.3 5.3c2.3.8 2.7.6 3.2.6s1.5-.6 1.7-1.2.2-1.1.2-1.2-.2-.2-.5-.3z"/></svg>
+    <span class="hidden sm:inline">WhatsApp</span>
+  </a>
+
+  <script>
+    (function () {
+      const btn = document.getElementById('menu-btn');
+      const panel = document.getElementById('menu-panel');
+      if (!btn || !panel) return;
+      const set = (open) => { panel.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+      btn.addEventListener('click', () => set(panel.hidden));
+      panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
+    })();
+
+    (function () {
+      const C = {
+        precioKwh: 0.20,
+        prodKwp: { pozo: 1450, balsa: 1650, nose: 1550 },
+        ratio: { particular: 0.75, comunidad: 0.85, otro: 0.70 },
+        co2Kwh: 0.20,
+        co2PorLitroDiesel: 2.68,
+      };
+      const state = { gasto: 180, tipo: 'particular', captacion: 'pozo' };
+      const $ = (id) => document.getElementById(id);
+      const gasto = $('gasto');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const costeKwp = (k) => (k < 4 ? 1300 : k < 10 ? 1050 : k < 25 ? 900 : 820);
+
+      function compute() {
+        const gastoAnual = state.gasto * 12;
+        const consumo = gastoAnual / C.precioKwh;
+        const prod = C.prodKwp[state.captacion];
+        let kWp = Math.round((consumo * 0.9 / prod) * 2) / 2;
+        kWp = Math.min(Math.max(kWp, 2), 150);
+        const generacion = kWp * prod;
+        const autoc = Math.min(generacion * C.ratio[state.tipo], consumo);
+        const ahorro = autoc * C.precioKwh;
+        const pct = Math.min(0.95, ahorro / gastoAnual);
+        const inversion = kWp * costeKwp(kWp);
+        return {
+          ahorro: Math.round(ahorro / 10) * 10,
+          pct: Math.round(pct * 100),
+          amort: inversion / ahorro,
+          co2: Math.round(generacion * C.co2Kwh / 10) * 10,
+          diesel: Math.round(generacion * C.co2Kwh / C.co2PorLitroDiesel),
+          kWp: kWp,
+          paneles: Math.max(5, Math.round(kWp / 0.45)),
+          inversion: Math.round(inversion / 100) * 100,
+        };
+      }
+
+      const fmt = (n) => n.toLocaleString('es-ES');
+      const fmt1 = (n) => n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+      function tween(el, to, render) {
+        const from = parseFloat(el.dataset.v || String(to));
+        el.dataset.v = String(to);
+        const gen = (el._gen = (el._gen || 0) + 1);
+        const finalize = () => { if (el._gen === gen) el.textContent = render(to); };
+        clearTimeout(el._ft);
+        el._ft = setTimeout(finalize, 460);
+        if (reduce || Math.abs(to - from) < 0.5) { finalize(); return; }
+        const t0 = performance.now(), dur = 420;
+        (function step(now) {
+          if (el._gen !== gen) return;
+          const p = Math.min((now - t0) / dur, 1);
+          if (p >= 1) { finalize(); return; }
+          el.textContent = render(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+          requestAnimationFrame(step);
+        })(performance.now());
+      }
+
+      function render() {
+        const r = compute();
+        tween($('r-ahorro'), r.ahorro, (v) => fmt(Math.round(v)));
+        tween($('r-pct'), r.pct, (v) => String(Math.round(v)));
+        tween($('r-amort'), r.amort, (v) => fmt1(v).replace('.', ','));
+        tween($('r-diesel'), r.diesel, (v) => fmt(Math.round(v)));
+        tween($('r-co2'), r.co2, (v) => fmt(Math.round(v)));
+        tween($('r-kwp'), r.kWp, (v) => fmt1(v).replace('.', ','));
+        tween($('r-paneles'), r.paneles, (v) => String(Math.round(v)));
+        tween($('r-inv'), r.inversion, (v) => fmt(Math.round(v)));
+        $('r-bar').style.transform = 'scaleX(' + (r.pct / 100).toFixed(3) + ')';
+      }
+
+      gasto.addEventListener('input', () => {
+        state.gasto = +gasto.value;
+        $('gasto-out').textContent = fmt(state.gasto);
+        render();
+      });
+
+      function wireGroup(id, key) {
+        const grp = document.getElementById(id);
+        grp.querySelectorAll('button').forEach((b) => {
+          b.addEventListener('click', () => {
+            grp.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+            b.setAttribute('aria-pressed', 'true');
+            state[key] = b.dataset[key];
+            render();
+          });
+        });
+      }
+      wireGroup('grp-tipo', 'tipo');
+      wireGroup('grp-captacion', 'captacion');
+      render();
+    })();
+  </script>
+</body>
+</html>

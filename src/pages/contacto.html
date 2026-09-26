@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="{{ sitio.idioma }}" class="scroll-smooth">
+<head>
+{{> head}}
+</head>
+<body class="font-sans text-ink antialiased">
+{{> cabecera}}
+
+  <main id="contenido">
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">{{ contacto.eyebrow }}</p>
+        <h1 class="mt-2 max-w-2xl font-display text-[2.4rem] leading-[1.1] text-ink sm:text-[3.2rem]">{{ contacto.titular }}</h1>
+        <p class="measure mt-5 text-[17px] leading-relaxed text-ink-soft">
+          {{ contacto.texto }}
+        </p>
+      </div>
+    </section>
+
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+          <div>
+            <dl class="space-y-4 text-[15px]">
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6c0 8 6 14 14 14l2-3-4-3-2 2c-2-1-5-4-6-6l2-2-3-4z"/></svg>
+                <a href="{{ telHref }}" class="ul-grow text-ink hover:text-ochre-deep">{{ empresa.telefono }}</a>
+                {{#if demo}}<span class="font-mono text-[11px] text-ink-soft">{{ textos.etiquetaNumeroEjemplo }}</span>{{/if}}
+              </div>
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                <a href="{{ mailHref }}" class="ul-grow text-ink hover:text-ochre-deep">{{ empresa.email }}</a>
+              </div>
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 21s7-6.2 7-12A7 7 0 0 0 5 9c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                <span class="text-ink">{{ empresa.direccion }}{{#if demo}} <span class="font-mono text-[11px] text-ink-soft">{{ textos.etiquetaDireccionEjemplo }}</span>{{/if}}</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5 text-ochre" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                <span class="text-ink">{{ empresa.horario }}</span>
+              </div>
+            </dl>
+
+            <div class="mt-10">
+              <h2 class="font-display text-xl text-ink">{{ contacto.zona.titulo }}</h2>
+              <p class="measure mt-3 text-[15px] leading-relaxed text-ink-soft">
+                {{ contacto.zona.texto }}
+              </p>
+              <ul class="mt-4 flex flex-wrap gap-2 font-mono text-[13px]">
+                {{#each contacto.zona.municipios}}<li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink">{{ this }}</li>
+                {{/each}}
+                <li class="rounded-full border border-line-strong bg-paper-raised px-3.5 py-1.5 text-ink-soft">{{ contacto.zona.masComarcas }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div id="lead-form" class="relative scroll-mt-24 rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8">
+            <form id="form" class="grid gap-4" novalidate>
+              <label class="block text-sm">
+                <span class="font-semibold text-ink">{{ contacto.formulario.municipio }} <span class="font-normal text-ink-soft">{{ contacto.formulario.opcional }}</span></span>
+                <input name="municipio" type="text" maxlength="80" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              </label>
+              <label class="block text-sm">
+                <span class="font-semibold text-ink">{{ contacto.formulario.queInstalar }}</span>
+                <select name="tipo" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre">
+                  {{#each contacto.formulario.opciones}}<option>{{ this }}</option>
+                  {{/each}}
+                </select>
+              </label>
+              <label class="block text-sm">
+                <span class="font-semibold text-ink">{{ contacto.formulario.mensaje }} <span class="font-normal text-ink-soft">{{ contacto.formulario.opcional }}</span></span>
+                <textarea name="mensaje" rows="3" maxlength="500" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre"></textarea>
+                <span data-error="mensaje" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+              </label>
+{{> lead-cierre}}
+              <button type="submit" class="mt-1 rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">{{ contacto.formulario.boton }}</button>
+            </form>
+{{> lead-ok}}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-paper-deep/60">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <h2 class="max-w-2xl font-display text-3xl text-ink sm:text-[2.6rem] sm:leading-tight">{{ contacto.faqTitulo }}</h2>
+        <div class="mt-10 divide-y divide-line border-y border-line">
+          {{#each contacto.faq}}<details class="faq group py-2"{{#if @first}} open{{/if}}>
+            <summary class="flex cursor-pointer items-start justify-between gap-4 py-4 text-[16px] font-semibold text-ink">{{ this.pregunta }}<svg class="chev mt-1 h-4 w-4 shrink-0 text-ochre" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg></summary>
+            <p class="measure pb-5 text-[15px] leading-relaxed text-ink-soft">{{ this.respuesta }}</p>
+          </details>
+          {{/each}}
+        </div>
+      </div>
+    </section>
+  </main>
+
+{{> pie}}
+
+{{> whatsapp}}
+
+  <script>
+    window.LEAD = {{@json contactos}};
+{{@include js/menu.js}}
+  </script>
+  <script type="module">
+{{@include js/formulario.js}}
+  </script>
+</body>
+</html>

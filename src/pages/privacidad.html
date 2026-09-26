@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="{{ sitio.idioma }}" class="scroll-smooth">
+<head>
+{{> head}}
+</head>
+<body class="font-sans text-ink antialiased">
+{{> cabecera}}
+
+  <main id="contenido">
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">{{ privacidad.eyebrow }}</p>
+        <h1 class="mt-2 max-w-2xl font-display text-[2.4rem] leading-[1.1] text-ink sm:text-[3.2rem]">{{ privacidad.titular }}</h1>
+        <p class="measure mt-5 text-[17px] leading-relaxed text-ink-soft">{{ privacidad.intro }}</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <div class="measure divide-y divide-line border-y border-line">
+          {{#each privacidad.secciones}}<div class="py-5">
+            <h2 class="font-display text-xl text-ink">{{ this.titulo }}</h2>
+            <p class="mt-2 text-[15px] leading-relaxed text-ink-soft">{{ this.texto }}</p>
+          </div>
+          {{/each}}
+        </div>
+        {{#if demo}}<p class="measure mt-6 rounded-lg border border-line-strong bg-paper-raised px-4 py-3 text-[13px] leading-relaxed text-ink">{{ privacidad.avisoDemo }}</p>{{/if}}
+        <p class="mt-6 font-mono text-[12px] text-ink-soft">{{ privacidad.actualizado }} {{ privacidad.version }}</p>
+      </div>
+    </section>
+  </main>
+
+{{> pie}}
+
+{{> whatsapp}}
+
+  <script>
+{{@include js/menu.js}}
+  </script>
+</body>
+</html>

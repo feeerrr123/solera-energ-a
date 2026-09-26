@@ -1,0 +1,48 @@
+  <!-- ================= Footer ================= -->
+  <footer class="border-t border-line bg-olive text-[#c7c9b2]">
+    <div class="mx-auto max-w-shell px-5 py-14 sm:px-8">
+      <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <p class="flex items-center gap-2.5 font-display text-lg text-[#f1efe3]">
+            <svg viewBox="0 0 32 32" class="h-6 w-6" aria-hidden="true" fill="none">
+              <path d="M4 23h24" stroke="#c7c9b2" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="16" cy="15" r="6.5" stroke="#dc9142" stroke-width="2"/>
+              <path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#dc9142" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            {{ empresa.nombre }}
+          </p>
+          <p class="mt-3 max-w-xs text-[14px] leading-relaxed">{{ pie.descripcion }}</p>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">{{ pie.tituloSitio }}</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            {{#each pieEnlaces}}<li><a href="{{ this.href }}" class="ul-grow hover:text-[#f1efe3]">{{ this.texto }}</a></li>
+            {{/each}}
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">{{ pie.tituloZona }}</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            {{#each pie.zona}}<li>{{ this }}</li>
+            {{/each}}
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8f9277]">{{ pie.tituloContacto }}</h3>
+          <ul class="mt-3 space-y-2 text-[14px]">
+            <li><a href="{{ telHref }}" class="ul-grow hover:text-[#f1efe3]">{{ empresa.telefono }}</a></li>
+            <li><a href="{{ mailHref }}" class="ul-grow hover:text-[#f1efe3]">{{ empresa.email }}</a></li>
+            <li>{{ empresa.ciudadBase }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 flex flex-col gap-3 border-t border-white/12 pt-6 text-[12px] text-[#8f9277] sm:flex-row sm:items-center sm:justify-between">
+        <p>{{#if demo}}{{ pie.legalDemo }}{{else}}{{ pie.legalReal }}{{/if}}</p>
+        <p class="flex gap-4">
+          {{#each pie.legales}}<a href="{{ this.href }}" class="ul-grow hover:text-[#f1efe3]">{{ this.texto }}</a>
+          {{/each}}
+        </p>
+      </div>
+    </div>
+  </footer>

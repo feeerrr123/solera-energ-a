@@ -1,0 +1,24 @@
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block text-sm">
+                  <span class="font-semibold text-ink">{{ contactos.formulario.nombre }}</span>
+                  <input name="nombre" type="text" autocomplete="name" maxlength="80" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+                  <span data-error="nombre" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+                </label>
+                <label class="block text-sm">
+                  <span class="font-semibold text-ink">{{ contactos.formulario.telefono }}</span>
+                  <input name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+                  <span data-error="telefono" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+                </label>
+              </div>
+              <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">
+                <label>Web <input name="web" type="text" tabindex="-1" autocomplete="off" /></label>
+              </div>
+              <div class="text-[13px] leading-relaxed text-ink-soft">
+                <label class="flex items-start gap-2.5">
+                  <input name="consentimiento" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 rounded border-line-strong text-ochre focus:ring-ochre" />
+                  <span>{{ contactos.formulario.consentimiento }}</span>
+                </label>
+                <span data-error="consentimiento" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+              </div>
+              <span data-error="general" class="block text-[13px] text-red-800" role="alert"></span>
+              <span data-error="origen" class="hidden"></span>

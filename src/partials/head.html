@@ -1,0 +1,32 @@
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ pagina.titulo }}</title>
+  <meta name="description" content="{{ pagina.descripcion }}" />
+  {{#if pagina.noindex}}<meta name="robots" content="noindex, nofollow" />
+  {{/if}}<link rel="canonical" href="{{ canonical }}" />
+  <meta property="og:site_name" content="{{ empresa.nombre }}" />
+  <meta property="og:title" content="{{ pagina.ogTitulo }}" />
+  <meta property="og:description" content="{{ pagina.ogDescripcion }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ canonical }}" />
+  <meta property="og:locale" content="{{ sitio.locale }}" />
+  <meta name="theme-color" content="{{ sitio.colorTema }}" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Young+Serif&display=swap"
+    rel="stylesheet"
+  />
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script id="tailwind-config">
+{{@include js/tailwind-config.js}}
+  </script>
+
+  <style>
+{{@include css/site.css}}
+  </style>

@@ -1,0 +1,39 @@
+  <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded focus:bg-olive focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-paper">
+    {{ textos.saltarContenido }}
+  </a>
+
+  <!-- ================= Header ================= -->
+  <header class="glass sticky top-0 z-50">
+    <div class="mx-auto flex max-w-shell items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+      <a href="{{ paginas.inicio.archivo }}" class="flex items-center gap-2.5 font-display text-lg text-ink">
+        <svg viewBox="0 0 32 32" class="h-7 w-7" aria-hidden="true" fill="none">
+          <path d="M4 23h24" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="16" cy="15" r="6.5" stroke="#a5611a" stroke-width="2"/>
+          <path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#a5611a" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        {{ empresa.logoParte1 }} <span class="text-ink-soft">{{ empresa.logoParte2 }}</span>
+      </a>
+
+      <nav class="hidden items-center gap-7 text-sm xl:flex" aria-label="{{ textos.navPrincipal }}">
+        {{#each nav}}{{#if this.activo}}<a href="{{ this.href }}" class="text-ink" aria-current="page">{{ this.texto }}</a>{{else}}<a href="{{ this.href }}" class="ul-grow text-ink-soft hover:text-ink">{{ this.texto }}</a>{{/if}}
+        {{/each}}
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <a href="{{ ctaHref }}" class="hidden rounded-full bg-ochre px-4 py-2 text-sm font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep sm:inline-block">
+          {{ cabecera.cta.texto }}
+        </a>
+        <button id="menu-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full border border-line-strong text-ink xl:hidden" aria-expanded="false" aria-controls="menu-panel" aria-label="{{ textos.menuAbrir }}">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="menu-panel" hidden class="glass border-t border-line-strong/40 px-5 py-4 sm:px-8 xl:hidden">
+      <nav class="flex flex-col gap-1 text-[15px]" aria-label="{{ textos.navMovil }}">
+        {{#each nav}}{{#if this.activo}}<a href="{{ this.href }}" class="rounded px-2 py-2.5 text-ink">{{ this.texto }}</a>{{else}}<a href="{{ this.href }}" class="rounded px-2 py-2.5 text-ink-soft hover:bg-paper-deep hover:text-ink">{{ this.texto }}</a>{{/if}}
+        {{/each}}
+        <a href="{{ ctaMovilHref }}" class="mt-2 rounded-full bg-ochre px-4 py-2.5 text-center font-semibold text-paper-raised">{{ cabecera.cta.textoMovil }}</a>
+      </nav>
+    </div>
+  </header>

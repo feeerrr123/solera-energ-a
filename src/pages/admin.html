@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="{{ sitio.idioma }}" class="scroll-smooth">
+<head>
+{{> head}}
+</head>
+<body class="font-sans text-ink antialiased">
+  <!-- Panel interno (Fase 1). No sale en el menú ni en buscadores (noindex). Lógica en src/js/panel.js. -->
+
+  <header class="glass sticky top-0 z-50">
+    <div class="mx-auto flex max-w-shell items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+      <span class="flex items-center gap-2.5 font-display text-lg text-ink">
+        <svg viewBox="0 0 32 32" class="h-7 w-7" aria-hidden="true" fill="none">
+          <path d="M4 23h24" stroke="#232a1c" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="16" cy="15" r="6.5" stroke="#a5611a" stroke-width="2"/>
+          <path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#a5611a" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        {{ empresa.logoParte1 }} <span class="text-ink-soft">{{ empresa.logoParte2 }}</span>
+        <span class="ml-1 rounded-full border border-line-strong px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">{{ panel.titulo }}</span>
+      </span>
+      <div class="flex items-center gap-4 text-sm">
+        <span id="estado" hidden class="rounded-full border border-line-strong px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ochre-deep"></span>
+        <a href="{{ paginas.inicio.archivo }}" class="ul-grow hidden text-ink-soft hover:text-ink sm:inline">{{ panel.textos.verWeb }}</a>
+        <button id="btn-salir" type="button" hidden class="glass rounded-full px-4 py-1.5 text-sm font-semibold text-ink u-curve transition">{{ panel.textos.salir }}</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenido" class="mx-auto max-w-shell px-5 py-10 sm:px-8 sm:py-14">
+
+    <p id="vista-carga" class="font-mono text-sm text-ink-soft">{{ panel.textos.cargando }}</p>
+
+    <!-- ── Entrada ── -->
+    <section id="vista-login" hidden class="mx-auto max-w-sm">
+      <form id="form-login" class="rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8">
+        <h1 class="font-display text-2xl text-ink">{{ panel.textos.login.titulo }}</h1>
+        <p class="mt-2 text-[14px] leading-relaxed text-ink-soft">{{ panel.textos.login.ayuda }}</p>
+        <label class="mt-6 block text-sm">
+          <span class="font-semibold text-ink">{{ panel.textos.login.password }}</span>
+          <input id="login-password" name="password" type="password" required autocomplete="current-password" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+        </label>
+        <p id="login-error" role="alert" hidden class="mt-3 text-sm font-medium text-ochre-deep"></p>
+        <button id="login-boton" type="submit" class="mt-5 w-full rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">{{ panel.textos.login.boton }}</button>
+      </form>
+    </section>
+
+    <!-- ── Panel ── -->
+    <section id="vista-panel" hidden>
+      <div id="aviso-demo" hidden class="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line-strong bg-paper-deep/70 px-5 py-4 text-[14px] leading-relaxed text-ink-soft">
+        <p class="max-w-3xl">{{ panel.textos.demoAviso }}</p>
+        <button id="btn-restablecer" type="button" class="glass rounded-full px-4 py-1.5 text-sm font-semibold text-ink u-curve transition">{{ panel.textos.demoRestablecer }}</button>
+      </div>
+
+      <dl class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="glass rounded-xl px-5 py-4"><dd id="r-inst" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.instalaciones }}</dt></div>
+        <div class="glass rounded-xl px-5 py-4"><dd id="r-rev" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.revisiones }}</dt></div>
+        <div class="glass rounded-xl px-5 py-4"><dd id="r-casos" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.casos }}</dt></div>
+        <div class="glass rounded-xl px-5 py-4"><dd id="r-cont" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.contactos }}</dt></div>
+      </dl>
+
+      <div role="tablist" class="mt-10 flex gap-1 overflow-x-auto border-b border-line">
+        <button type="button" role="tab" data-tab="instalaciones" aria-selected="true" class="tab -mb-px border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.instalaciones }}</button>
+        <button type="button" role="tab" data-tab="revisiones" aria-selected="false" class="tab -mb-px border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.revisiones }}</button>
+        <button type="button" role="tab" data-tab="casos" aria-selected="false" class="tab -mb-px border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.casos }}</button>
+        <button type="button" role="tab" data-tab="contactos" aria-selected="false" class="tab -mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.contactos }}</button>
+      </div>
+
+      <!-- Instalaciones -->
+      <div id="tab-instalaciones" role="tabpanel" class="pt-8">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <button id="btn-nueva" type="button" class="rounded-full bg-ochre px-5 py-2.5 text-sm font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">{{ panel.textos.inst.nueva }}</button>
+          <p id="enlace-resena" class="text-[12px] text-ink-soft"></p>
+        </div>
+
+        <form id="form-inst" hidden class="mt-6 rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8" novalidate>
+          <h2 id="form-inst-titulo" class="font-display text-xl text-ink"></h2>
+          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+            <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.inst.campos.cliente }}</span>
+              <input name="cliente" type="text" required maxlength="80" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              <span data-error="cliente" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+            <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.inst.campos.telefono }}</span>
+              <input name="telefono" type="tel" required inputmode="tel" maxlength="30" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              <span data-error="telefono" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+            <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.inst.campos.municipio }}</span>
+              <input name="municipio" type="text" maxlength="80" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              <span data-error="municipio" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+            <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.inst.campos.cultivo }}</span>
+              <input name="cultivo" type="text" list="lista-cultivos" maxlength="40" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              <datalist id="lista-cultivos">{{#each panel.cultivos}}<option value="{{ this }}"></option>{{/each}}</datalist>
+              <span data-error="cultivo" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+            <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.inst.campos.hectareas }}</span>
+              <input name="hectareas" type="text" inputmode="decimal" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              <span data-error="hectareas" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+            <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.inst.campos.potencia }}</span>
+              <input name="potencia_kwp" type="text" inputmode="decimal" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              <span data-error="potencia_kwp" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+            <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.inst.campos.fecha }}</span>
+              <input name="fecha_instalacion" type="date" required class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+              <span data-error="fecha_instalacion" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+          </div>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button type="submit" class="rounded-full bg-ochre px-6 py-2.5 text-sm font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">{{ panel.textos.inst.guardar }}</button>
+            <button id="btn-cancelar-inst" type="button" class="glass rounded-full px-6 py-2.5 text-sm font-semibold text-ink u-curve transition">{{ panel.textos.inst.cancelar }}</button>
+          </div>
+        </form>
+
+        <ul id="lista-inst" class="mt-6 divide-y divide-line border-y border-line"></ul>
+      </div>
+
+      <!-- Revisiones -->
+      <div id="tab-revisiones" role="tabpanel" hidden class="pt-8">
+        <h2 class="font-display text-xl text-ink">{{ panel.textos.rev.titulo }}</h2>
+        <p id="rev-intro" class="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-soft"></p>
+        <ul id="lista-rev" class="mt-6 divide-y divide-line border-y border-line"></ul>
+      </div>
+
+      <!-- Casos de éxito -->
+      <div id="tab-casos" role="tabpanel" hidden class="pt-8">
+        <h2 class="font-display text-xl text-ink">{{ panel.textos.caso.titulo }}</h2>
+        <p class="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-soft">{{ panel.textos.caso.intro }}</p>
+
+        <form id="form-caso" hidden class="mt-6 rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8" novalidate>
+          <h3 id="form-caso-titulo" class="font-display text-xl text-ink"></h3>
+          <div class="mt-5 grid gap-8 lg:grid-cols-[1fr_1fr]">
+            <div class="space-y-4">
+              <label class="flex gap-3 text-sm"><input name="autoriza_publicar" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-line-strong text-ochre focus:ring-ochre" />
+                <span><span class="font-semibold text-ink">{{ panel.textos.caso.autoriza }}</span><span class="mt-0.5 block text-xs text-ink-soft">{{ panel.textos.caso.autorizaAyuda }}</span></span></label>
+              <label class="flex gap-3 text-sm"><input name="es_caso_exito" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-line-strong text-ochre focus:ring-ochre" />
+                <span><span class="font-semibold text-ink">{{ panel.textos.caso.publicar }}</span><span class="mt-0.5 block text-xs text-ink-soft">{{ panel.textos.caso.publicarAyuda }}</span></span></label>
+              <span data-error="es_caso_exito" class="block text-xs font-medium text-ochre-deep"></span>
+              <div class="grid gap-4 sm:grid-cols-3">
+                <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.caso.gasto }}</span>
+                  <input name="gasto_anual_antes" type="text" inputmode="decimal" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+                  <span data-error="gasto_anual_antes" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+                <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.caso.ahorro }}</span>
+                  <input name="ahorro_anual" type="text" inputmode="decimal" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+                  <span data-error="ahorro_anual" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+                <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.caso.amort }}</span>
+                  <input name="amortizacion_anios" type="text" inputmode="decimal" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+                  <span data-error="amortizacion_anios" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+              </div>
+              <label class="block text-sm"><span class="font-semibold text-ink">{{ panel.textos.caso.frase }}</span>
+                <textarea name="frase_cliente" rows="3" maxlength="240" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre"></textarea>
+                <span class="mt-1 block text-xs text-ink-soft">{{ panel.textos.caso.fraseAyuda }}</span>
+                <span data-error="frase_cliente" class="mt-1 block text-xs font-medium text-ochre-deep"></span></label>
+              <div class="text-sm">
+                <span class="font-semibold text-ink">{{ panel.textos.caso.foto }}</span>
+                <div class="mt-1.5 flex flex-wrap items-center gap-3">
+                  <input id="caso-foto" type="file" accept="image/jpeg,image/png,image/webp" class="text-xs text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-paper-deep file:px-4 file:py-2 file:text-xs file:font-semibold file:text-ink" />
+                  <button id="btn-quitar-foto" type="button" hidden class="text-xs font-semibold text-ochre-deep ul-grow">{{ panel.textos.caso.fotoQuitar }}</button>
+                  <span id="foto-estado" class="text-xs text-ink-soft"></span>
+                </div>
+                <span data-error="foto_url" class="mt-1 block text-xs font-medium text-ochre-deep"></span>
+              </div>
+            </div>
+            <div>
+              <p class="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">{{ panel.textos.caso.vistaPrevia }}</p>
+              <div id="caso-vista" class="mt-3"></div>
+            </div>
+          </div>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button type="submit" class="rounded-full bg-ochre px-6 py-2.5 text-sm font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">{{ panel.textos.caso.guardar }}</button>
+            <button id="btn-cancelar-caso" type="button" class="glass rounded-full px-6 py-2.5 text-sm font-semibold text-ink u-curve transition">{{ panel.textos.caso.cancelar }}</button>
+          </div>
+        </form>
+
+        <ul id="lista-casos" class="mt-6 divide-y divide-line border-y border-line"></ul>
+      </div>
+
+      <!-- Contactos recibidos por los formularios de la web -->
+      <div id="tab-contactos" role="tabpanel" hidden class="pt-8">
+        <h2 class="font-display text-xl text-ink">{{ panel.textos.contactos.titulo }}</h2>
+        <p class="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-soft">{{ panel.textos.contactos.intro }}</p>
+        <ul id="lista-contactos" class="mt-6 divide-y divide-line border-y border-line"></ul>
+      </div>
+    </section>
+  </main>
+
+  <div id="aviso" role="status" aria-live="polite" class="pointer-events-none fixed bottom-5 left-1/2 z-50 -translate-x-1/2 px-4"></div>
+
+  <template id="tpl-caso">{{@molde caso-card}}</template>
+
+  <style>
+    .tab { border-color: transparent; color: #575c42; }
+    .tab[aria-selected="true"] { border-color: #a5611a; color: #232a1c; }
+  </style>
+
+  <script>
+    window.PANEL = {{@json panel}};
+    window.LEAD = {{@json contactos}};
+  </script>
+  <script type="module">
+{{@include js/panel.js}}
+  </script>
+</body>
+</html>

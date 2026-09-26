@@ -1,0 +1,86 @@
+    :root { color-scheme: light; }
+    body {
+      background-color: #e9e7db;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.15 0 0 0 0 0.17 0 0 0 0 0.11 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    [hidden] { display: none !important; }
+
+    ::selection { background: #e6d3b1; color: #2c2410; }
+    ::-moz-selection { background: #e6d3b1; color: #2c2410; }
+    a, button, input, textarea, select { caret-color: #a5611a; }
+
+    :focus-visible { outline: 2px solid #a5611a; outline-offset: 3px; border-radius: 2px; }
+
+    * { scrollbar-width: thin; scrollbar-color: #b7b191 transparent; }
+    ::-webkit-scrollbar { width: 12px; height: 12px; }
+    ::-webkit-scrollbar-thumb { background: #b7b191; border: 3px solid #e9e7db; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9c9673; }
+
+    .measure { max-width: 66ch; }
+    .u-curve { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+
+    /* Vidrio — botones y paneles secundarios sobre el papel con grano.
+       Nunca sustituye al botón primario ochre; es la capa "flotante". */
+    .glass {
+      background: rgba(242, 240, 229, 0.55);
+      -webkit-backdrop-filter: blur(10px) saturate(1.15);
+      backdrop-filter: blur(10px) saturate(1.15);
+      border: 1px solid rgba(183, 177, 145, 0.5);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 10px 26px -16px rgba(35,42,28,0.35);
+    }
+    .glass:hover { background: rgba(242, 240, 229, 0.72); }
+    .glass-dark {
+      background: rgba(46, 58, 38, 0.62);
+      -webkit-backdrop-filter: blur(10px) saturate(1.15);
+      backdrop-filter: blur(10px) saturate(1.15);
+      border: 1px solid rgba(234, 231, 213, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 26px -16px rgba(0,0,0,0.4);
+    }
+    .glass-dark:hover { background: rgba(46, 58, 38, 0.78); }
+
+    /* Levanta ligeramente al pasar el ratón — el único "movimiento moderno" que se permite en tarjetas */
+    .lift { transition: transform .32s cubic-bezier(0.16,1,0.3,1), box-shadow .32s cubic-bezier(0.16,1,0.3,1); }
+    .lift:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -18px rgba(35,42,28,0.35); }
+    @media (prefers-reduced-motion: reduce) { .lift { transition: none; } .lift:hover { transform: none; } }
+
+    /* Papel cuadriculado — la sección de la calculadora es una "hoja de campo" */
+    .graph-paper {
+      background-color: #f2f0e5;
+      background-image:
+        linear-gradient(#d2ceb7 1px, transparent 1px),
+        linear-gradient(90deg, #d2ceb7 1px, transparent 1px);
+      background-size: 26px 26px;
+      background-position: -1px -1px;
+    }
+    .graph-paper-strong {
+      background-image:
+        linear-gradient(rgba(93,99,64,0.16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(93,99,64,0.16) 1px, transparent 1px),
+        linear-gradient(#d8d4bf 1px, transparent 1px),
+        linear-gradient(90deg, #d8d4bf 1px, transparent 1px);
+      background-size: 130px 130px, 130px 130px, 26px 26px, 26px 26px;
+    }
+
+    /* Enlace con subrayado que crece */
+    .ul-grow {
+      background-image: linear-gradient(currentColor, currentColor);
+      background-size: 0% 1.5px; background-position: 0 100%; background-repeat: no-repeat;
+      transition: background-size .34s cubic-bezier(0.16, 1, 0.3, 1); padding-bottom: 2px;
+    }
+    .ul-grow:hover { background-size: 100% 1.5px; }
+
+    /* Barra de resultado de la calculadora */
+    .bar-fill { transform-origin: left; transition: transform .6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .bar-fill { transition: none; }
+    }
+
+    details.faq > summary { list-style: none; }
+    details.faq > summary::-webkit-details-marker { display: none; }
+    details.faq > summary .chev { transition: transform .28s cubic-bezier(0.16, 1, 0.3, 1); }
+    details.faq[open] > summary .chev { transform: rotate(45deg); }
+
+    .seg-btn[aria-pressed="true"] { background: #2e3a26; color: #f1efe3; border-color: #2e3a26; }
+    .seg-btn.on-glass[aria-pressed="true"] { background: rgba(46,58,38,0.85); }

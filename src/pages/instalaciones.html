@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="{{ sitio.idioma }}" class="scroll-smooth">
+<head>
+{{> head}}
+</head>
+<body class="font-sans text-ink antialiased">
+{{> cabecera}}
+
+  <main id="contenido">
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">{{ instalaciones.eyebrow }}</p>
+        <h1 class="mt-2 max-w-3xl font-display text-[2.4rem] leading-[1.1] text-ink sm:text-[3.2rem]">{{ instalaciones.titular }}</h1>
+        <p class="measure mt-5 text-[17px] leading-relaxed text-ink-soft">
+          {{ instalaciones.texto }}
+        </p>
+      </div>
+    </section>
+
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <ul class="divide-y divide-line border-y border-line">
+          {{#each instalaciones.tipos}}<li id="{{ this.id }}" class="scroll-mt-24 grid gap-5 py-8 sm:grid-cols-[3.5rem_1fr_auto] sm:items-center sm:gap-8">
+            {{@icono this.icono "h-11 w-11"}}
+            <div>
+              <h2 class="font-display text-xl text-ink">{{ this.titulo }}</h2>
+              <p class="mt-2 max-w-xl text-[15px] leading-relaxed text-ink-soft">{{ this.texto }}</p>
+            </div>
+            <dl class="flex gap-8 font-mono text-[13px] text-ink sm:justify-self-end">
+              <div><dt class="text-ink-soft">{{ instalaciones.etiquetas.potencia }}</dt><dd class="mt-0.5">{{ this.potencia }}</dd></div>
+              <div><dt class="text-ink-soft">{{ instalaciones.etiquetas.amortizacion }}</dt><dd class="mt-0.5">{{ this.amortizacion }}</dd></div>
+            </dl>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+    </section>
+
+    <section id="proceso" class="scroll-mt-24 bg-olive text-[#eae7d5]">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <div class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <h2 class="font-display text-3xl text-[#f1efe3] sm:text-[2.6rem] sm:leading-tight">{{ instalaciones.proceso.titulo }}</h2>
+          <p class="measure text-[16px] leading-relaxed text-[#c7c9b2]">{{ instalaciones.proceso.texto }}</p>
+        </div>
+        <ol class="mt-12 divide-y divide-white/15 border-y border-white/15">
+          {{#each instalaciones.proceso.fases}}<li class="grid gap-2 py-6 sm:grid-cols-[4rem_14rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-[#dc9142]">{{ this.etiqueta }}</span>
+            <h3 class="font-display text-lg text-[#f1efe3]">{{ this.titulo }}</h3>
+            <p class="text-[14px] leading-relaxed text-[#c7c9b2]">{{ this.texto }}</p>
+          </li>
+          {{/each}}
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <div class="mx-auto max-w-shell px-5 py-14 text-center sm:px-8 sm:py-16">
+        <a href="{{ paginas.calculadora.archivo }}" class="rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep">{{ instalaciones.boton }}</a>
+      </div>
+    </section>
+  </main>
+
+{{> pie}}
+
+{{> whatsapp}}
+
+  <script>
+{{@include js/menu.js}}
+  </script>
+</body>
+</html>

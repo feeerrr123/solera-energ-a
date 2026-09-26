@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="{{ sitio.idioma }}" class="scroll-smooth">
+<head>
+{{> head}}
+</head>
+<body class="font-sans text-ink antialiased">
+{{> cabecera}}
+
+  <main id="contenido">
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">{{ comoFunciona.eyebrow }}</p>
+        <h1 class="mt-2 max-w-3xl font-display text-[2.4rem] leading-[1.1] text-ink sm:text-[3.2rem]">{{ comoFunciona.titular }}</h1>
+        <p class="measure mt-5 text-[17px] leading-relaxed text-ink-soft">
+          {{ comoFunciona.texto }}
+        </p>
+      </div>
+    </section>
+
+    <section class="border-b border-line bg-paper-deep/60">
+      <div class="mx-auto max-w-shell px-5 py-16 sm:px-8 sm:py-24">
+        <ol class="divide-y divide-line border-y border-line">
+          {{#each comoFunciona.pasos}}<li class="grid gap-3 py-6 sm:grid-cols-[3rem_10rem_1fr] sm:items-baseline sm:gap-6">
+            <span class="font-mono text-sm text-ochre">{{ @nn }}</span>
+            <h2 class="font-display text-xl text-ink">{{ this.titulo }}{{#if this.nota}} <span class="text-ink-soft">{{ this.nota }}</span>{{/if}}</h2>
+            <p class="text-[15px] leading-relaxed text-ink-soft">{{ this.texto }}</p>
+          </li>
+          {{/each}}
+        </ol>
+
+        <div class="glass mt-14 rounded-2xl p-6 sm:p-8">
+          <div class="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+            <div>
+              <p class="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-soft">{{ comoFunciona.figura2.eyebrow }}</p>
+              <h2 class="mt-2 font-display text-xl text-ink sm:text-2xl">{{ comoFunciona.figura2.titulo }}</h2>
+              <p class="measure mt-3 text-[15px] leading-relaxed text-ink-soft">
+                {{ comoFunciona.figura2.texto }}
+              </p>
+            </div>
+{{> fig-dia}}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="mx-auto max-w-shell px-5 py-14 text-center sm:px-8 sm:py-16">
+        <a href="{{ paginas.instalaciones.archivo }}" class="glass lift inline-flex items-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold text-ink u-curve transition">{{ comoFunciona.enlaceFinal }}</a>
+      </div>
+    </section>
+  </main>
+
+{{> pie}}
+
+{{> whatsapp}}
+
+  <script>
+{{@include js/menu.js}}
+  </script>
+</body>
+</html>

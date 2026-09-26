@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="{{ sitio.idioma }}" class="scroll-smooth">
+<head>
+{{> head}}
+</head>
+<body class="font-sans text-ink antialiased">
+{{> cabecera}}
+
+  <main id="contenido">
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">{{ ayudas.eyebrow }}</p>
+        <h1 class="mt-2 max-w-2xl font-display text-[2.4rem] leading-[1.1] text-ink sm:text-[3.2rem]">{{ ayudas.titular }}</h1>
+        <p class="measure mt-5 text-[17px] leading-relaxed text-ink-soft">{{ ayudas.texto }}</p>
+      </div>
+    </section>
+
+    <section class="border-b border-line">
+      <div class="mx-auto max-w-shell px-5 py-14 sm:px-8 sm:py-20">
+        <div class="mx-auto max-w-2xl rounded-xl border border-line-strong bg-paper-raised p-6 shadow-field sm:p-8">
+          <form id="form-ayudas" class="grid gap-4" novalidate>
+            <label class="block text-sm">
+              <span class="font-semibold text-ink">{{ ayudas.formulario.etiquetas.titular }}</span>
+              <select name="titular" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre">
+                <option value="">{{ ayudas.formulario.elige }}</option>
+                {{#each ayudas.formulario.titulares}}<option value="{{ this.id }}">{{ this.texto }}</option>
+                {{/each}}
+              </select>
+              <span data-error="titular" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+            </label>
+            <label class="block text-sm">
+              <span class="font-semibold text-ink">{{ ayudas.formulario.etiquetas.provincia }}</span>
+              <select name="provincia" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre">
+                <option value="">{{ ayudas.formulario.elige }}</option>
+                {{#each ayudas.formulario.provincias}}<option value="{{ this.id }}">{{ this.texto }}</option>
+                {{/each}}
+              </select>
+              <span data-error="provincia" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+            </label>
+            <label class="block text-sm">
+              <span class="font-semibold text-ink">{{ ayudas.formulario.etiquetas.cultivo }}</span>
+              <select name="cultivo" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre">
+                <option value="">{{ ayudas.formulario.elige }}</option>
+                {{#each ayudas.formulario.cultivos}}<option value="{{ this.id }}">{{ this.texto }}</option>
+                {{/each}}
+              </select>
+              <span data-error="cultivo" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+            </label>
+            <label class="block text-sm">
+              <span class="font-semibold text-ink">{{ ayudas.formulario.etiquetas.concesion }}</span>
+              <select name="concesion" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre">
+                <option value="">{{ ayudas.formulario.elige }}</option>
+                {{#each ayudas.formulario.concesiones}}<option value="{{ this.id }}">{{ this.texto }}</option>
+                {{/each}}
+              </select>
+              <span data-error="concesion" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+            </label>
+            <label class="block text-sm">
+              <span class="font-semibold text-ink">{{ ayudas.formulario.etiquetas.instalacion }}</span>
+              <select name="instalacion" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre">
+                <option value="">{{ ayudas.formulario.elige }}</option>
+                {{#each ayudas.formulario.instalaciones}}<option value="{{ this.id }}">{{ this.texto }}</option>
+                {{/each}}
+              </select>
+              <span data-error="instalacion" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+            </label>
+            <button type="submit" class="mt-1 rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">{{ ayudas.formulario.boton }}</button>
+          </form>
+
+          <div id="resultado" hidden aria-live="polite">
+            <h2 id="res-titulo" class="font-display text-2xl text-ink"></h2>
+            <p id="res-texto" class="mt-2 text-[15px] leading-relaxed text-ink-soft"></p>
+            <p id="res-concesion" hidden class="mt-4 rounded-lg border border-line-strong bg-paper px-4 py-3 text-[14px] leading-relaxed text-ink">{{ ayudas.resultado.avisoSinConcesion }}</p>
+            <div id="res-lineas" hidden class="mt-6">
+              <h3 class="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-soft">{{ ayudas.resultado.lineasTitulo }}</h3>
+              <ul id="res-lista" class="mt-2 divide-y divide-line border-y border-line"></ul>
+            </div>
+
+            <div id="lead-form" class="mt-8 border-t border-line pt-6">
+              <h3 class="font-display text-xl text-ink">{{ ayudas.resultado.contactoTitulo }}</h3>
+              <p class="mt-1 text-[15px] leading-relaxed text-ink-soft">{{ ayudas.resultado.contactoTexto }}</p>
+              <form id="form" class="relative mt-4 grid gap-4" novalidate>
+{{> lead-cierre}}
+                <button type="submit" class="rounded-full bg-ochre px-6 py-3 text-[15px] font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">{{ ayudas.resultado.contactoBoton }}</button>
+              </form>
+{{> lead-ok}}
+            </div>
+            <button id="rehacer" type="button" class="ul-grow mt-6 text-[14px] text-ochre-deep">{{ ayudas.resultado.rehacer }}</button>
+          </div>
+        </div>
+        <p class="mx-auto mt-6 max-w-2xl text-[12px] leading-relaxed text-ink-soft">{{ ayudas.aviso }}</p>
+      </div>
+    </section>
+  </main>
+
+{{> pie}}
+
+{{> whatsapp}}
+
+  <script>
+    window.LEAD = {{@json contactos}};
+    window.AYUDAS = {{@json ayudas}};
+{{@include js/menu.js}}
+  </script>
+  <script type="module">
+{{@include js/ayudas.js}}
+  </script>
+</body>
+</html>

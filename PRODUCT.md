@@ -7,7 +7,7 @@
 ## Qué es
 
 Instaladora **especializada en bombeo solar para riego** en Andalucía oriental
-(Jaén, Granada, Almería), con base en Úbeda (Jaén). Sustituye grupos diésel y
+(Jaén, Granada, Almería) y Córdoba, con base en Úbeda (Jaén). Sustituye grupos diésel y
 bombeo por red en pozos, sondeos, balsas y canales de riego por sistemas
 fotovoltaicos. Hace el proyecto completo: estudio del pozo y del caudal,
 dimensionado, tramitación de subvenciones, instalación y mantenimiento.
@@ -86,6 +86,15 @@ diésel** y los diagramas de la instalación explicados.
 - Subvenciones con importe garantizado: se mencionan como "según convocatoria vigente".
 - Cifras de subvención/coste de diésel como si fueran actuales de verdad — son
   de referencia para ilustrar el mecanismo, no un dato de mercado en tiempo real.
+
+## Panel interno y casos reales (Fase 1)
+
+- La instaladora registra cada instalación terminada, pide la reseña de Google y los
+  recordatorios de mantenimiento por WhatsApp (mensaje escrito, envío manual), y marca casos de
+  éxito para la web.
+- **Un caso solo se publica con la autorización del cliente.** En la web pública nunca salen su
+  nombre ni su teléfono: solo cultivo, municipio, cifras y, si la hay, su frase sin firma.
+- Los casos de la demo son ilustrativos y así se etiquetan.
 
 ## Créditos
 

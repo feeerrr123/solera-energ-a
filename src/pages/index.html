@@ -172,8 +172,10 @@
     </section>
 
     <!-- ================= CTA final ================= -->
-    <section class="bg-olive text-[#eae7d5]">
-      <div class="mx-auto max-w-shell px-5 py-16 text-center sm:px-8 sm:py-20">
+    <section class="relative overflow-hidden bg-olive text-[#eae7d5]">
+      <img src="{{ inicio.cierre.foto.src }}" alt="{{ inicio.cierre.foto.alt }}" loading="lazy" class="absolute inset-0 h-full w-full object-cover opacity-35" />
+      <div class="absolute inset-0 bg-gradient-to-t from-olive via-olive/90 to-olive/70"></div>
+      <div class="relative mx-auto max-w-shell px-5 py-16 text-center sm:px-8 sm:py-20">
         <h2 class="font-display text-3xl text-[#f1efe3] sm:text-[2.6rem]">{{ inicio.cierre.titulo }}</h2>
         <p class="measure mx-auto mt-4 text-[16px] leading-relaxed text-[#c7c9b2]">
           {{ inicio.cierre.texto }}

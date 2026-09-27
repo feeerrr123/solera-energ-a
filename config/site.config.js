@@ -25,13 +25,25 @@ const anio = 2026
 const estudio = '[TU ESTUDIO]' // quién ha diseñado la web (solo se ve con demo: true)
 const zonaTexto = 'Jaén, Granada, Almería y Córdoba'
 // Enlace de reseñas de Google de la empresa (Perfil de Empresa → "Pedir reseñas" → copiar enlace).
-const googleReviewUrl = 'https://g.page/r/PLACEHOLDER/review'
+// De ejemplo (inventado): la empresa es ficticia, así que este enlace no lleva a ningún perfil real.
+const googleReviewUrl = 'https://g.page/r/CfSolerAEnergia2026/review'
 // Cómo se firma la frase de un cliente en la web pública: NUNCA con su nombre.
 const atribucionCaso = 'Titular de explotación de {cultivo}, {municipio}'
 // Versión del aviso de privacidad (se guarda con cada contacto: qué texto aceptó la persona).
 const avisoVersion = '2026-09'
 const email = 'hola@soleraenergia.example'
-const whatsappNumero = '34600000000' // solo dígitos, con prefijo de país y sin "+"
+const whatsappNumero = '34641717005' // solo dígitos, con prefijo de país y sin "+"
+
+/* ─── Fotos de muestra (Unsplash, uso libre) ───────────────────────────────── */
+// MARCADAS PARA SUSTITUIR por fotos reales de la instaladora antes de publicar de verdad.
+// URLs verificadas (200 / jpeg).
+const U = (id, extra = '') => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=75${extra}`
+const fotos = {
+  olivarColinas: { src: U('1767022088159-d05a1e84d737', '&w=1800'), alt: 'Colinas de olivar en Jaén, con luz cálida de atardecer' },
+  puebloBlanco: { src: U('1767022078193-b2359eee8945', '&w=1600'), alt: 'Pueblo blanco de Andalucía en una ladera entre olivares' },
+  panelesCampo: { src: U('1509391366360-2e959784a276', '&w=1600'), alt: 'Paneles solares instalados en un campo agrícola' },
+  riegoAspersor: { src: U('1771684512143-88bdb34782fa', '&w=1200'), alt: 'Agricultor regando un cultivo con aspersores' },
+}
 // Cultivos que se ofrecen en los formularios (los ids los usa la lógica; los textos son libres).
 const cultivos = [
   { id: 'olivar', texto: 'Olivar' },
@@ -109,8 +121,8 @@ export default {
     nombre,
     logoParte1: 'Solera',
     logoParte2: 'Energía',
-    telefono: '600 00 00 00',
-    telefonoHref: '+34600000000',
+    telefono: '641 71 70 05',
+    telefonoHref: '+34641717005',
     whatsappNumero,
     whatsappMensaje: 'Hola, me interesa un estudio de bombeo solar',
     email,
@@ -265,6 +277,7 @@ export default {
     titular: 'Lo que instalamos',
     texto: p(`Cuatro formas de llegar al mismo sitio: menos gasto de bombeo. Las cifras son rangos habituales
       en la zona; tu estudio lleva las tuyas.`),
+    foto: fotos.panelesCampo,
     etiquetas: { potencia: 'Potencia', amortizacion: 'Amortización' },
     tipos: [
       {
@@ -314,6 +327,7 @@ export default {
       <strong class="text-ink">ejemplos ilustrativos</strong> —números de referencia sobre casos típicos de la
       zona, no proyectos ni personas reales. Cuando cerremos los primeros, sus casos de verdad
       sustituyen a estos, con su nombre si lo autorizan.`),
+    foto: fotos.puebloBlanco,
     // Nombres de las tres cifras grandes de cada tarjeta
     etiquetas: { hectareas: 'Superficie', amortizacion: 'Amortización', reduccion: 'Menos gasto' },
     atribucion: atribucionCaso,
@@ -830,6 +844,7 @@ export default {
       texto: 'Calcula tu ahorro en dos minutos, o pide directamente el estudio del pozo. Es gratis y no compromete a nada.',
       boton1: 'Calcula tu ahorro',
       boton2: 'Pide tu estudio',
+      foto: fotos.olivarColinas,
     },
   },
 
@@ -962,6 +977,7 @@ export default {
     titular: 'Pide tu estudio gratuito',
     texto: p(`Cuéntanos tu pozo, tu balsa o tu comunidad de regantes, y para qué riegas. Te llamamos en 24–48 h
       laborables, miramos tu gasto actual y, si encaja, subimos a ver la parcela. Sin coste y sin compromiso.`),
+    foto: fotos.riegoAspersor,
     zona: {
       titulo: 'Dónde trabajamos',
       texto: p(`Andalucía oriental y Córdoba. Base en Úbeda (Jaén) —el olivar de regadío más grande de España—, y

@@ -57,6 +57,37 @@
         720,
         300
       ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Junta todos los anuncios encontrados en UN solo email.\n// (Si el filtro no encuentra nada, este paso no se ejecuta y no llega ningún email.)\nconst esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst anuncios = $input.all().map((i) => i.json);\n\nconst lista = anuncios.map((a) => `\n  <li style=\"margin-bottom:14px\">\n    <a href=\"${esc(a.enlace)}\">${esc(a.titulo)}</a><br>\n    <small style=\"color:#666\">${esc((a.fecha || '').slice(0, 10))} · coincide: ${esc(a.coincide)}</small>\n  </li>`).join('');\n\nreturn [{\n  json: {\n    asunto: `BOJA: ${anuncios.length} anuncio${anuncios.length === 1 ? '' : 's'} de riego / solar`,\n    html: `<p>Hoy el BOJA trae esto que puede interesarnos:</p><ul>${lista}</ul>\n<p style=\"color:#666;font-size:12px\">Aviso automático del vigilante del BOJA (n8n).</p>`,\n  },\n}];\n"
+      },
+      "id": "d1",
+      "name": "Preparar email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "TU-CORREO@gmail.com",
+        "toEmail": "TU-CORREO@gmail.com",
+        "subject": "={{ $json.asunto }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "e1",
+      "name": "Enviar email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1240,
+        300
+      ]
     }
   ],
   "connections": {
@@ -87,6 +118,28 @@
         [
           {
             "node": "Filtrar: riego, solar, ayudas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar: riego, solar, ayudas": {
+      "main": [
+        [
+          {
+            "node": "Preparar email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar email": {
+      "main": [
+        [
+          {
+            "node": "Enviar email",
             "type": "main",
             "index": 0
           }

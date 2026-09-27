@@ -1,0 +1,102 @@
+{
+  "name": "Vigilante BOJA — ayudas riego y solar",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "a1",
+      "name": "Cada día a las 8:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "a2",
+      "name": "Probar ahora",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.juntadeandalucia.es/boja/distribucion/s51.xml"
+      },
+      "id": "b1",
+      "name": "BOJA · Disposiciones generales",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Palabras que nos interesan (sin tildes, en minúsculas). Añade o quita las que quieras.\nconst palabras = [\n  'riego', 'regadio', 'regantes', 'bombeo', 'fotovolta', 'solar',\n  'renovable', 'autoconsumo', 'eficiencia energetica', 'modernizacion de regadios',\n  'explotaciones agrarias', 'pozo', 'agua para riego'\n];\n// Solo lo publicado en las últimas N horas (así no se repiten avisos cada día).\nconst horas = 26;\n\nconst limpiar = (t) => (t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();\nconst desde = Date.now() - horas * 3600 * 1000;\n\nreturn $input.all()\n  .filter((item) => {\n    const j = item.json;\n    const fecha = Date.parse(j.isoDate || j.pubDate || '');\n    if (!Number.isNaN(fecha) && fecha < desde) return false;\n    const texto = limpiar(`${j.title} ${j.contentSnippet || j.content || ''}`);\n    return palabras.some((p) => texto.includes(p));\n  })\n  .map((item) => {\n    const j = item.json;\n    const texto = limpiar(`${j.title} ${j.contentSnippet || j.content || ''}`);\n    return {\n      json: {\n        titulo: j.title,\n        enlace: j.link,\n        fecha: j.isoDate || j.pubDate,\n        coincide: palabras.filter((p) => texto.includes(p)).join(', '),\n      },\n    };\n  });\n"
+      },
+      "id": "c1",
+      "name": "Filtrar: riego, solar, ayudas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Cada día a las 8:00": {
+      "main": [
+        [
+          {
+            "node": "BOJA · Disposiciones generales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar ahora": {
+      "main": [
+        [
+          {
+            "node": "BOJA · Disposiciones generales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BOJA · Disposiciones generales": {
+      "main": [
+        [
+          {
+            "node": "Filtrar: riego, solar, ayudas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid"
+  },
+  "pinData": {}
+}

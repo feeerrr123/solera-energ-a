@@ -91,7 +91,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Instrucciones para Gemini. Cámbialas si quieres otro estilo de resumen.\nconst instrucciones = `Eres redactor de una instaladora de bombeo solar para riego en Andalucía.\nResume este anuncio del BOJA en 2 o 3 frases sencillas para un agricultor o una comunidad de regantes:\nde qué trata, a quién va dirigido y el plazo SOLO si aparece en el texto.\nReglas:\n- No inventes nada que no esté en el texto.\n- No pongas importes ni cantidades de dinero.\n- Nunca prometas que alguien conseguirá la ayuda.\n- Si el texto no da para saber de qué trata, dilo en una frase.\n- Termina con: \"Consulta los requisitos en la convocatoria oficial.\"\n- Solo el resumen, sin títulos ni viñetas.`;\n\nreturn $input.all().map((item) => ({\n  json: {\n    ...item.json,\n    peticion: {\n      contents: [{ parts: [{ text: `${instrucciones}\\n\\nTÍTULO: ${item.json.titulo}\\n\\nTEXTO: ${item.json.texto || '(sin texto)'}` }] }],\n      generationConfig: { temperature: 0.2, thinkingConfig: { thinkingBudget: 0 } },\n    },\n  },\n}));\n"
+        "jsCode": "// Instrucciones para Gemini. Cámbialas si quieres otro estilo de resumen.\nconst instrucciones = `Eres redactor de una instaladora de bombeo solar para riego en Andalucía.\nResume este anuncio del BOJA en 2 o 3 frases sencillas para un agricultor o una comunidad de regantes:\nde qué trata, a quién va dirigido y el plazo SOLO si aparece en el texto.\nReglas:\n- No inventes nada que no esté en el texto.\n- No pongas importes ni cantidades de dinero.\n- Nunca prometas que alguien conseguirá la ayuda.\n- Si el texto no da para saber de qué trata, dilo en una frase.\n- Termina con: \"Consulta los requisitos en la convocatoria oficial.\"\n- Solo el resumen, sin títulos ni viñetas.`;\n\nreturn $input.all().map((item) => ({\n  json: {\n    ...item.json,\n    peticion: {\n      contents: [{ parts: [{ text: `${instrucciones}\\n\\nTÍTULO: ${item.json.titulo}\\n\\nTEXTO: ${item.json.texto || '(sin texto)'}` }] }],\n      generationConfig: { temperature: 0.2 },\n    },\n  },\n}));\n"
       },
       "id": "g1",
       "name": "Preparar petición a Gemini",
@@ -105,7 +105,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,

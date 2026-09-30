@@ -1,5 +1,5 @@
 {
-  "name": "Vigilante BOJA — ayudas riego y solar (con Gemini)",
+  "name": "Vigilante BOJA — ayudas riego y solar (Gemini + Telegram)",
   "nodes": [
     {
       "parameters": {
@@ -60,10 +60,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// Junta todos los anuncios en UN solo email, con el resumen de Gemini.\n// Si Gemini falla o no responde, el anuncio sale igual, sin resumen.\nconst esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst anuncios = $('Preparar petición a Gemini').all().map((i) => i.json);\nconst respuestas = $input.all().map((i) => i.json);\n\nconst lista = anuncios.map((a, k) => {\n  const r = respuestas[k] || {};\n  const resumen = r.candidates?.[0]?.content?.parts?.map((p) => p.text).join('').trim();\n  return `\n  <li style=\"margin-bottom:18px\">\n    <a href=\"${esc(a.enlace)}\"><strong>${esc(a.titulo)}</strong></a><br>\n    ${resumen ? `<span>${esc(resumen)}</span><br>` : '<em style=\"color:#a00\">(Sin resumen: Gemini no respondió)</em><br>'}\n    <small style=\"color:#666\">${esc((a.fecha || '').slice(0, 10))} · coincide: ${esc(a.coincide)}</small>\n  </li>`;\n}).join('');\n\nreturn [{\n  json: {\n    asunto: `BOJA: ${anuncios.length} anuncio${anuncios.length === 1 ? '' : 's'} de riego / solar`,\n    html: `<p>Hoy el BOJA trae esto que puede interesarnos:</p><ul>${lista}</ul>\n<p style=\"color:#666;font-size:12px\">Resúmenes hechos por IA (Gemini): revísalos antes de usarlos. Aviso automático del vigilante del BOJA (n8n).</p>`,\n  },\n}];\n"
+        "jsCode": "// Junta todos los anuncios en UN solo aviso, con el resumen de Gemini.\n// Saca dos versiones: \"telegram\" (texto) y \"html\" (email). Si Gemini falla, el anuncio sale igual, sin resumen.\nconst esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst anuncios = $('Preparar petición a Gemini').all().map((i) => i.json);\nconst respuestas = $input.all().map((i) => i.json);\nconst resumenDe = (k) => (respuestas[k] || {}).candidates?.[0]?.content?.parts?.map((p) => p.text).join('').trim();\n\nconst asunto = `BOJA: ${anuncios.length} anuncio${anuncios.length === 1 ? '' : 's'} de riego / solar`;\n\n// --- Telegram (formato HTML de Telegram: solo <b>, <i>, <a>) ---\nlet telegram = `<b>${esc(asunto)}</b>\\n`;\nanuncios.forEach((a, k) => {\n  const r = resumenDe(k);\n  const bloque = `\\n<b>${esc(a.titulo)}</b>\\n${r ? esc(r) : '<i>(Sin resumen: Gemini no respondió)</i>'}\\n<a href=\"${esc(a.enlace)}\">Ver en el BOJA</a>\\n`;\n  if ((telegram + bloque).length < 3900) telegram += bloque; // Telegram admite hasta 4096 caracteres\n});\ntelegram += '\\n<i>Resúmenes hechos por IA: revísalos antes de usarlos.</i>';\n\n// --- Email (por si algún día se vuelve a activar) ---\nconst lista = anuncios.map((a, k) => {\n  const r = resumenDe(k);\n  return `\n  <li style=\"margin-bottom:18px\">\n    <a href=\"${esc(a.enlace)}\"><strong>${esc(a.titulo)}</strong></a><br>\n    ${r ? `<span>${esc(r)}</span><br>` : '<em style=\"color:#a00\">(Sin resumen: Gemini no respondió)</em><br>'}\n    <small style=\"color:#666\">${esc((a.fecha || '').slice(0, 10))} · coincide: ${esc(a.coincide)}</small>\n  </li>`;\n}).join('');\nconst html = `<p>Hoy el BOJA trae esto que puede interesarnos:</p><ul>${lista}</ul>\n<p style=\"color:#666;font-size:12px\">Resúmenes hechos por IA (Gemini): revísalos antes de usarlos. Aviso automático del vigilante del BOJA (n8n).</p>`;\n\nreturn [{ json: { asunto, telegram, html } }];\n"
       },
       "id": "d1",
-      "name": "Preparar email",
+      "name": "Preparar aviso",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -86,8 +86,9 @@
       "typeVersion": 2.1,
       "position": [
         1760,
-        300
-      ]
+        460
+      ],
+      "disabled": true
     },
     {
       "parameters": {
@@ -125,6 +126,25 @@
       "retryOnFail": true,
       "maxTries": 5,
       "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "t1",
+      "name": "Enviar Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        220
+      ]
     }
   ],
   "connections": {
@@ -172,17 +192,6 @@
         ]
       ]
     },
-    "Preparar email": {
-      "main": [
-        [
-          {
-            "node": "Enviar email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Preparar petición a Gemini": {
       "main": [
         [
@@ -198,7 +207,23 @@
       "main": [
         [
           {
-            "node": "Preparar email",
+            "node": "Preparar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar aviso": {
+      "main": [
+        [
+          {
+            "node": "Enviar Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Enviar email",
             "type": "main",
             "index": 0
           }

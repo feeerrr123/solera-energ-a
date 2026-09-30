@@ -1,0 +1,6 @@
+<article id="{{ this.id }}" class="scroll-mt-24 py-8">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">{{ this.fuente }}{{#if this.fecha}} · {{ this.fecha }}{{/if}}{{#if this.ejemplo}}<span class="ml-2 whitespace-nowrap rounded-full border border-line-strong/70 px-2.5 py-0.5 text-[10px] text-ochre-deep">{{ noticias.etiquetaEjemplo }}</span>{{/if}}</p>
+            <h2 class="mt-2 max-w-3xl font-display text-xl leading-snug text-ink sm:text-2xl">{{ this.titulo }}</h2>
+            {{#if this.resumen}}<p class="measure mt-3 text-[15px] leading-relaxed text-ink-soft">{{ this.resumen }}</p>{{/if}}
+            {{#if this.enlace}}<a href="{{ this.enlace }}" target="_blank" rel="noopener" class="mt-3 inline-block text-sm font-semibold text-ochre-deep ul-grow">{{ noticias.verOficial }} →</a>{{/if}}
+          </article>

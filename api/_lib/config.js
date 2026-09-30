@@ -7,11 +7,14 @@ export const cfg = {
   supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
   adminPassword: process.env.ADMIN_PASSWORD || '',
   adminSecret: process.env.ADMIN_SECRET || '',
+  // Clave con la que n8n entrega noticias (POST /api/noticias). Sin ella, esa puerta está cerrada.
+  noticiasToken: process.env.NOTICIAS_TOKEN || '',
   bucket: 'casos',
 }
 
 export const supabaseListo = () => !!(cfg.supabaseUrl && cfg.supabaseServiceKey)
 export const adminListo = () => !!(cfg.adminPassword && cfg.adminSecret.length >= 16)
+export const noticiasListo = () => cfg.noticiasToken.length >= 24
 
 // Modo demo = falta Supabase: no hay dónde guardar nada real.
 export const modoDemo = () => !supabaseListo()

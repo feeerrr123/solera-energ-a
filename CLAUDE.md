@@ -34,8 +34,8 @@ dist/                   SALIDA (en .gitignore). Nunca se edita a mano.
 ```
 
 Páginas: `index` · `como-funciona` · `instalaciones` (incluye Proceso) · `casos`
-(incluye Por qué nosotros) · `calculadora` · `contacto` (incluye Zona y Preguntas) ·
-`admin` (panel interno, `noindex`, fuera del menú).
+(incluye Por qué nosotros) · `ayudas` · `noticias` · `dimensionado` · `calculadora` · `contacto`
+(incluye Zona y Preguntas) · `privacidad` · `admin` (panel interno, `noindex`, fuera del menú).
 
 **Cambiar algo:** un texto, cifra, dato de empresa o parámetro → `config/site.config.js`.
 Estructura o estilo → la plantilla o el parcial. Cada página tiene su plantilla en
@@ -44,7 +44,7 @@ Estructura o estilo → la plantilla o el parcial. Cada página tiene su plantil
 ```bash
 npm run build     # genera dist/
 npm run dev       # genera, vigila cambios y sirve dist/ en http://localhost:4177
-npm test          # 50 pruebas (motor, lógica, API con repositorio en memoria, config)
+npm test          # 80 pruebas (motor, lógica, API con repositorio en memoria, config) — antes: npm install
 ```
 
 Un dato que falta en la config **rompe el build** con el archivo y la ruta — a propósito:
@@ -123,6 +123,30 @@ que se rellenan las de la API, y la vista previa del panel. Cambiar la tarjeta =
 uno), 500 MB de base de datos y 1 GB de archivos. Vercel Hobby es de **uso no comercial**: la
 propia definición incluye "anunciar un producto o servicio" y "cobrar por crear o alojar el
 sitio". Para una instaladora real que paga, el despliegue debe ir en su cuenta o en un plan Pro.
+
+## Noticias del BOJA (Fase 4, 2026-09-30)
+
+Recorrido: **n8n** (en el portátil del usuario, cada día a las 7:00) lee el RSS del BOJA → filtra por palabras
+(riego, regadío, solar…) → **Gemini** (API gratuita, `gemini-3.8-flash`) propone un resumen → avisa por
+**Telegram** (y por **Gmail**, nodo OAuth2, desactivado hasta conectar la credencial) → **POST `/api/noticias`**
+→ entra como **borrador** → se revisa y se publica en el panel (pestaña Noticias) → sale en `/noticias.html`.
+El flujo importable está en `automatizaciones/n8n/vigilante-boja.json` (claves y chat ID se ponen en n8n, nunca aquí).
+
+- **API** (11 funciones de 12 en Hobby): `api/noticias.js` (GET público por lista blanca `noticiaPublica`; POST solo
+  con `Authorization: Bearer NOTICIAS_TOKEN`, 24+ caracteres, 401 + 600 ms si falla), `api/admin/noticias/{index,[id]}.js`.
+- **Reglas** (`logica.js`, las comparten API y panel demo): lo que llega **siempre** es borrador; enlace único (si n8n
+  lo manda dos veces no se duplica ni pisa lo editado); solo enlaces de `DOMINIOS_NOTICIA` (juntadeandalucia.es, boe.es);
+  **publicar exige resumen y sin importes** (`contieneImporte`: €, euros, %, millones). Hay tests de todo.
+- **Web:** `noticias.html` con los ejemplos de la config (solo con `demo: true`, marcados "Noticia de ejemplo"); si hay
+  publicadas, `noticias-remotas.js` las pone en su lugar. Tarjeta = un solo parcial (`partials/noticia-card.html`), lista con filete.
+- **Menú:** 8 enlaces; se mantiene en una línea a 1280 px (`whitespace-nowrap`, `gap-5`, `2xl:gap-7`). Comprobado en navegador.
+- **Supabase:** volver a pegar `supabase/schema.sql` (añade la tabla `noticias`; idempotente). Vercel: añadir `NOTICIAS_TOKEN`.
+- Probado: 80 pruebas; en navegador (Tailwind compilado en local porque el CDN no se alcanza desde el contenedor): demo
+  local (panel: bloquea publicar con importe, editar y publicar) y arnés con los endpoints reales (POST de n8n 201/200/401,
+  login, publicar, la noticia sale en la web). **Sin probar contra Supabase real** ni la rama "Guardar en la web" desde n8n.
+- Pendiente del flujo: el RSS solo trae título y metadatos → Gemini no sabe plazos ni destinatarios. Mejora: que n8n
+  abra el enlace del anuncio y le pase el texto completo. Gmail por SMTP con contraseña de aplicación fallaba (535 5.7.8)
+  en la cuenta del usuario: por eso el nodo Gmail va con OAuth2.
 
 ## Stack
 
@@ -243,3 +267,5 @@ hacer commit/push hasta que lo pida. Claves las pega él en Vercel, nunca en el 
 - [ ] Al borrar o cambiar la foto de un caso, la antigua queda en el bucket (no se limpia).
 - [ ] Texto de privacidad: lo revisa la instaladora real (RGPD). `og:image`; aviso legal; JSON-LD `LocalBusiness` solo con datos reales.
 - [ ] Confirmar en Vercel que `node build.mjs` + `dist` se aplican la primera vez.
+- [ ] Noticias: pegar otra vez `schema.sql`, crear `NOTICIAS_TOKEN` en Vercel y en n8n, poner la URL real en el nodo
+      "Guardar en la web" y activarlo. Conectar Gmail (OAuth2) y activar "Enviar email (Gmail)" con el correo del cliente.

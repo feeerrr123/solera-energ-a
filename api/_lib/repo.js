@@ -20,6 +20,8 @@ const fallo = (contexto, error) => {
 // Lo que necesita "casos públicos": solo filas publicadas Y autorizadas por el cliente.
 const CAMPOS_PUBLICOS = 'id,cultivo,municipio,hectareas,potencia_kwp,gasto_anual_antes,ahorro_anual,amortizacion_anios,foto_url,frase_cliente,es_demo,fecha_instalacion'
 
+const CAMPOS_NOTICIA_PUBLICA = 'id,titulo,resumen,enlace,fuente,fecha_publicacion,es_demo'
+
 export const repoSupabase = {
   async listar() {
     const { data, error } = await db().from('instalaciones').select('*').order('fecha_instalacion', { ascending: false })
@@ -81,6 +83,39 @@ export const repoSupabase = {
   async borrarContacto(id) {
     const { error } = await db().from('contactos').delete().eq('id', id)
     if (error) fallo('borrar el contacto', error)
+  },
+  // ── noticias (Fase 4) ──
+  // Si el enlace ya existe (n8n lo manda dos veces), no se duplica ni se pisa lo que se editó en el panel.
+  // Devuelve la fila nueva, o null si ya estaba.
+  async crearNoticia(datos) {
+    const { data, error } = await db().from('noticias').upsert(datos, { onConflict: 'enlace', ignoreDuplicates: true }).select()
+    if (error) fallo('guardar la noticia', error)
+    return (data && data[0]) || null
+  },
+  async noticiasPublicas() {
+    const { data, error } = await db().from('noticias').select(CAMPOS_NOTICIA_PUBLICA).eq('estado', 'publicada')
+      .order('fecha_publicacion', { ascending: false, nullsFirst: false }).order('creado_en', { ascending: false }).limit(30)
+    if (error) fallo('leer las noticias', error)
+    return data
+  },
+  async listarNoticias() {
+    const { data, error } = await db().from('noticias').select('*').order('creado_en', { ascending: false }).limit(300)
+    if (error) fallo('listar las noticias', error)
+    return data
+  },
+  async obtenerNoticia(id) {
+    const { data, error } = await db().from('noticias').select('*').eq('id', id).maybeSingle()
+    if (error) fallo('leer la noticia', error)
+    return data
+  },
+  async actualizarNoticia(id, datos) {
+    const { data, error } = await db().from('noticias').update(datos).eq('id', id).select().maybeSingle()
+    if (error) fallo('actualizar la noticia', error)
+    return data
+  },
+  async borrarNoticia(id) {
+    const { error } = await db().from('noticias').delete().eq('id', id)
+    if (error) fallo('borrar la noticia', error)
   },
   async subirFoto({ buffer, mime, extension }) {
     const nombre = `${randomUUID()}.${extension}`

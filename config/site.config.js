@@ -65,6 +65,7 @@ const archivos = {
   calculadora: 'calculadora.html',
   contacto: 'contacto.html',
   privacidad: 'privacidad.html',
+  noticias: 'noticias.html',
 }
 
 /* ─── 2. Parámetros de la calculadora (todo lo que es "número" va aquí) ───── */
@@ -180,6 +181,13 @@ export default {
         pozo o balsa. Estimación orientativa: el dimensionado real requiere visita técnica.`),
       ogTitulo: 'Pre-dimensionado de bombeo solar',
     },
+    noticias: {
+      archivo: archivos.noticias,
+      titulo: 'Noticias y ayudas para el riego · Solera Energía',
+      descripcion: p(`Convocatorias y novedades del BOJA sobre regadío, bombeo solar y energía en el campo,
+        resumidas en cristiano. Siempre con el enlace a la publicación oficial.`),
+      ogTitulo: 'Noticias y ayudas para el riego',
+    },
     privacidad: {
       archivo: archivos.privacidad,
       titulo: 'Aviso de privacidad · Solera Energía',
@@ -215,6 +223,7 @@ export default {
     { pagina: 'instalaciones', texto: 'Instalaciones' },
     { pagina: 'casos', texto: 'Casos' },
     { pagina: 'ayudas', texto: 'Ayudas' },
+    { pagina: 'noticias', texto: 'Noticias' },
     { pagina: 'dimensionado', texto: 'Dimensionado' },
     { pagina: 'calculadora', texto: 'Calculadora' },
     { pagina: 'contacto', texto: 'Contacto' },
@@ -239,7 +248,7 @@ export default {
     tituloSitio: 'Sitio',
     tituloZona: 'Zona',
     tituloContacto: 'Contacto',
-    enlaces: ['comoFunciona', 'instalaciones', 'casos', 'ayudas', 'dimensionado', 'calculadora'],
+    enlaces: ['comoFunciona', 'instalaciones', 'casos', 'ayudas', 'noticias', 'dimensionado', 'calculadora'],
     zona: ['Provincia de Jaén', 'Granada y Costa Tropical', 'Almería — Almanzora y Poniente', 'Córdoba — Subbética y campiña'],
     legalDemo: `© ${anio} ${nombre} — <span class="text-[#c7c9b2]">marca ficticia</span>. Proyecto de demostración · diseño de <span class="text-[#c7c9b2]">${estudio}</span>.`,
     legalReal: `© ${anio} ${nombre}.`,
@@ -378,6 +387,44 @@ export default {
       ],
     },
     boton: 'Pide tu estudio gratuito',
+  },
+
+  /* ─── PÁGINA: Noticias (BOJA → n8n → Gemini → borrador → se revisa en el panel → aquí) ─── */
+  // Las noticias de verdad llegan de /api/noticias (solo las publicadas desde el panel). Mientras no haya
+  // ninguna, con demo: true salen los `ejemplos` de abajo (marcados como tal); con demo: false, el texto `vacio`.
+  // Regla de la casa: nunca importes ni promesas; siempre el enlace a la publicación oficial.
+  noticias: {
+    eyebrow: 'Noticias',
+    titular: 'Ayudas y novedades para el riego',
+    intro: p(`Cada mañana revisamos el Boletín Oficial de la Junta de Andalucía (BOJA) y te contamos, en pocas líneas,
+      lo que afecta al regadío, al bombeo solar y a la energía en tu explotación.`),
+    aviso: p(`Información orientativa: el resumen no sustituye a la publicación oficial. Antes de pedir una ayuda,
+      consulta siempre la convocatoria completa en el enlace de cada noticia (requisitos, plazos y cuantías).`),
+    vacio: 'Todavía no hay noticias publicadas. Vuelve en unos días.',
+    verOficial: 'Ver la publicación oficial',
+    etiquetaEjemplo: 'Noticia de ejemplo',
+    cta: {
+      texto: '¿Crees que alguna de estas ayudas te encaja?',
+      boton: 'Compruébalo en un minuto',
+      pagina: archivos.ayudas,
+    },
+    // Solo con demo: true. Ficticias a propósito: enseñan cómo se verá una noticia, no informan de nada real.
+    ejemplos: [
+      {
+        id: 'ejemplo-1', fuente: 'BOJA', fecha: '', ejemplo: true,
+        titulo: 'Ejemplo: convocatoria de ayudas para la modernización de regadíos',
+        resumen: p(`Así se verá una noticia cuando la publiques desde el panel: de qué trata, a quién va dirigida y el
+          plazo, si lo indica el boletín. Consulta los requisitos en la convocatoria oficial.`),
+        enlace: 'https://www.juntadeandalucia.es/eboja.html',
+      },
+      {
+        id: 'ejemplo-2', fuente: 'BOJA', fecha: '', ejemplo: true,
+        titulo: 'Ejemplo: bases reguladoras para instalaciones de autoconsumo en explotaciones agrarias',
+        resumen: p(`Cada resumen lo propone una IA a partir del anuncio y lo revisa la instaladora antes de publicarlo.
+          Nunca se indican importes: para eso está el enlace a la publicación oficial.`),
+        enlace: 'https://www.juntadeandalucia.es/eboja.html',
+      },
+    ],
   },
 
   /* ─── CONTACTOS: lo común a todos los formularios (ayudas, dimensionado, calculadora, contacto) ─── */
@@ -662,6 +709,25 @@ export default {
         mensaje: 'Somos una comunidad de unos 80 socios.', datos: { tipo: 'Somos una comunidad de regantes' },
       },
     ],
+    estadosNoticia: { borrador: 'Por revisar', publicada: 'Publicada', descartada: 'Descartada' },
+    // Noticias de ejemplo del modo demo (ficticias). `diasAtras` = cuándo llegaron de n8n.
+    demoNoticias: [
+      {
+        titulo: 'Ejemplo: orden por la que se convocan ayudas a la modernización de regadíos en Andalucía', diasAtras: 0,
+        resumen: 'Resumen de ejemplo propuesto por la IA: la Junta abre ayudas para modernizar sistemas de riego. Consulta los requisitos en la convocatoria oficial.',
+        coincide: 'regadio, modernizacion de regadios',
+      },
+      {
+        titulo: 'Ejemplo: resolución sobre instalaciones de autoconsumo en explotaciones agrarias', diasAtras: 2,
+        resumen: 'Resumen de ejemplo con un importe (hasta 12.000 € por explotación) que hay que quitar antes de publicar.',
+        coincide: 'autoconsumo, explotaciones agrarias',
+      },
+      {
+        titulo: 'Ejemplo: anuncio ya publicado en la web', diasAtras: 5, estado: 'publicada',
+        resumen: 'Así queda una noticia publicada. Consulta los requisitos en la convocatoria oficial.',
+        coincide: 'riego',
+      },
+    ],
     textos: {
       cargando: 'Cargando…',
       verWeb: 'Ver la web',
@@ -680,8 +746,8 @@ export default {
         y no lo ve nadie más. Sirve para probar el panel. Los casos que marques no aparecen en la web pública.`),
       demoRestablecer: 'Restablecer datos de ejemplo',
       demoRestablecerConfirma: '¿Borrar lo que hayas añadido y volver a los datos de ejemplo?',
-      resumen: { instalaciones: 'Instalaciones', revisiones: 'Revisiones pendientes', casos: 'Casos publicados', contactos: 'Contactos nuevos' },
-      pestanas: { instalaciones: 'Instalaciones', revisiones: 'Revisiones', casos: 'Casos de éxito', contactos: 'Contactos' },
+      resumen: { instalaciones: 'Instalaciones', revisiones: 'Revisiones pendientes', casos: 'Casos publicados', contactos: 'Contactos nuevos', noticias: 'Noticias por revisar' },
+      pestanas: { instalaciones: 'Instalaciones', revisiones: 'Revisiones', casos: 'Casos de éxito', contactos: 'Contactos', noticias: 'Noticias' },
       inst: {
         nueva: 'Nueva instalación',
         tituloNueva: 'Nueva instalación',
@@ -771,6 +837,31 @@ export default {
         borrarConfirma: '¿Borrar el contacto de {nombre}? Se elimina también de la base de datos.',
         sinTelefono: 'Teléfono no válido para WhatsApp',
         sinDatos: 'Sin datos de la herramienta',
+      },
+      noticias: {
+        titulo: 'Noticias del BOJA',
+        intro: p(`Las trae n8n cada mañana con un resumen propuesto por la IA, y entran como borrador: en la web no se ve
+          nada hasta que pulsas «Publicar». Lee el resumen, compáralo con la publicación oficial y quita cualquier
+          importe o promesa (si los hay, no deja publicar).`),
+        vacio: 'Todavía no ha llegado ninguna noticia. Cuando n8n encuentre algo en el BOJA, aparecerá aquí.',
+        llegada: 'Llegó el {fecha}',
+        coincide: 'Palabras: {palabras}',
+        sinResumen: 'Sin resumen: escríbelo tú antes de publicar.',
+        verOficial: 'Ver en el boletín',
+        editar: 'Editar',
+        publicar: 'Publicar',
+        despublicar: 'Quitar de la web',
+        descartar: 'Descartar',
+        recuperar: 'Volver a borrador',
+        borrar: 'Borrar',
+        borrarConfirma: '¿Borrar esta noticia? Si solo no quieres publicarla, mejor «Descartar»: así queda anotada y no vuelve a entrar.',
+        campoTitulo: 'Título',
+        campoResumen: 'Resumen (lo que se verá en la web)',
+        ayudaResumen: 'Sin importes ni porcentajes, y sin prometer nada. Termina remitiendo a la convocatoria oficial.',
+        guardar: 'Guardar',
+        guardarPublicar: 'Guardar y publicar',
+        cancelar: 'Cancelar',
+        ejemplo: 'Ejemplo',
       },
       avisos: {
         guardado: 'Guardado.',

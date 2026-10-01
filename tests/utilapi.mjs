@@ -7,13 +7,16 @@ export const SECRET = 'un-secreto-de-prueba-largo-123456'
 export const PASS = 'clave-correcta'
 export const PREFIJO = 'https://x.supabase.co/storage/v1/object/public/casos/'
 export const AHORA = Date.parse('2026-03-01T10:00:00Z')
+export const TOKEN_NOTICIAS = 'token-de-n8n-para-pruebas-1234567890'
 
 export function repoMemoria() {
   const filas = new Map()
   const contactos = new Map()
+  const noticias = new Map()
   return {
     filas,
     contactos,
+    noticias,
     async listar() { return [...filas.values()] },
     async obtener(id) { return filas.get(id) ?? null },
     async crear(d) { const f = { id: randomUUID(), es_caso_exito: false, autoriza_publicar: false, es_demo: false, ...d }; filas.set(f.id, f); return f },
@@ -27,13 +30,27 @@ export function repoMemoria() {
     async listarContactos() { return [...contactos.values()] },
     async actualizarContacto(id, d) { if (!contactos.has(id)) return null; const c = { ...contactos.get(id), ...d }; contactos.set(id, c); return c },
     async borrarContacto(id) { contactos.delete(id) },
+    // noticias (Fase 4)
+    async crearNoticia(d) {
+      if ([...noticias.values()].some((n) => n.enlace === d.enlace)) return null
+      const n = { id: randomUUID(), creado_en: new Date(AHORA).toISOString(), publicada_en: null, es_demo: false, ...d }
+      noticias.set(n.id, n)
+      return n
+    },
+    async noticiasPublicas() { return [...noticias.values()].filter((n) => n.estado === 'publicada') },
+    async listarNoticias() { return [...noticias.values()] },
+    async obtenerNoticia(id) { return noticias.get(id) ?? null },
+    async actualizarNoticia(id, d) { if (!noticias.has(id)) return null; const n = { ...noticias.get(id), ...d }; noticias.set(id, n); return n },
+    async borrarNoticia(id) { noticias.delete(id) },
   }
 }
 
-export function deps({ demo = false, adminOk = true, repo = repoMemoria(), esperas = [] } = {}) {
+export function deps({ demo = false, adminOk = true, noticiasOk = true, repo = repoMemoria(), esperas = [] } = {}) {
   return {
     modoDemo: () => demo,
     adminListo: () => adminOk,
+    noticiasListo: () => noticiasOk,
+    tokenNoticias: () => TOKEN_NOTICIAS,
     secret: () => SECRET,
     password: () => PASS,
     fotoPrefijo: () => PREFIJO,
@@ -51,9 +68,13 @@ export function res() {
   return r
 }
 
-export const req = (method, { body, cookie, query, json = true } = {}) => ({
+export const req = (method, { body, cookie, query, json = true, token } = {}) => ({
   method, body, query,
-  headers: { ...(cookie ? { cookie } : {}), ...(json && body !== undefined ? { 'content-type': 'application/json' } : {}) },
+  headers: {
+    ...(cookie ? { cookie } : {}),
+    ...(token ? { authorization: `Bearer ${token}` } : {}),
+    ...(json && body !== undefined ? { 'content-type': 'application/json' } : {}),
+  },
 })
 
 export const cookieValida = () => `solera_admin=${encodeURIComponent(crearToken(SECRET, AHORA))}`

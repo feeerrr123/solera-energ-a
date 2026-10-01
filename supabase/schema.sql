@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
---  Solera Energía — Fase 1 (instalaciones, reseñas, mantenimiento, casos de éxito)
+--  Solera Energía — instalaciones, casos de éxito, contactos (Fases 1–2) y noticias (Fase 4)
 --  Pégalo ENTERO una sola vez en Supabase → SQL Editor → New query → Run.
 --  Se puede volver a ejecutar sin romper nada (todo lleva "if not exists").
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -77,6 +77,31 @@ create index if not exists contactos_tel_idx    on public.contactos (telefono_no
 
 -- Igual que `instalaciones`: RLS activado y SIN políticas. Solo el servidor (api/) toca esta tabla.
 alter table public.contactos enable row level security;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+--  FASE 4 — noticias (BOJA → n8n → borrador → se revisa en el panel → web)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+create table if not exists public.noticias (
+  id                 uuid primary key default gen_random_uuid(),
+  creado_en          timestamptz not null default now(),
+
+  titulo             text not null,
+  resumen            text,                    -- lo propone Gemini; se revisa (y se puede reescribir) en el panel
+  enlace             text not null unique,    -- anuncio oficial; único: si n8n lo manda dos veces, no se duplica
+  fuente             text not null default 'BOJA',
+  fecha_publicacion  date,                    -- fecha del boletín
+  coincide           text,                    -- palabras que hicieron saltar el filtro (solo se ven en el panel)
+
+  estado             text not null default 'borrador' check (estado in ('borrador', 'publicada', 'descartada')),
+  publicada_en       timestamptz,
+  es_demo            boolean not null default false
+);
+
+create index if not exists noticias_estado_idx on public.noticias (estado, fecha_publicacion desc);
+
+-- Igual que las demás: RLS activado y SIN políticas. Solo el servidor (api/) toca esta tabla.
+alter table public.noticias enable row level security;
 
 -- ─── 3 casos de EJEMPLO para la demo (datos ficticios, sin nombres reales) ───
 -- Se pueden borrar desde el panel o con:  delete from public.instalaciones where es_demo;

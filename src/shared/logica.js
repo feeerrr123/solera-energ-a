@@ -461,3 +461,124 @@ export function calcularAhorro(e, p) {
     co2: Math.round((litros * p.co2PorLitroDiesel + autoc * (1 - parteGas) * p.co2Kwh) / 10) * 10,
   }
 }
+
+/* ───────────── FASE 4 · noticias (BOJA → n8n → borrador → panel → web) ───────────── */
+
+export const ESTADOS_NOTICIA = ['borrador', 'publicada', 'descartada']
+// De dónde pueden venir los enlaces de una noticia (boletines oficiales). Un enlace de otro sitio
+// no entra aunque traiga la clave: así, si la clave se filtrara, no se podría colar un enlace malicioso.
+export const DOMINIOS_NOTICIA = ['juntadeandalucia.es', 'boe.es']
+const LIM_NOTICIA = { titulo: 400, resumen: 1200, enlace: 500, coincide: 200, fuente: 40 }
+
+// Regla de la casa para ayudas: en la web nunca salen importes ("12.000 €", "30 %", "5 millones de euros").
+export const contieneImporte = (t) => /\d[\d.,]*\s*(€|euros?\b|%|millones)/i.test(String(t || ''))
+
+export function enlaceNoticiaValido(url, dominios = DOMINIOS_NOTICIA) {
+  let u
+  try { u = new URL(String(url)) } catch { return false }
+  if (u.protocol !== 'https:' && u.protocol !== 'http:') return false
+  const host = u.hostname.toLowerCase()
+  return dominios.some((d) => host === d || host.endsWith(`.${d}`))
+}
+
+// Lo que manda n8n a POST /api/noticias. SIEMPRE entra como borrador: publicar es cosa del panel.
+export function validarNoticiaEntrante(b, { dominios = DOMINIOS_NOTICIA } = {}) {
+  if (!b || typeof b !== 'object' || Array.isArray(b)) return { ok: false, errores: { titulo: 'petición no válida' }, datos: null }
+  const errores = {}
+  const texto = (v, max) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim() : '').slice(0, max + 1)
+
+  const titulo = texto(b.titulo, LIM_NOTICIA.titulo)
+  if (titulo.length < 5) errores.titulo = 'obligatorio'
+  else if (titulo.length > LIM_NOTICIA.titulo) errores.titulo = `máximo ${LIM_NOTICIA.titulo} caracteres`
+
+  const enlace = typeof b.enlace === 'string' ? b.enlace.trim() : ''
+  if (!enlace) errores.enlace = 'obligatorio'
+  else if (enlace.length > LIM_NOTICIA.enlace || !enlaceNoticiaValido(enlace, dominios)) errores.enlace = 'enlace no válido (solo boletines oficiales)'
+
+  const resumen = typeof b.resumen === 'string' ? b.resumen.trim().slice(0, LIM_NOTICIA.resumen + 1) : ''
+  if (resumen.length > LIM_NOTICIA.resumen) errores.resumen = `máximo ${LIM_NOTICIA.resumen} caracteres`
+
+  // La fecha puede venir como "2026-09-28" o como "2026-09-28T00:00:00.000Z" (lo que da el RSS).
+  const fecha = typeof b.fecha === 'string' ? b.fecha.trim().slice(0, 10) : ''
+  if (fecha && !esFechaISO(fecha)) errores.fecha = 'fecha no válida'
+
+  return {
+    ok: Object.keys(errores).length === 0,
+    errores,
+    datos: {
+      titulo,
+      enlace,
+      resumen: resumen || null,
+      fecha_publicacion: fecha || null,
+      coincide: texto(b.coincide, LIM_NOTICIA.coincide).slice(0, LIM_NOTICIA.coincide) || null,
+      fuente: texto(b.fuente, LIM_NOTICIA.fuente).slice(0, LIM_NOTICIA.fuente) || 'BOJA',
+      estado: 'borrador',
+    },
+  }
+}
+
+// Cambios que el panel puede hacer sobre una noticia. `actual` = la fila tal como está (para saber
+// si al publicar ya tiene resumen). Publicar exige resumen y que no haya importes en él.
+export function validarCambioNoticia(b, actual = {}, { ahoraISO = new Date().toISOString() } = {}) {
+  const errores = {}
+  const datos = {}
+  const tiene = (k) => Object.prototype.hasOwnProperty.call(b || {}, k)
+  if (tiene('titulo')) {
+    const v = typeof b.titulo === 'string' ? b.titulo.replace(/\s+/g, ' ').trim() : ''
+    if (v.length < 5) errores.titulo = 'obligatorio'
+    else if (v.length > LIM_NOTICIA.titulo) errores.titulo = `máximo ${LIM_NOTICIA.titulo} caracteres`
+    else datos.titulo = v
+  }
+  if (tiene('resumen')) {
+    const v = typeof b.resumen === 'string' ? b.resumen.trim() : ''
+    if (v.length > LIM_NOTICIA.resumen) errores.resumen = `máximo ${LIM_NOTICIA.resumen} caracteres`
+    else datos.resumen = v || null
+  }
+  if (tiene('estado')) {
+    if (ESTADOS_NOTICIA.includes(b.estado)) datos.estado = b.estado
+    else errores.estado = 'estado no válido'
+  }
+  if (!Object.keys(errores).length && !Object.keys(datos).length) errores.estado = 'no hay nada que cambiar'
+
+  const final = { ...actual, ...datos }
+  if (final.estado === 'publicada' && !errores.resumen) {
+    if (!final.resumen) errores.resumen = 'Escribe un resumen antes de publicar.'
+    else if (contieneImporte(final.resumen)) errores.resumen = 'Quita los importes y porcentajes del resumen: en la web nunca se prometen cantidades.'
+  }
+  if (datos.estado === 'publicada' && actual.estado !== 'publicada') datos.publicada_en = ahoraISO
+  if (datos.estado && datos.estado !== 'publicada') datos.publicada_en = null
+  return { ok: Object.keys(errores).length === 0, errores, datos }
+}
+
+// Lista blanca de lo que sale en la web pública (ni estado, ni palabras clave, ni fechas internas).
+export function noticiaPublica(n) {
+  return {
+    id: n.id,
+    titulo: n.titulo,
+    resumen: n.resumen ?? null,
+    enlace: n.enlace,
+    fuente: n.fuente || 'BOJA',
+    fecha_publicacion: n.fecha_publicacion ?? null,
+    es_demo: n.es_demo === true,
+  }
+}
+
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+export function fechaLarga(iso) {
+  if (!esFechaISO(String(iso || '').slice(0, 10))) return ''
+  const [a, m, d] = String(iso).slice(0, 10).split('-').map(Number)
+  return `${d} de ${MESES[m - 1]} de ${a}`
+}
+
+// Datos que rellenan el molde de tarjeta de noticia (src/partials/noticia-card.html).
+export function datosTarjetaNoticia(n) {
+  return {
+    id: `noticia-${String(n.id).slice(0, 8)}`,
+    titulo: n.titulo || '',
+    resumen: n.resumen || '',
+    enlace: enlaceNoticiaValido(n.enlace) ? n.enlace : '',
+    fuente: n.fuente || 'BOJA',
+    fecha: fechaLarga(n.fecha_publicacion),
+    ejemplo: n.es_demo === true,
+  }
+}

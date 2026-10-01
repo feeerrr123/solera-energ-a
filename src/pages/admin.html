@@ -50,11 +50,12 @@
         <button id="btn-restablecer" type="button" class="glass rounded-full px-4 py-1.5 text-sm font-semibold text-ink u-curve transition">{{ panel.textos.demoRestablecer }}</button>
       </div>
 
-      <dl class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <dl class="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <div class="glass rounded-xl px-5 py-4"><dd id="r-inst" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.instalaciones }}</dt></div>
         <div class="glass rounded-xl px-5 py-4"><dd id="r-rev" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.revisiones }}</dt></div>
         <div class="glass rounded-xl px-5 py-4"><dd id="r-casos" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.casos }}</dt></div>
         <div class="glass rounded-xl px-5 py-4"><dd id="r-cont" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.contactos }}</dt></div>
+        <div class="glass rounded-xl px-5 py-4"><dd id="r-not" class="font-mono text-3xl text-ink">0</dd><dt class="mt-1 text-[13px] text-ink-soft">{{ panel.textos.resumen.noticias }}</dt></div>
       </dl>
 
       <div role="tablist" class="mt-10 flex gap-1 overflow-x-auto border-b border-line">
@@ -62,6 +63,7 @@
         <button type="button" role="tab" data-tab="revisiones" aria-selected="false" class="tab -mb-px border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.revisiones }}</button>
         <button type="button" role="tab" data-tab="casos" aria-selected="false" class="tab -mb-px border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.casos }}</button>
         <button type="button" role="tab" data-tab="contactos" aria-selected="false" class="tab -mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.contactos }}</button>
+        <button type="button" role="tab" data-tab="noticias" aria-selected="false" class="tab -mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.noticias }}</button>
       </div>
 
       <!-- Instalaciones -->
@@ -171,6 +173,13 @@
         <h2 class="font-display text-xl text-ink">{{ panel.textos.contactos.titulo }}</h2>
         <p class="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-soft">{{ panel.textos.contactos.intro }}</p>
         <ul id="lista-contactos" class="mt-6 divide-y divide-line border-y border-line"></ul>
+      </div>
+
+      <!-- Noticias del BOJA que trae n8n (entran como borrador; se publican desde aquí) -->
+      <div id="tab-noticias" role="tabpanel" hidden class="pt-8">
+        <h2 class="font-display text-xl text-ink">{{ panel.textos.noticias.titulo }}</h2>
+        <p class="mt-2 max-w-2xl text-[14px] leading-relaxed text-ink-soft">{{ panel.textos.noticias.intro }}</p>
+        <ul id="lista-noticias" class="mt-6 divide-y divide-line border-y border-line"></ul>
       </div>
     </section>
   </main>

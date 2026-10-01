@@ -4,6 +4,7 @@
 import {
   hoyISO, sumarMeses, rellenar, primerNombre, capitalizar, waLink, revisionesPendientes,
   validarInstalacion, prepararCambios, datosTarjetaCaso, validarCambioContacto, resumenDatos,
+  validarCambioNoticia, fechaLarga,
 } from './shared/logica.js'
 import { crearTarjeta } from './shared/tarjeta.js'
 
@@ -21,6 +22,8 @@ let modo = 'api' // 'api' | 'local'
 let datos = null
 let instalaciones = []
 let contactos = []
+let noticias = []
+let idNoticiaEdicion = null // noticia cuyo título/resumen se está editando
 let idEdicion = null // instalación que se edita (null = alta nueva)
 let idCaso = null // instalación cuyo caso se edita
 let fotoActual = null
@@ -71,12 +74,16 @@ const Api = {
   async listarContactos() { return comprobar(await pedir('/api/admin/contactos')).contactos },
   async cambiarContacto(id, d) { return comprobar(await pedir(`/api/admin/contactos/${id}`, 'PATCH', d)).contacto },
   async borrarContacto(id) { comprobar(await pedir(`/api/admin/contactos/${id}`, 'DELETE')) },
+  async listarNoticias() { return comprobar(await pedir('/api/admin/noticias')).noticias },
+  async cambiarNoticia(id, d) { return comprobar(await pedir(`/api/admin/noticias/${id}`, 'PATCH', d)).noticia },
+  async borrarNoticia(id) { comprobar(await pedir(`/api/admin/noticias/${id}`, 'DELETE')) },
 }
 
 /* ───────────── almacén 2: Local (modo demo) ───────────── */
 
 const CLAVE = 'solera.panel.demo.v1'
 const CLAVE_CONTACTOS = 'solera.panel.demo.contactos.v1'
+const CLAVE_NOTICIAS = 'solera.panel.demo.noticias.v1'
 const VACIA = {
   resena_pedida_en: null, ultima_revision: null, recordatorio_enviado_en: null, es_caso_exito: false, autoriza_publicar: false,
   gasto_anual_antes: null, ahorro_anual: null, amortizacion_anios: null, foto_url: null, frase_cliente: null,
@@ -120,7 +127,7 @@ const Local = {
   },
   async borrar(id) { this.guardar(this.leer().filter((x) => x.id !== id)) },
   async subirFoto(dataUrl) { return dataUrl },
-  restablecer() { localStorage.removeItem(CLAVE); localStorage.removeItem(CLAVE_CONTACTOS) },
+  restablecer() { for (const k of [CLAVE, CLAVE_CONTACTOS, CLAVE_NOTICIAS]) localStorage.removeItem(k) },
 
   leerContactos() {
     try { const t = localStorage.getItem(CLAVE_CONTACTOS); if (t) return JSON.parse(t) } catch { /* se regenera */ }
@@ -146,6 +153,36 @@ const Local = {
     return lista[i]
   },
   async borrarContacto(id) { this.guardarContactos(this.leerContactos().filter((x) => x.id !== id)) },
+
+  leerNoticias() {
+    try { const t = localStorage.getItem(CLAVE_NOTICIAS); if (t) return JSON.parse(t) } catch { /* se regenera */ }
+    const ahora = Date.now()
+    const s = P.demoNoticias.map(({ diasAtras, ...n }) => {
+      const creado = new Date(ahora - diasAtras * 86400000).toISOString()
+      return {
+        id: crypto.randomUUID(), creado_en: creado, fecha_publicacion: creado.slice(0, 10), fuente: 'BOJA',
+        enlace: 'https://www.juntadeandalucia.es/eboja.html', estado: 'borrador', es_demo: true, ...n,
+        publicada_en: n.estado === 'publicada' ? creado : null,
+      }
+    })
+    this.guardarNoticias(s)
+    return s
+  },
+  guardarNoticias(lista) {
+    try { localStorage.setItem(CLAVE_NOTICIAS, JSON.stringify(lista)) } catch { throw new ErrorPanel(T.avisos.sinEspacio) }
+  },
+  async listarNoticias() { return this.leerNoticias() },
+  async cambiarNoticia(id, d) {
+    const lista = this.leerNoticias()
+    const i = lista.findIndex((x) => x.id === id)
+    if (i < 0) throw new ErrorPanel(T.avisos.error)
+    const v = validarCambioNoticia(d, lista[i])
+    if (!v.ok) throw new ErrorPanel(Object.values(v.errores)[0], v.errores)
+    lista[i] = { ...lista[i], ...v.datos }
+    this.guardarNoticias(lista)
+    return lista[i]
+  },
+  async borrarNoticia(id) { this.guardarNoticias(this.leerNoticias().filter((x) => x.id !== id)) },
 }
 
 /* ───────────── arranque, entrada y salida ───────────── */
@@ -185,6 +222,11 @@ async function entrarPanel() {
     aviso(e.message, true)
     contactos = []
   }
+  try { noticias = await datos.listarNoticias() } catch (e) {
+    if (e.estado === 401) return sesionCaducada()
+    aviso(e.message, true)
+    noticias = []
+  }
   mostrar('panel')
   pintar()
 }
@@ -218,6 +260,8 @@ $('#btn-restablecer').addEventListener('click', async () => {
   Local.restablecer()
   instalaciones = await Local.listar()
   contactos = await Local.listarContactos()
+  noticias = await Local.listarNoticias()
+  idNoticiaEdicion = null
   cerrarFormInst(); cerrarFormCaso()
   pintar()
   aviso(T.avisos.restablecido)
@@ -241,10 +285,12 @@ function pintar() {
     ? T.inst.enlaceResenaFalta
     : `${T.inst.enlaceResena}: ${P.googleReviewUrl}`
   $('#r-cont').textContent = contactos.filter((c) => c.estado === 'nuevo').length
+  $('#r-not').textContent = noticias.filter((n) => n.estado === 'borrador').length
   pintarInstalaciones(new Map(pend.map((i) => [i.id, i.revision])))
   pintarRevisiones(pend)
   pintarCasos()
   pintarContactos()
+  pintarNoticias()
 }
 
 const fechaHoraES = (iso) => (iso ? new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '')
@@ -277,6 +323,56 @@ function pintarContactos() {
             : `<button type="button" data-accion="nuevo" class="text-[13px] font-semibold text-ink-soft ul-grow">${esc(T.contactos.reabrir)}</button>`}
           <button type="button" data-accion="nota" class="text-[13px] font-semibold text-ink-soft ul-grow">${esc(T.contactos.nota)}</button>
           <button type="button" data-accion="borrar" class="text-[13px] font-semibold text-ochre-deep ul-grow">${esc(T.contactos.borrar)}</button>
+        </div>
+      </div></li>`
+  }).join('')
+}
+
+const CLASE_NOTICIA = { borrador: 'bg-ochre-deep text-paper-raised', publicada: 'bg-olive text-[#f1efe3]', descartada: 'border border-line-strong text-ink-soft' }
+const ORDEN_NOTICIA = { borrador: 0, publicada: 1, descartada: 2 }
+const CAMPO = 'mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre'
+
+function pintarNoticias() {
+  const ul = $('#lista-noticias')
+  if (!noticias.length) { ul.innerHTML = `<li class="py-8 text-[15px] text-ink-soft">${esc(T.noticias.vacio)}</li>`; return }
+  const orden = [...noticias].sort((a, b) => (ORDEN_NOTICIA[a.estado] - ORDEN_NOTICIA[b.estado]) || (a.creado_en < b.creado_en ? 1 : -1))
+  ul.innerHTML = orden.map((n) => {
+    const meta = [n.fuente, fechaLarga(n.fecha_publicacion), rellenar(T.noticias.llegada, { fecha: fechaHoraES(n.creado_en) })].filter(Boolean).join(' · ')
+    const cabecera = `<p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">${esc(meta)}</p>`
+    if (n.id === idNoticiaEdicion) {
+      return `<li class="py-5" data-id="${esc(n.id)}">${cabecera}
+        <form data-form-noticia class="mt-3 max-w-3xl space-y-4" novalidate>
+          <label class="block text-sm"><span class="font-semibold text-ink">${esc(T.noticias.campoTitulo)}</span>
+            <input name="titulo" type="text" maxlength="400" value="${esc(n.titulo)}" class="${CAMPO}" /></label>
+          <label class="block text-sm"><span class="font-semibold text-ink">${esc(T.noticias.campoResumen)}</span>
+            <textarea name="resumen" rows="5" maxlength="1200" class="${CAMPO}">${esc(n.resumen || '')}</textarea>
+            <span class="mt-1 block text-xs text-ink-soft">${esc(T.noticias.ayudaResumen)}</span></label>
+          <div class="flex flex-wrap gap-3">
+            <button type="submit" value="guardar" class="glass rounded-full px-5 py-2 text-sm font-semibold text-ink u-curve transition">${esc(T.noticias.guardar)}</button>
+            ${n.estado !== 'publicada' ? `<button type="submit" value="publicar" class="rounded-full bg-ochre px-5 py-2 text-sm font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">${esc(T.noticias.guardarPublicar)}</button>` : ''}
+            <button type="button" data-accion="cancelar" class="text-[13px] font-semibold text-ink-soft ul-grow">${esc(T.noticias.cancelar)}</button>
+          </div>
+        </form></li>`
+    }
+    const estado = n.estado || 'borrador'
+    return `<li class="py-5" data-id="${esc(n.id)}">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="min-w-0 max-w-3xl">
+          ${cabecera}
+          <p class="mt-1.5 font-display text-lg leading-snug text-ink">${esc(n.titulo)}${n.es_demo ? etiqueta(T.noticias.ejemplo) : ''}</p>
+          <p class="mt-2 text-[14px] leading-relaxed ${n.resumen ? 'text-ink-soft' : 'italic text-ochre-deep'}">${esc(n.resumen || T.noticias.sinResumen)}</p>
+          <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1"><span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${CLASE_NOTICIA[estado] || CLASE_NOTICIA.borrador}">${esc(P.estadosNoticia[estado] || estado)}</span>
+            ${n.coincide ? `<span class="text-xs text-ink-soft">${esc(rellenar(T.noticias.coincide, { palabras: n.coincide }))}</span>` : ''}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <a href="${esc(n.enlace)}" target="_blank" rel="noopener" class="${BTN}">${esc(T.noticias.verOficial)}</a>
+          <button type="button" data-accion="editar" class="${BTN}">${esc(T.noticias.editar)}</button>
+          ${estado === 'publicada'
+            ? `<button type="button" data-accion="borrador" class="text-[13px] font-semibold text-ochre-deep ul-grow">${esc(T.noticias.despublicar)}</button>`
+            : `<button type="button" data-accion="publicada" class="rounded-full bg-ochre px-4 py-1.5 text-[13px] font-semibold text-paper-raised u-curve transition hover:bg-ochre-deep">${esc(T.noticias.publicar)}</button>`}
+          ${estado === 'borrador' ? `<button type="button" data-accion="descartada" class="text-[13px] font-semibold text-ink-soft ul-grow">${esc(T.noticias.descartar)}</button>` : ''}
+          ${estado === 'descartada' ? `<button type="button" data-accion="borrador" class="text-[13px] font-semibold text-ink-soft ul-grow">${esc(T.noticias.recuperar)}</button>` : ''}
+          <button type="button" data-accion="borrar" class="text-[13px] font-semibold text-ochre-deep ul-grow">${esc(T.noticias.borrar)}</button>
         </div>
       </div></li>`
   }).join('')
@@ -436,6 +532,40 @@ alClic('#lista-contactos', async (accion, id) => {
   }
 })
 
+function reemplazarNoticia(fila) {
+  const i = noticias.findIndex((x) => x.id === fila.id)
+  if (i >= 0) noticias[i] = fila; else noticias.unshift(fila)
+}
+
+async function cambiarNoticia(id, cambio) {
+  try {
+    reemplazarNoticia(await datos.cambiarNoticia(id, cambio))
+    idNoticiaEdicion = null
+    pintar()
+    aviso(cambio.estado === 'publicada' ? T.avisos.guardado : T.avisos.marcado)
+  } catch (e) { manejarError(e) }
+}
+
+alClic('#lista-noticias', async (accion, id) => {
+  if (accion === 'editar') { idNoticiaEdicion = id; pintarNoticias(); $(`#lista-noticias li[data-id="${id}"] textarea`).focus(); return }
+  if (accion === 'cancelar') { idNoticiaEdicion = null; pintarNoticias(); return }
+  if (accion === 'publicada' || accion === 'borrador' || accion === 'descartada') return cambiarNoticia(id, { estado: accion })
+  if (accion === 'borrar') {
+    if (!confirm(T.noticias.borrarConfirma)) return
+    try { await datos.borrarNoticia(id); noticias = noticias.filter((x) => x.id !== id); pintar(); aviso(T.avisos.borrado) } catch (e) { manejarError(e) }
+  }
+})
+
+$('#lista-noticias').addEventListener('submit', (e) => {
+  const form = e.target.closest('[data-form-noticia]')
+  if (!form) return
+  e.preventDefault()
+  const id = form.closest('li[data-id]').dataset.id
+  const cambio = { titulo: form.elements.titulo.value, resumen: form.elements.resumen.value }
+  if (e.submitter && e.submitter.value === 'publicar') cambio.estado = 'publicada'
+  cambiarNoticia(id, cambio)
+})
+
 async function cambiarContacto(id, cambio) {
   try { reemplazarContacto(await datos.cambiarContacto(id, cambio)); pintar(); aviso(T.avisos.marcado) } catch (e) { manejarError(e) }
 }
@@ -444,7 +574,7 @@ async function cambiarContacto(id, cambio) {
 
 $$('[role="tab"]').forEach((b) => b.addEventListener('click', () => {
   $$('[role="tab"]').forEach((x) => x.setAttribute('aria-selected', String(x === b)))
-  for (const t of ['instalaciones', 'revisiones', 'casos', 'contactos']) $(`#tab-${t}`).hidden = t !== b.dataset.tab
+  for (const t of ['instalaciones', 'revisiones', 'casos', 'contactos', 'noticias']) $(`#tab-${t}`).hidden = t !== b.dataset.tab
 }))
 
 /* ───────────── formulario de instalación ───────────── */

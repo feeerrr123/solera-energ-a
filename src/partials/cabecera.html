@@ -14,13 +14,13 @@
         {{ empresa.logoParte1 }} <span class="text-ink-soft">{{ empresa.logoParte2 }}</span>
       </a>
 
-      <nav class="hidden items-center gap-7 text-sm xl:flex" aria-label="{{ textos.navPrincipal }}">
+      <nav class="hidden items-center gap-5 whitespace-nowrap text-sm xl:flex 2xl:gap-7" aria-label="{{ textos.navPrincipal }}">
         {{#each nav}}{{#if this.activo}}<a href="{{ this.href }}" class="text-ink" aria-current="page">{{ this.texto }}</a>{{else}}<a href="{{ this.href }}" class="ul-grow text-ink-soft hover:text-ink">{{ this.texto }}</a>{{/if}}
         {{/each}}
       </nav>
 
       <div class="flex items-center gap-2">
-        <a href="{{ ctaHref }}" class="hidden rounded-full bg-ochre px-4 py-2 text-sm font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep sm:inline-block">
+        <a href="{{ ctaHref }}" class="hidden whitespace-nowrap rounded-full bg-ochre px-4 py-2 text-sm font-semibold text-paper-raised shadow-field u-curve transition hover:bg-ochre-deep sm:inline-block">
           {{ cabecera.cta.texto }}
         </a>
         <button id="menu-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full border border-line-strong text-ink xl:hidden" aria-expanded="false" aria-controls="menu-panel" aria-label="{{ textos.menuAbrir }}">

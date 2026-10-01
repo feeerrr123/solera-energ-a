@@ -22,7 +22,7 @@ export function verificarToken(token, secret, ahoraMs = Date.now()) {
   return timingSafeEqual(Buffer.from(firma, 'hex'), Buffer.from(firmar(secret, exp), 'hex'))
 }
 
-// Compara contraseñas en tiempo constante (se comparan sus hash para que no importe la longitud).
+// Compara contraseñas (y la clave de n8n) en tiempo constante (se comparan sus hash para que no importe la longitud).
 export function contrasenaCorrecta(dada, esperada) {
   if (typeof dada !== 'string' || !esperada) return false
   const h = (s) => createHash('sha256').update(s).digest()

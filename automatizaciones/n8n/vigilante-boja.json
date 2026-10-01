@@ -1,0 +1,301 @@
+{
+  "name": "Vigilante BOJA — Gemini + Telegram + Email + Web",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "a1",
+      "name": "Cada día a las 7:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "a2",
+      "name": "Probar ahora",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.juntadeandalucia.es/boja/distribucion/s51.xml"
+      },
+      "id": "b1",
+      "name": "BOJA · Disposiciones generales",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Palabras que nos interesan (sin tildes, en minúsculas). Añade o quita las que quieras.\nconst palabras = [\n  'riego', 'regadio', 'regantes', 'bombeo', 'fotovolta', 'solar',\n  'renovable', 'autoconsumo', 'eficiencia energetica', 'modernizacion de regadios',\n  'explotaciones agrarias', 'pozo', 'agua para riego'\n];\n// Solo lo publicado en las últimas N horas (así no se repiten avisos cada día).\nconst horas = 26;\n\nconst limpiar = (t) => (t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();\nconst desde = Date.now() - horas * 3600 * 1000;\n\nreturn $input.all()\n  .filter((item) => {\n    const j = item.json;\n    const fecha = Date.parse(j.isoDate || j.pubDate || '');\n    if (!Number.isNaN(fecha) && fecha < desde) return false;\n    const texto = limpiar(`${j.title} ${j.contentSnippet || j.content || ''}`);\n    return palabras.some((p) => texto.includes(p));\n  })\n  .map((item) => {\n    const j = item.json;\n    const texto = limpiar(`${j.title} ${j.contentSnippet || j.content || ''}`);\n    return {\n      json: {\n        titulo: j.title,\n        enlace: j.link,\n        fecha: j.isoDate || j.pubDate,\n        coincide: palabras.filter((p) => texto.includes(p)).join(', '),\n        texto: String(j.contentSnippet || j.content || '').slice(0, 4000),\n      },\n    };\n  });\n"
+      },
+      "id": "c1",
+      "name": "Filtrar: riego, solar, ayudas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Junta todos los anuncios en UN solo aviso, con el resumen de Gemini.\n// Saca dos versiones: \"telegram\" (texto) y \"html\" (email). Si Gemini falla, el anuncio sale igual, sin resumen.\nconst esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst anuncios = $('Preparar petición a Gemini').all().map((i) => i.json);\nconst respuestas = $input.all().map((i) => i.json);\nconst resumenDe = (k) => (respuestas[k] || {}).candidates?.[0]?.content?.parts?.map((p) => p.text).join('').trim();\n\nconst asunto = `BOJA: ${anuncios.length} anuncio${anuncios.length === 1 ? '' : 's'} de riego / solar`;\n\n// --- Telegram (formato HTML de Telegram: solo <b>, <i>, <a>) ---\nlet telegram = `<b>${esc(asunto)}</b>\\n`;\nanuncios.forEach((a, k) => {\n  const r = resumenDe(k);\n  const bloque = `\\n<b>${esc(a.titulo)}</b>\\n${r ? esc(r) : '<i>(Sin resumen: Gemini no respondió)</i>'}\\n<a href=\"${esc(a.enlace)}\">Ver en el BOJA</a>\\n`;\n  if ((telegram + bloque).length < 3900) telegram += bloque; // Telegram admite hasta 4096 caracteres\n});\ntelegram += '\\n<i>Resúmenes hechos por IA: revísalos antes de usarlos.</i>';\n\n// --- Email (por si algún día se vuelve a activar) ---\nconst lista = anuncios.map((a, k) => {\n  const r = resumenDe(k);\n  return `\n  <li style=\"margin-bottom:18px\">\n    <a href=\"${esc(a.enlace)}\"><strong>${esc(a.titulo)}</strong></a><br>\n    ${r ? `<span>${esc(r)}</span><br>` : '<em style=\"color:#a00\">(Sin resumen: Gemini no respondió)</em><br>'}\n    <small style=\"color:#666\">${esc((a.fecha || '').slice(0, 10))} · coincide: ${esc(a.coincide)}</small>\n  </li>`;\n}).join('');\nconst html = `<p>Hoy el BOJA trae esto que puede interesarnos:</p><ul>${lista}</ul>\n<p style=\"color:#666;font-size:12px\">Resúmenes hechos por IA (Gemini): revísalos antes de usarlos. Aviso automático del vigilante del BOJA (n8n).</p>`;\n\nreturn [{ json: { asunto, telegram, html } }];\n"
+      },
+      "id": "d1",
+      "name": "Preparar aviso",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Instrucciones para Gemini. Cámbialas si quieres otro estilo de resumen.\nconst instrucciones = `Eres redactor de una instaladora de bombeo solar para riego en Andalucía.\nResume este anuncio del BOJA en 2 o 3 frases sencillas para un agricultor o una comunidad de regantes:\nde qué trata, a quién va dirigido y el plazo SOLO si aparece en el texto.\nReglas:\n- No inventes nada que no esté en el texto.\n- No pongas importes ni cantidades de dinero.\n- Nunca prometas que alguien conseguirá la ayuda.\n- Si el texto no da para saber de qué trata, dilo en una frase.\n- Termina con: \"Consulta los requisitos en la convocatoria oficial.\"\n- Solo el resumen, sin títulos ni viñetas.`;\n\nreturn $input.all().map((item) => ({\n  json: {\n    ...item.json,\n    peticion: {\n      contents: [{ parts: [{ text: `${instrucciones}\\n\\nTÍTULO: ${item.json.titulo}\\n\\nTEXTO: ${item.json.texto || '(sin texto)'}` }] }],\n      generationConfig: { temperature: 0.2 },\n    },\n  },\n}));\n"
+      },
+      "id": "g1",
+      "name": "Preparar petición a Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.peticion) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 20000
+            }
+          }
+        }
+      },
+      "id": "g2",
+      "name": "Gemini: resumir",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "t1",
+      "name": "Enviar Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "CORREO-DESTINO@ejemplo.com",
+        "subject": "={{ $json.asunto }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "m1",
+      "name": "Enviar email (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        400
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Una noticia por anuncio, con el resumen de Gemini (si Gemini falló, va sin resumen: se escribe en el panel).\n// La web la guarda como BORRADOR: no se ve nada hasta publicarla desde el panel (/admin.html → Noticias).\nconst anuncios = $('Preparar petición a Gemini').all().map((i) => i.json);\nconst respuestas = $input.all().map((i) => i.json);\nconst resumenDe = (k) => (respuestas[k] || {}).candidates?.[0]?.content?.parts?.map((p) => p.text).join('').trim() || '';\n\nreturn anuncios.map((a, k) => ({\n  json: {\n    titulo: a.titulo,\n    enlace: a.enlace,\n    fecha: a.fecha,\n    resumen: resumenDe(k),\n    coincide: a.coincide,\n    fuente: 'BOJA',\n  },\n}));\n"
+      },
+      "id": "w1",
+      "name": "Preparar noticias",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://TU-WEB.vercel.app/api/noticias",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "w2",
+      "name": "Guardar en la web",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        620
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Cada día a las 7:00": {
+      "main": [
+        [
+          {
+            "node": "BOJA · Disposiciones generales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar ahora": {
+      "main": [
+        [
+          {
+            "node": "BOJA · Disposiciones generales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BOJA · Disposiciones generales": {
+      "main": [
+        [
+          {
+            "node": "Filtrar: riego, solar, ayudas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar: riego, solar, ayudas": {
+      "main": [
+        [
+          {
+            "node": "Preparar petición a Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar petición a Gemini": {
+      "main": [
+        [
+          {
+            "node": "Gemini: resumir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: resumir": {
+      "main": [
+        [
+          {
+            "node": "Preparar aviso",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Preparar noticias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar aviso": {
+      "main": [
+        [
+          {
+            "node": "Enviar Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Enviar email (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar noticias": {
+      "main": [
+        [
+          {
+            "node": "Guardar en la web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid"
+  },
+  "pinData": {}
+}

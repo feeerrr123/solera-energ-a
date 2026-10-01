@@ -93,7 +93,14 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json.peticion) }}",
-        "options": {}
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 8000
+            }
+          }
+        }
       },
       "id": "g2",
       "name": "Gemini: resumir",
@@ -105,7 +112,7 @@
       ],
       "onError": "continueRegularOutput",
       "retryOnFail": true,
-      "maxTries": 5,
+      "maxTries": 3,
       "waitBetweenTries": 5000
     },
     {

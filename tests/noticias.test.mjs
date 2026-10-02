@@ -121,7 +121,7 @@ test('GET público: solo publicadas, por lista blanca (nunca borradores, descart
   assert.deepEqual(r.cuerpo.noticias.map((n) => n.id), [p.id])
   assert.ok(!JSON.stringify(r.cuerpo).includes(b.id))
   assert.ok(!('coincide' in r.cuerpo.noticias[0]) && !('estado' in r.cuerpo.noticias[0]))
-  assert.match(r.headers['cache-control'], /s-maxage/)
+  assert.equal(r.headers['cache-control'], 'no-store') // quitar de la web se ve en el acto
   assert.deepEqual((await llamar(crearPublico(deps({ demo: true })), req('GET'))).cuerpo, { demo: true, noticias: [] })
 })
 

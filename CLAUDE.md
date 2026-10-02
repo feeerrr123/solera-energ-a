@@ -143,7 +143,10 @@ El flujo importable está en `automatizaciones/n8n/vigilante-boja.json` (claves 
 - **Supabase:** volver a pegar `supabase/schema.sql` (añade la tabla `noticias`; idempotente). Vercel: añadir `NOTICIAS_TOKEN`.
 - Probado: 80 pruebas; en navegador (Tailwind compilado en local porque el CDN no se alcanza desde el contenedor): demo
   local (panel: bloquea publicar con importe, editar y publicar) y arnés con los endpoints reales (POST de n8n 201/200/401,
-  login, publicar, la noticia sale en la web). **Sin probar contra Supabase real** ni la rama "Guardar en la web" desde n8n.
+  login, publicar, la noticia sale en la web).
+- **2026-10-02 — en producción y probado de punta a punta** (https://solera-energ-a.vercel.app, PR #1 fusionada en `main`):
+  Supabase real conectado (`/api/noticias` y `/api/admin/login` responden sin `demo`), n8n → Gemini Lite → Telegram +
+  Gmail (OAuth2) + "Guardar en la web" → borradores en el panel → publicar. Lo ha comprobado el usuario.
 - Pendiente del flujo: el RSS solo trae título y metadatos → Gemini no sabe plazos ni destinatarios. Mejora: que n8n
   abra el enlace del anuncio y le pase el texto completo. Gmail por SMTP con contraseña de aplicación fallaba (535 5.7.8)
   en la cuenta del usuario: por eso el nodo Gmail va con OAuth2.
@@ -267,5 +270,7 @@ hacer commit/push hasta que lo pida. Claves las pega él en Vercel, nunca en el 
 - [ ] Al borrar o cambiar la foto de un caso, la antigua queda en el bucket (no se limpia).
 - [ ] Texto de privacidad: lo revisa la instaladora real (RGPD). `og:image`; aviso legal; JSON-LD `LocalBusiness` solo con datos reales.
 - [ ] Confirmar en Vercel que `node build.mjs` + `dist` se aplican la primera vez.
-- [ ] Noticias: pegar otra vez `schema.sql`, crear `NOTICIAS_TOKEN` en Vercel y en n8n, poner la URL real en el nodo
-      "Guardar en la web" y activarlo. Conectar Gmail (OAuth2) y activar "Enviar email (Gmail)" con el correo del cliente.
+- [x] Noticias en producción: `schema.sql`, `NOTICIAS_TOKEN` en Vercel y n8n, "Guardar en la web" y Gmail (OAuth2) activos.
+- [ ] Gmail OAuth2 en modo "pruebas": el permiso caduca a los 7 días → pasar la app a "producción" en Google Cloud.
+- [ ] n8n vive en el portátil del usuario: si está suspendido a las 7:00 no se ejecuta. Para un cliente: servidor 24/7.
+- [ ] Mejora: que n8n abra el anuncio completo para que Gemini pueda dar plazos y destinatarios.

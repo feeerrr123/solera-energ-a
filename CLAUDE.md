@@ -127,7 +127,7 @@ sitio". Para una instaladora real que paga, el despliegue debe ir en su cuenta o
 ## Noticias del BOJA (Fase 4, 2026-09-30)
 
 Recorrido: **n8n** (en el portátil del usuario, cada día a las 7:00) lee el RSS del BOJA → filtra por palabras
-(riego, regadío, solar…) → **Gemini** (API gratuita, `gemini-3.8-flash`) propone un resumen → avisa por
+(riego, regadío, solar…) → **Gemini** (API gratuita, `gemini-flash-lite-latest`: el `gemini-3.8-flash` se quedaba sin cupo) propone un resumen → avisa por
 **Telegram** (y por **Gmail**, nodo OAuth2, desactivado hasta conectar la credencial) → **POST `/api/noticias`**
 → entra como **borrador** → se revisa y se publica en el panel (pestaña Noticias) → sale en `/noticias.html`.
 El flujo importable está en `automatizaciones/n8n/vigilante-boja.json` (claves y chat ID se ponen en n8n, nunca aquí).

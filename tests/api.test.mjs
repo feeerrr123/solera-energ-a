@@ -203,6 +203,6 @@ test('/api/casos: sin Supabase, {demo:true}; con Supabase, solo publicados y sin
   assert.equal(r.cuerpo.casos[0].es_demo, true)
   const texto = JSON.stringify(r.cuerpo)
   assert.ok(!texto.includes('Secreto') && !texto.includes('6000000'))
-  assert.match(r.headers['cache-control'], /s-maxage/)
+  assert.equal(r.headers['cache-control'], 'no-store') // despublicar se ve en el acto
   assert.equal((await llamar(crearCasos(deps()), req('POST'))).codigo, 405)
 })

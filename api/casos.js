@@ -15,7 +15,8 @@ export function crear(d) {
     }
     try {
       const filas = await d.repo.casosPublicos()
-      res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300')
+      // Sin caché: quitar la autorización o despublicar tiene que verse en la web en el acto.
+      res.setHeader('Cache-Control', 'no-store')
       return res.status(200).json({ casos: filas.map(casoPublico) })
     } catch (e) {
       res.setHeader('Cache-Control', 'no-store')

@@ -23,8 +23,8 @@ export function crear(d) {
       if (d.modoDemo()) return responder(res, 200, { demo: true, noticias: [] })
       try {
         const filas = await d.repo.noticiasPublicas()
-        res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
-        return res.status(200).json({ noticias: filas.map(noticiaPublica) })
+        // Sin caché: lo que se quita en el panel tiene que desaparecer de la web en el acto.
+        return responder(res, 200, { noticias: filas.map(noticiaPublica) })
       } catch (e) {
         return responder(res, 500, { error: e.message })
       }

@@ -126,7 +126,7 @@ sitio". Para una instaladora real que paga, el despliegue debe ir en su cuenta o
 
 ## Noticias del BOJA (Fase 4, 2026-09-30)
 
-Recorrido: **n8n** (en el portátil del usuario, cada día a las 7:00) lee el RSS del BOJA → filtra por palabras
+Recorrido: **n8n** (en el portátil del usuario, cada día a las 9:30) lee el RSS del BOJA → filtra por palabras
 (riego, regadío, solar…) → **Gemini** (API gratuita, `gemini-flash-lite-latest`: el `gemini-3.8-flash` se quedaba sin cupo) propone un resumen → avisa por
 **Telegram** (y por **Gmail**, nodo OAuth2, desactivado hasta conectar la credencial) → **POST `/api/noticias`**
 → entra como **borrador** → se revisa y se publica en el panel (pestaña Noticias) → sale en `/noticias.html`.
@@ -272,5 +272,5 @@ hacer commit/push hasta que lo pida. Claves las pega él en Vercel, nunca en el 
 - [ ] Confirmar en Vercel que `node build.mjs` + `dist` se aplican la primera vez.
 - [x] Noticias en producción: `schema.sql`, `NOTICIAS_TOKEN` en Vercel y n8n, "Guardar en la web" y Gmail (OAuth2) activos.
 - [ ] Gmail OAuth2 en modo "pruebas": el permiso caduca a los 7 días → pasar la app a "producción" en Google Cloud.
-- [ ] n8n vive en el portátil del usuario: si está suspendido a las 7:00 no se ejecuta. Para un cliente: servidor 24/7.
+- [ ] n8n vive en el portátil del usuario: si está suspendido a la hora de la ejecución no se ejecuta. Para un cliente: servidor 24/7.
 - [ ] Mejora: que n8n abra el anuncio completo para que Gemini pueda dar plazos y destinatarios.

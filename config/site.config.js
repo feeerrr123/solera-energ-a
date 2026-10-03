@@ -30,7 +30,7 @@ const googleReviewUrl = 'https://g.page/r/CfSolerAEnergia2026/review'
 // Cómo se firma la frase de un cliente en la web pública: NUNCA con su nombre.
 const atribucionCaso = 'Titular de explotación de {cultivo}, {municipio}'
 // Versión del aviso de privacidad (se guarda con cada contacto: qué texto aceptó la persona).
-const avisoVersion = '2026-09'
+const avisoVersion = '2026-10' // 2026-10: email opcional, envío del resultado y un recordatorio del presupuesto
 const email = 'hola@soleraenergia.example'
 const whatsappNumero = '34641717005' // solo dígitos, con prefijo de país y sin "+"
 
@@ -435,10 +435,12 @@ export default {
     formulario: {
       nombre: 'Nombre',
       telefono: 'Teléfono',
-      consentimiento: `He leído el <a href="${archivos.privacidad}" target="_blank" rel="noopener" class="ul-grow text-ochre-deep">aviso de privacidad</a> y acepto que ${nombre} use estos datos para contestarme.`,
+      email: 'Email (opcional: te mandamos el resultado)',
+      consentimiento: `He leído el <a href="${archivos.privacidad}" target="_blank" rel="noopener" class="ul-grow text-ochre-deep">aviso de privacidad</a> y acepto que ${nombre} use estos datos para contestarme y, si dejo mi email, enviarme el resultado.`,
       errores: {
         nombre: 'Escribe tu nombre',
         telefono: 'Escribe un teléfono válido',
+        email: 'Escribe un email válido o déjalo vacío',
         consentimiento: 'Hace falta aceptar el aviso de privacidad para poder enviarlo',
       },
       enviando: 'Enviando…',
@@ -456,7 +458,7 @@ export default {
     // WhatsApp de respuesta que se abre desde el panel (hacia la persona que escribió).
     mensajeRespuesta: p(`Hola {nombre}, soy de {empresa}. Hemos recibido tu consulta en {etiqueta}.
       ¿Cuándo te viene bien que hablemos?`),
-    estados: { nuevo: 'Nuevo', contactado: 'Contactado', descartado: 'Descartado' },
+    estados: { nuevo: 'Nuevo', contactado: 'Contactado', presupuestado: 'Presupuestado', cerrado: 'Cerrado', descartado: 'Descartado' },
     // `campos`: qué se muestra de lo que rellenó la persona (en el WhatsApp y en el panel), en este orden.
     origenes: {
       ayudas: {
@@ -486,6 +488,53 @@ export default {
         etiqueta: 'Contacto',
         campos: { tipo: 'Quiere', municipio: 'Municipio', mensaje: 'Mensaje' },
       },
+    },
+  },
+
+  /* ─── SEGUIMIENTO (Fase 5): lo que manda la automatización de n8n ─── */
+  // Ficha al instalador por cada contacto nuevo, email al agricultor con su estimación (si dejó email),
+  // UN recordatorio al agricultor si su presupuesto lleva `diasRecordatorio` sin respuesta, y aviso al
+  // instalador si un contacto lleva `diasEstancado` sin cambiar de estado en el panel.
+  // Variables: {nombre} {primerNombre} {telefono} {email} {municipio} {origen} {herramienta} {empresa}
+  //            {kwp} {precio} {ahorro} {amortizacion} {estado} {dias}
+  // Siempre "estimación orientativa", nunca "presupuesto" (salvo en el recordatorio, que es de uno de verdad).
+  seguimiento: {
+    diasRecordatorio: 3,
+    diasEstancado: 7,
+    horario: { desde: 9, hasta: 20 }, // recordatorios y avisos solo en este horario (hora de Madrid)
+    ficha: {
+      asunto: 'Nuevo contacto: {nombre} ({origen})',
+      titulo: 'Nuevo contacto: {nombre} · {origen}',
+      whatsapp: 'Contestar por WhatsApp',
+      etiquetas: {
+        telefono: 'Teléfono', email: 'Email', municipio: 'Municipio', potencia: 'Potencia orientativa',
+        precio: 'Inversión orientativa', ahorro: 'Ahorro el primer año', amortizacion: 'Amortización',
+      },
+    },
+    cliente: {
+      asunto: 'Tu estimación de bombeo solar · {empresa}',
+      saludo: 'Hola {primerNombre}:',
+      intro: 'Gracias por usar {herramienta} de {empresa}. Este es el resumen de lo que has calculado:',
+      lineas: {
+        potencia: 'Potencia orientativa: <strong>{kwp} kWp</strong>',
+        precio: 'Inversión orientativa: <strong>{precio}</strong>',
+        ahorro: 'Ahorro estimado el primer año: <strong>{ahorro}</strong>',
+        amortizacion: 'Amortización estimada: <strong>{amortizacion}</strong>',
+      },
+      siguiente: 'Un técnico te llamará en 24–48 h laborables para confirmar los datos de tu pozo y tu caudal.',
+      aviso: p(`Es una estimación orientativa hecha con los datos que has introducido, no un presupuesto: el dimensionado
+        real requiere visita técnica. Las ayudas, según convocatoria vigente.`),
+      firma: 'Un saludo,<br>{empresa}',
+    },
+    recordatorio: {
+      asunto: 'Tu presupuesto de bombeo solar · {empresa}',
+      texto: p(`Hace unos días te enviamos el presupuesto de tu instalación de bombeo solar. Si tienes cualquier duda o
+        quieres ajustar algo, contesta a este correo o llámanos y lo vemos juntos.`),
+    },
+    estancado: {
+      asunto: 'Contacto parado: {nombre}',
+      titulo: '{nombre} lleva {dias} días sin moverse',
+      texto: 'Estado: {estado} · {origen} · {telefono}. ¿Le llamamos?',
     },
   },
 
@@ -653,10 +702,11 @@ export default {
       pre-dimensionado, calculadora y contacto).`),
     secciones: [
       { titulo: 'Quién es el responsable', texto: `${nombre}. Contacto para todo lo relativo a tus datos: <a href="mailto:${email}" class="ul-grow text-ochre-deep">${email}</a>.` },
-      { titulo: 'Qué datos recogemos', texto: p(`Tu nombre y tu teléfono, y lo que rellenes en la herramienta que uses (por ejemplo, cultivo, provincia o caudal).
+      { titulo: 'Qué datos recogemos', texto: p(`Tu nombre y tu teléfono, tu email si decides dejarlo, y lo que rellenes en la herramienta que uses (por ejemplo, cultivo, provincia o caudal).
         En el formulario de contacto, también tu municipio y el mensaje si los escribes. No pedimos datos que no necesitemos.`) },
       { titulo: 'Para qué los usamos', texto: p(`Solo para contestar a tu consulta y, si tú quieres, preparar un estudio o un presupuesto.
-        No los usamos para publicidad ni los vendemos.`) },
+        Si dejas tu email, te mandamos el resultado de la herramienta y, si te enviamos un presupuesto, un único recordatorio
+        unos días después. No los usamos para publicidad ni los vendemos.`) },
       { titulo: 'Por qué podemos usarlos', texto: 'Porque tú lo aceptas al marcar la casilla del formulario (consentimiento). Puedes retirarlo cuando quieras.' },
       { titulo: 'Cuánto tiempo los guardamos', texto: p(`Mientras sea necesario para atender tu consulta y, como máximo, 24 meses si no llega a haber un contrato.
         Después se borran.`) },
@@ -701,7 +751,7 @@ export default {
         datos: { titular: 'Agricultor/a (persona física)', provincia: 'Jaén', cultivo: 'Olivar', concesion: 'Sí, la tiene', instalacion: 'Sustituir un grupo de gasóleo' },
       },
       {
-        origen: 'dimensionado', nombre: 'Persona de ejemplo 2', telefono: '600000022', diasAtras: 3,
+        origen: 'dimensionado', nombre: 'Persona de ejemplo 2', telefono: '600000022', email: 'ejemplo2@example.com', diasAtras: 3, estado: 'presupuestado',
         datos: { alturaM: 60, caudalM3h: 10, horasRiego: 8, kwp: 4.5, precioMin: 4900, precioMax: 7200 },
       },
       {
@@ -822,14 +872,17 @@ export default {
       contactos: {
         titulo: 'Contactos recibidos',
         intro: p(`Lo que llega por los formularios de la web: comprobador de ayudas, dimensionado, calculadora y contacto.
-          Solo entran si la persona ha aceptado el aviso de privacidad. Los nuevos salen arriba.`),
+          Solo entran si la persona ha aceptado el aviso de privacidad. Los nuevos salen arriba. Mueve cada uno de estado:
+          al pasar a «Presupuestado», si el cliente no contesta en unos días le llega un recordatorio por email; y si un
+          contacto lleva una semana sin moverse, te avisamos.`),
         vacio: 'Todavía no ha llegado ningún contacto.',
         recibido: 'Recibido el {fecha}',
         consentimiento: 'Aceptó el aviso de privacidad (versión {version})',
         whatsapp: 'Contestar por WhatsApp',
-        contactado: 'Marcar contactado',
-        descartar: 'Descartar',
-        reabrir: 'Volver a «nuevo»',
+        estado: 'Estado:',
+        fichaEnviada: 'Ficha enviada el {fecha}',
+        presupuestadoEl: 'Presupuesto enviado el {fecha}',
+        recordatorioEl: 'Recordatorio al cliente el {fecha}',
         nota: 'Nota',
         notaPrompt: 'Nota interna (solo la ves tú):',
         notaPuesta: 'Nota:',

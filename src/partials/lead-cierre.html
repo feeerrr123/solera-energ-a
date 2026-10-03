@@ -9,6 +9,11 @@
                   <input name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
                   <span data-error="telefono" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
                 </label>
+                <label class="block text-sm sm:col-span-2">
+                  <span class="font-semibold text-ink">{{ contactos.formulario.email }}</span>
+                  <input name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" class="mt-1.5 w-full rounded-lg border-line-strong bg-paper text-ink focus:border-ochre focus:ring-ochre" />
+                  <span data-error="email" class="mt-1 block text-[12px] text-red-800" role="alert"></span>
+                </label>
               </div>
               <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">
                 <label>Web <input name="web" type="text" tabindex="-1" autocomplete="off" /></label>

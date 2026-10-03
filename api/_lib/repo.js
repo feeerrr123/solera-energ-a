@@ -75,6 +75,11 @@ export const repoSupabase = {
     if (error) fallo('listar los contactos', error)
     return data
   },
+  async obtenerContacto(id) {
+    const { data, error } = await db().from('contactos').select('*').eq('id', id).maybeSingle()
+    if (error) fallo('leer el contacto', error)
+    return data
+  },
   async actualizarContacto(id, datos) {
     const { data, error } = await db().from('contactos').update(datos).eq('id', id).select().maybeSingle()
     if (error) fallo('actualizar el contacto', error)

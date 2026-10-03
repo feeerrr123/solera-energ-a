@@ -44,7 +44,7 @@ Estructura o estilo → la plantilla o el parcial. Cada página tiene su plantil
 ```bash
 npm run build     # genera dist/
 npm run dev       # genera, vigila cambios y sirve dist/ en http://localhost:4177
-npm test          # 80 pruebas (motor, lógica, API con repositorio en memoria, config) — antes: npm install
+npm test          # 90 pruebas (motor, lógica, API con repositorio en memoria, config) — antes: npm install
 ```
 
 Un dato que falta en la config **rompe el build** con el archivo y la ruta — a propósito:
@@ -150,6 +150,34 @@ El flujo importable está en `automatizaciones/n8n/vigilante-boja.json` (claves 
 - Pendiente del flujo: el RSS solo trae título y metadatos → Gemini no sabe plazos ni destinatarios. Mejora: que n8n
   abra el enlace del anuncio y le pase el texto completo. Gmail por SMTP con contraseña de aplicación fallaba (535 5.7.8)
   en la cuenta del usuario: por eso el nodo Gmail va con OAuth2.
+
+## Captación y seguimiento de contactos (Fase 5, 2026-10-03)
+
+Flujo `automatizaciones/n8n/captacion-seguimiento.json` (n8n en el portátil, cada 5 min). La web ya calculaba y
+guardaba el contacto (dimensionado / calculadora); esta fase añade lo que pasa **después**:
+1. **Ficha al instalador** por Telegram + Gmail con cada contacto nuevo (kWp, rango de precio, ahorro, botón de WhatsApp).
+2. **Email al agricultor** con su estimación si dejó email (campo **opcional** nuevo en todos los formularios).
+   Siempre "estimación orientativa", nunca "presupuesto".
+3. **Estados** en el panel con un desplegable: nuevo → contactado → presupuestado → cerrado | descartado.
+4. **Recordatorio al cliente** (uno solo) si lleva `seguimiento.diasRecordatorio` (3) días en "presupuestado".
+   Si contesta, lo lleva la instaladora a mano y cambia el estado: la automatización deja de tocarlo.
+5. **Aviso al instalador** si un contacto abierto lleva `seguimiento.diasEstancado` (7) días sin cambiar de estado
+   (una vez por cada parón). Recordatorios y avisos solo en `seguimiento.horario` (9–20 h, Madrid).
+
+- **Reglas** en `logica.js`: `seguimientoPendiente` (qué toca) y `mensajesContacto` (los textos, de `seguimiento` en la
+  config; todo lo que escribe la persona se escapa: Telegram y Gmail van en HTML). Fichas solo de contactos ≤ 2 días
+  (al encenderlo no manda fichas viejas). `validarCambioContacto` apunta `estado_en` / `presupuestado_en`.
+- **API sin funciones nuevas** (siguen 11 de 12): n8n entra por `api/admin/contactos` (GET → `{fichas, recordatorios,
+  estancados}` con los mensajes montados) y `api/admin/contactos/[id]` (PATCH `{marcar: ficha|recordatorio|aviso}`) con
+  `Authorization: Bearer N8N_TOKEN` (si no está, vale `NOTICIAS_TOKEN`). Con esa clave **solo** se lee lo pendiente y se
+  marca: ni estados, ni notas, ni borrar (tests).
+- **Supabase:** volver a pegar `schema.sql` **antes** de publicar: columnas `email`, `estado_en`, `presupuestado_en`,
+  `ficha_enviada_en`, `recordatorio_cliente_en`, `aviso_instalador_en` y los 5 estados. Sin ellas, el formulario falla.
+- **Privacidad:** `avisoVersion` pasa a `2026-10` (email opcional, envío del resultado y un recordatorio del presupuesto).
+- WhatsApp automático al agricultor **no**: requiere la API oficial de Meta (alta, plantillas y pago por conversación).
+- Probado: 90 pruebas; navegador con arnés (formularios con email sin desbordes en móvil, alta → n8n lee la ficha → marca →
+  ya no está pendiente; n8n no puede cambiar estados; panel: desplegable → "Presupuesto enviado el…"; demo en móvil).
+  Pestañas del panel en una línea en móvil. **Sin probar contra Supabase real ni el flujo en el n8n del usuario.**
 
 ## Stack
 
@@ -274,3 +302,5 @@ hacer commit/push hasta que lo pida. Claves las pega él en Vercel, nunca en el 
 - [ ] Gmail OAuth2 en modo "pruebas": el permiso caduca a los 7 días → pasar la app a "producción" en Google Cloud.
 - [ ] n8n vive en el portátil del usuario: si está suspendido a la hora de la ejecución no se ejecuta. Para un cliente: servidor 24/7.
 - [ ] Mejora: que n8n abra el anuncio completo para que Gemini pueda dar plazos y destinatarios.
+- [ ] Fase 5: pegar `schema.sql` en Supabase, **luego** fusionar en `main`, importar `captacion-seguimiento.json` en n8n
+      (credenciales "Web Solera", Telegram, Gmail; chat ID y correo del instalador) y probar con un contacto real.

@@ -324,7 +324,11 @@ export function dimensionar(e, p) {
 
 /* ───────────── FASE 2 · contactos (los que llegan de la web pública) ───────────── */
 
-export const ESTADOS_CONTACTO = ['nuevo', 'contactado', 'descartado']
+// El embudo de un contacto: nuevo → contactado → presupuestado → cerrado (o descartado en cualquier punto).
+export const ESTADOS_CONTACTO = ['nuevo', 'contactado', 'presupuestado', 'cerrado', 'descartado']
+// Estados en los que el contacto sigue "vivo" (la automatización aún puede avisar del seguimiento).
+export const ESTADOS_ABIERTOS = ['nuevo', 'contactado', 'presupuestado']
+const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[a-z]{2,24}$/i
 export const ORIGENES_CONTACTO = ['ayudas', 'dimensionado', 'calculadora', 'contacto']
 
 // Lo que el usuario metió en la herramienta: solo textos cortos, números y sí/no, con nombres de
@@ -360,6 +364,9 @@ export function validarContacto(b, { origenes = ORIGENES_CONTACTO } = {}) {
   if (municipio.length > 80) errores.municipio = 'máximo 80 caracteres'
   const mensaje = texto(b.mensaje, 500)
   if (mensaje.length > 500) errores.mensaje = 'máximo 500 caracteres'
+  // Email opcional: si lo deja, se le manda el resultado y, si recibe presupuesto, un recordatorio.
+  const email = texto(b.email, 254).toLowerCase()
+  if (email && (email.length > 254 || !EMAIL.test(email))) errores.email = 'email no válido'
 
   if (!origenes.includes(b.origen)) errores.origen = 'origen no válido'
   if (b.consentimiento !== true) errores.consentimiento = 'hace falta aceptar el aviso de privacidad'
@@ -372,18 +379,26 @@ export function validarContacto(b, { origenes = ORIGENES_CONTACTO } = {}) {
     ok: Object.keys(errores).length === 0,
     spam: false,
     errores,
-    datos: { origen: b.origen, nombre, telefono, municipio: municipio || null, mensaje: mensaje || null, datos, consentimiento: true, aviso_version: avisoVersion || null },
+    datos: { origen: b.origen, nombre, telefono, email: email || null, municipio: municipio || null, mensaje: mensaje || null, datos, consentimiento: true, aviso_version: avisoVersion || null },
   }
 }
 
-// Cambios que el panel puede hacer sobre un contacto recibido.
-export function validarCambioContacto(b) {
+// Cambios que el panel puede hacer sobre un contacto recibido. Cambiar de estado apunta cuándo
+// (`estado_en`: con eso se sabe si lleva días parado) y, al pasar a presupuestado, `presupuestado_en`
+// (desde ahí cuentan los días del recordatorio al cliente).
+export function validarCambioContacto(b, actual = {}, { ahoraISO = new Date().toISOString() } = {}) {
   const errores = {}
   const datos = {}
   const tiene = (k) => Object.prototype.hasOwnProperty.call(b || {}, k)
   if (tiene('estado')) {
-    if (ESTADOS_CONTACTO.includes(b.estado)) datos.estado = b.estado
-    else errores.estado = 'estado no válido'
+    if (!ESTADOS_CONTACTO.includes(b.estado)) errores.estado = 'estado no válido'
+    else {
+      datos.estado = b.estado
+      if (b.estado !== actual.estado) {
+        datos.estado_en = ahoraISO
+        if (b.estado === 'presupuestado') { datos.presupuestado_en = ahoraISO; datos.recordatorio_cliente_en = null }
+      }
+    }
   }
   if (tiene('nota_interna')) {
     const v = typeof b.nota_interna === 'string' ? b.nota_interna.trim() : ''
@@ -581,4 +596,129 @@ export function datosTarjetaNoticia(n) {
     fecha: fechaLarga(n.fecha_publicacion),
     ejemplo: n.es_demo === true,
   }
+}
+
+/* ───────────── FASE 5 · captación y seguimiento de contactos (n8n) ───────────── */
+
+// Lo único que n8n puede apuntar sobre un contacto: "ya mandé la ficha", "ya mandé el recordatorio",
+// "ya avisé de que está parado". Nada de datos de la persona ni de su estado.
+export const MARCAS_SEGUIMIENTO = { ficha: 'ficha_enviada_en', recordatorio: 'recordatorio_cliente_en', aviso: 'aviso_instalador_en' }
+
+const DIA = 86400000
+const horaMadrid = (ms) => Number(new Intl.DateTimeFormat('es-ES', { timeZone: 'Europe/Madrid', hour: 'numeric', hour12: false }).format(new Date(ms))) % 24
+const t = (iso) => (iso ? Date.parse(iso) : NaN)
+
+// Qué tiene pendiente la automatización ahora mismo:
+//  · fichas: contactos recién llegados (≤ 2 días) a los que aún no se ha mandado la ficha al instalador
+//    (el tope de 2 días evita una avalancha de fichas viejas la primera vez que se enciende).
+//  · recordatorios: presupuestados hace ≥ diasRecordatorio, con email y sin recordatorio todavía. Uno solo.
+//  · estancados: abiertos sin cambiar de estado en ≥ diasEstancado y sin aviso desde ese último cambio.
+// Recordatorios y avisos solo dentro del horario (hora de Madrid): nada de emails a las 3 de la mañana.
+export function seguimientoPendiente(contactos, ahoraMs, { diasRecordatorio = 3, diasEstancado = 7, horario = { desde: 9, hasta: 20 } } = {}) {
+  const enHorario = (() => { const h = horaMadrid(ahoraMs); return h >= horario.desde && h < horario.hasta })()
+  const fichas = []
+  const recordatorios = []
+  const estancados = []
+  for (const c of contactos) {
+    if (!c.ficha_enviada_en && ahoraMs - t(c.creado_en) <= 2 * DIA) fichas.push(c)
+    if (!enHorario) continue
+    if (c.estado === 'presupuestado' && c.email && !c.recordatorio_cliente_en && ahoraMs - t(c.presupuestado_en) >= diasRecordatorio * DIA) recordatorios.push(c)
+    const desde = t(c.estado_en || c.creado_en)
+    if (ESTADOS_ABIERTOS.includes(c.estado || 'nuevo') && ahoraMs - desde >= diasEstancado * DIA && !(t(c.aviso_instalador_en) >= desde)) estancados.push(c)
+  }
+  return { fichas, recordatorios, estancados }
+}
+
+const escHTML = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+const n = (v) => (typeof v === 'number' ? v.toLocaleString('es-ES', { maximumFractionDigits: 2 }) : v)
+
+// Las cifras que importan para vender, sacadas de lo que la persona rellenó (dimensionado o calculadora).
+export function cifrasContacto(datos = {}) {
+  const d = datos || {}
+  return {
+    kwp: d.kwp ?? null,
+    precioMin: d.precioMin ?? null,
+    precioMax: d.precioMax ?? null,
+    inversion: d.inversion ?? null,
+    ahorro: d.ahorro ?? null,
+    amortizacion: d.amortizacion ?? null,
+  }
+}
+
+// Todos los textos que manda la automatización, ya montados (las plantillas viven en la config:
+// `seguimiento`). `L` = contactos de la config (orígenes, etiquetas). Todo lo que viene de la persona
+// se escapa: los mensajes van en HTML (Telegram y Gmail).
+export function mensajesContacto(c, S, L, ahoraMs = Date.now()) {
+  const origen = (L.origenes && L.origenes[c.origen]) || { nombre: c.origen, etiqueta: c.origen, campos: {} }
+  // El resto de lo que rellenó (altura, caudal, cultivo…); las cifras clave ya van en su propia línea.
+  const camposResto = Object.fromEntries(Object.entries(origen.campos || {}).filter(([key]) => !(key in cifrasContacto())))
+  const resumen = resumenDatos({ ...(c.datos || {}), mensaje: c.mensaje }, camposResto)
+  const k = cifrasContacto(c.datos)
+  const vars = {
+    nombre: c.nombre, primerNombre: primerNombre(c.nombre), telefono: c.telefono, email: c.email || '—',
+    municipio: c.municipio || '—', origen: origen.etiqueta, herramienta: origen.nombre, empresa: L.empresaNombre,
+    kwp: k.kwp != null ? n(k.kwp) : '—',
+    precio: k.precioMin != null && k.precioMax != null ? `${miles(k.precioMin)}–${miles(k.precioMax)} €` : k.inversion != null ? `unos ${miles(k.inversion)} €` : '—',
+    ahorro: k.ahorro != null ? `${miles(k.ahorro)} €` : '—',
+    amortizacion: k.amortizacion != null ? `${n(k.amortizacion)} años` : '—',
+    estado: (L.estados && L.estados[c.estado]) || c.estado || 'Nuevo',
+    dias: Math.max(0, Math.floor((ahoraMs - t(c.estado_en || c.creado_en)) / DIA)),
+  }
+  const e = Object.fromEntries(Object.entries(vars).map(([key, v]) => [key, escHTML(v)]))
+  const linea = (plantilla) => rellenar(plantilla, e)
+  const llamar = waLink(c.telefono, rellenar(L.mensajeRespuesta || '', { nombre: primerNombre(c.nombre), empresa: L.empresaNombre, etiqueta: origen.nombre }))
+
+  // Ficha para el instalador (Telegram: solo <b>, <i>, <a>; email: HTML sencillo)
+  const filas = [
+    [S.ficha.etiquetas.telefono, e.telefono], [S.ficha.etiquetas.email, e.email], [S.ficha.etiquetas.municipio, e.municipio],
+    [S.ficha.etiquetas.potencia, k.kwp != null ? `${e.kwp} kWp` : '—'], [S.ficha.etiquetas.precio, e.precio],
+    [S.ficha.etiquetas.ahorro, e.ahorro], [S.ficha.etiquetas.amortizacion, e.amortizacion],
+  ].filter(([, v]) => v && v !== '—')
+  const ficha = {
+    asunto: rellenar(S.ficha.asunto, vars),
+    telegram: [
+      `<b>${linea(S.ficha.titulo)}</b>`, '',
+      ...filas.map(([et, v]) => `<b>${escHTML(et)}:</b> ${v}`),
+      resumen ? `\n<i>${escHTML(resumen)}</i>` : '',
+      llamar ? `\n<a href="${escHTML(llamar)}">${escHTML(S.ficha.whatsapp)}</a>` : '',
+    ].filter((x) => x !== '').join('\n'),
+    html: `<p><strong>${linea(S.ficha.titulo)}</strong></p><table cellpadding="4">${filas.map(([et, v]) => `<tr><td><strong>${escHTML(et)}</strong></td><td>${v}</td></tr>`).join('')}</table>`
+      + (resumen ? `<p style="color:#555">${escHTML(resumen)}</p>` : '')
+      + (llamar ? `<p><a href="${escHTML(llamar)}">${escHTML(S.ficha.whatsapp)}</a></p>` : ''),
+  }
+
+  // Email al agricultor con su estimación (solo si dejó email)
+  const tieneCifras = k.kwp != null || k.precioMin != null || k.inversion != null || k.ahorro != null
+  const emailCliente = c.email ? {
+    para: c.email,
+    asunto: rellenar(S.cliente.asunto, vars),
+    html: [
+      `<p>${linea(S.cliente.saludo)}</p>`,
+      `<p>${linea(S.cliente.intro)}</p>`,
+      tieneCifras ? `<ul>${[
+        k.kwp != null ? `<li>${linea(S.cliente.lineas.potencia)}</li>` : '',
+        (k.precioMin != null || k.inversion != null) ? `<li>${linea(S.cliente.lineas.precio)}</li>` : '',
+        k.ahorro != null ? `<li>${linea(S.cliente.lineas.ahorro)}</li>` : '',
+        k.amortizacion != null ? `<li>${linea(S.cliente.lineas.amortizacion)}</li>` : '',
+      ].join('')}</ul>` : '',
+      `<p>${linea(S.cliente.siguiente)}</p>`,
+      `<p style="color:#666;font-size:12px">${linea(S.cliente.aviso)}</p>`,
+      `<p>${linea(S.cliente.firma)}</p>`,
+    ].join(''),
+  } : null
+
+  // Recordatorio al agricultor (presupuesto sin respuesta)
+  const recordatorio = c.email ? {
+    para: c.email,
+    asunto: rellenar(S.recordatorio.asunto, vars),
+    html: `<p>${linea(S.cliente.saludo)}</p><p>${linea(S.recordatorio.texto)}</p><p>${linea(S.cliente.firma)}</p>`,
+  } : null
+
+  // Aviso al instalador: contacto parado
+  const estancado = {
+    asunto: rellenar(S.estancado.asunto, vars),
+    telegram: `<b>${linea(S.estancado.titulo)}</b>\n${linea(S.estancado.texto)}${llamar ? `\n<a href="${escHTML(llamar)}">${escHTML(S.ficha.whatsapp)}</a>` : ''}`,
+    html: `<p><strong>${linea(S.estancado.titulo)}</strong></p><p>${linea(S.estancado.texto)}</p>${llamar ? `<p><a href="${escHTML(llamar)}">${escHTML(S.ficha.whatsapp)}</a></p>` : ''}`,
+  }
+  return { ficha, emailCliente, recordatorio, estancado }
 }

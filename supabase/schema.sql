@@ -68,7 +68,7 @@ create table if not exists public.contactos (
   consentimiento_en  timestamptz not null default now(),
   aviso_version      text,                    -- versión del aviso de privacidad que aceptó
 
-  estado             text not null default 'nuevo' check (estado in ('nuevo', 'contactado', 'descartado')),
+  estado             text not null default 'nuevo' check (estado in ('nuevo', 'contactado', 'presupuestado', 'cerrado', 'descartado')),
   nota_interna       text
 );
 
@@ -77,6 +77,17 @@ create index if not exists contactos_tel_idx    on public.contactos (telefono_no
 
 -- Igual que `instalaciones`: RLS activado y SIN políticas. Solo el servidor (api/) toca esta tabla.
 alter table public.contactos enable row level security;
+
+-- FASE 5 — captación y seguimiento con n8n. Se puede volver a pegar sin romper nada.
+alter table public.contactos add column if not exists email                   text;         -- opcional: para mandarle su resultado
+alter table public.contactos add column if not exists estado_en               timestamptz not null default now(); -- último cambio de estado
+alter table public.contactos add column if not exists presupuestado_en        timestamptz;  -- desde aquí cuenta el recordatorio
+alter table public.contactos add column if not exists ficha_enviada_en        timestamptz;  -- n8n ya mandó la ficha al instalador
+alter table public.contactos add column if not exists recordatorio_cliente_en timestamptz;  -- n8n ya mandó el recordatorio (uno solo)
+alter table public.contactos add column if not exists aviso_instalador_en     timestamptz;  -- n8n ya avisó de que estaba parado
+alter table public.contactos drop constraint if exists contactos_estado_check;
+alter table public.contactos add constraint contactos_estado_check
+  check (estado in ('nuevo', 'contactado', 'presupuestado', 'cerrado', 'descartado'));
 
 -- ─────────────────────────────────────────────────────────────────────────────
 --  FASE 4 — noticias (BOJA → n8n → borrador → se revisa en el panel → web)

@@ -9,12 +9,16 @@ export const cfg = {
   adminSecret: process.env.ADMIN_SECRET || '',
   // Clave con la que n8n entrega noticias (POST /api/noticias). Sin ella, esa puerta está cerrada.
   noticiasToken: process.env.NOTICIAS_TOKEN || '',
+  // Clave con la que n8n lee los contactos pendientes de seguimiento y marca lo que ha mandado.
+  // Si no se pone N8N_TOKEN, vale la de noticias (es la misma credencial "Web Solera" de n8n).
+  n8nToken: process.env.N8N_TOKEN || process.env.NOTICIAS_TOKEN || '',
   bucket: 'casos',
 }
 
 export const supabaseListo = () => !!(cfg.supabaseUrl && cfg.supabaseServiceKey)
 export const adminListo = () => !!(cfg.adminPassword && cfg.adminSecret.length >= 16)
 export const noticiasListo = () => cfg.noticiasToken.length >= 24
+export const n8nListo = () => cfg.n8nToken.length >= 24
 
 // Modo demo = falta Supabase: no hay dónde guardar nada real.
 export const modoDemo = () => !supabaseListo()

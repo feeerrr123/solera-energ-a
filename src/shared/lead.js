@@ -55,7 +55,7 @@ export function iniciarLead(form, { origen, L, datos = () => ({}), extra = () =>
     for (const el of form.querySelectorAll('[data-error]')) el.textContent = ''
     const f = form.elements
     const payload = {
-      origen, nombre: f.nombre.value, telefono: f.telefono.value, consentimiento: f.consentimiento.checked,
+      origen, nombre: f.nombre.value, telefono: f.telefono.value, email: f.email ? f.email.value : '', consentimiento: f.consentimiento.checked,
       web: f.web ? f.web.value : '', avisoVersion: L.avisoVersion, datos: datos(), ...extra(),
     }
     const v = validarContacto(payload)

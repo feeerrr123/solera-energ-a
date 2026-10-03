@@ -28,6 +28,7 @@ export function repoMemoria() {
     async crearContacto(d) { const c = { id: randomUUID(), creado_en: new Date(AHORA).toISOString(), estado: 'nuevo', nota_interna: null, ...d }; contactos.set(c.id, c); return c },
     async contarRecientes(tel, desdeISO) { return [...contactos.values()].filter((c) => c.telefono_norm === tel && c.creado_en >= desdeISO).length },
     async listarContactos() { return [...contactos.values()] },
+    async obtenerContacto(id) { return contactos.get(id) ?? null },
     async actualizarContacto(id, d) { if (!contactos.has(id)) return null; const c = { ...contactos.get(id), ...d }; contactos.set(id, c); return c },
     async borrarContacto(id) { contactos.delete(id) },
     // noticias (Fase 4)
@@ -51,6 +52,8 @@ export function deps({ demo = false, adminOk = true, noticiasOk = true, repo = r
     adminListo: () => adminOk,
     noticiasListo: () => noticiasOk,
     tokenNoticias: () => TOKEN_NOTICIAS,
+    n8nListo: () => noticiasOk,
+    tokenN8n: () => TOKEN_NOTICIAS,
     secret: () => SECRET,
     password: () => PASS,
     fotoPrefijo: () => PREFIJO,

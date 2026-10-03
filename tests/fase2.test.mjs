@@ -78,7 +78,7 @@ test('validarContacto: alta correcta, limpia y guarda solo lo esperado', () => {
   const r = validarContacto({ ...contactoOk(), municipio: 'Úbeda', extra: 'no', datos: { titular: 'agricultor', hectareas: 12, nuevo: true, 'Mala clave': 1, obj: { x: 1 }, largo: 'x'.repeat(300) } })
   assert.ok(r.ok)
   assert.deepEqual(r.datos, {
-    origen: 'ayudas', nombre: 'Ana Ruiz', telefono: '600 11 22 33', municipio: 'Úbeda', mensaje: null,
+    origen: 'ayudas', nombre: 'Ana Ruiz', telefono: '600 11 22 33', email: null, municipio: 'Úbeda', mensaje: null,
     datos: { titular: 'agricultor', hectareas: 12, nuevo: true, largo: 'x'.repeat(120) }, consentimiento: true, aviso_version: '2026-09',
   })
   assert.ok(!('extra' in r.datos))
@@ -95,10 +95,21 @@ test('validarContacto: consentimiento obligatorio, teléfono y origen válidos, 
   const robot = validarContacto({ ...contactoOk(), web: 'http://spam' })
   assert.ok(robot.spam && !robot.ok)
   assert.ok(!validarContacto(null).ok)
+  // email opcional: vacío vale; si viene, tiene que ser un email; se guarda en minúsculas
+  assert.equal(validarContacto({ ...contactoOk(), email: '' }).datos.email, null)
+  assert.equal(validarContacto({ ...contactoOk(), email: ' Ana@Correo.ES ' }).datos.email, 'ana@correo.es')
+  assert.ok(validarContacto({ ...contactoOk(), email: 'ana@' }).errores.email)
+  assert.ok(validarContacto({ ...contactoOk(), email: 'ana correo@x.es' }).errores.email)
 })
 
 test('validarCambioContacto: solo estado válido y nota corta', () => {
-  assert.deepEqual(validarCambioContacto({ estado: 'contactado' }).datos, { estado: 'contactado' })
+  const T = '2026-10-05T09:00:00.000Z'
+  assert.deepEqual(validarCambioContacto({ estado: 'contactado' }, { estado: 'nuevo' }, { ahoraISO: T }).datos, { estado: 'contactado', estado_en: T })
+  // mismo estado → no cambia la fecha (si no, "lleva X días parado" se reiniciaría con cada clic)
+  assert.deepEqual(validarCambioContacto({ estado: 'contactado' }, { estado: 'contactado' }, { ahoraISO: T }).datos, { estado: 'contactado' })
+  // presupuestado → arranca la cuenta del recordatorio (y uno anterior se olvida: es otro presupuesto)
+  assert.deepEqual(validarCambioContacto({ estado: 'presupuestado' }, { estado: 'contactado', recordatorio_cliente_en: 'x' }, { ahoraISO: T }).datos,
+    { estado: 'presupuestado', estado_en: T, presupuestado_en: T, recordatorio_cliente_en: null })
   assert.deepEqual(validarCambioContacto({ nota_interna: '  Llamar el lunes ' }).datos, { nota_interna: 'Llamar el lunes' })
   assert.ok(!validarCambioContacto({ estado: 'borrado' }).ok)
   assert.ok(!validarCambioContacto({ nota_interna: 'x'.repeat(501) }).ok)

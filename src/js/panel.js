@@ -146,8 +146,8 @@ const Local = {
   async cambiarContacto(id, d) {
     const lista = this.leerContactos()
     const i = lista.findIndex((x) => x.id === id)
-    const v = validarCambioContacto(d)
-    if (i < 0 || !v.ok) throw new ErrorPanel(T.avisos.error)
+    const v = i < 0 ? { ok: false } : validarCambioContacto(d, lista[i])
+    if (!v.ok) throw new ErrorPanel(T.avisos.error)
     lista[i] = { ...lista[i], ...v.datos }
     this.guardarContactos(lista)
     return lista[i]
@@ -294,7 +294,20 @@ function pintar() {
 }
 
 const fechaHoraES = (iso) => (iso ? new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '')
-const CLASE_ESTADO = { nuevo: 'bg-ochre-deep text-paper-raised', contactado: 'bg-olive text-[#f1efe3]', descartado: 'border border-line-strong text-ink-soft' }
+const CLASE_ESTADO = {
+  nuevo: 'bg-ochre-deep text-paper-raised', contactado: 'border border-olive text-olive', presupuestado: 'border border-ochre text-ochre-deep',
+  cerrado: 'bg-olive text-[#f1efe3]', descartado: 'border border-line-strong text-ink-soft',
+}
+
+// Lo que ha hecho la automatización con este contacto (n8n): ficha, presupuesto, recordatorio.
+function seguimientoContacto(c) {
+  const partes = [
+    c.ficha_enviada_en && rellenar(T.contactos.fichaEnviada, { fecha: fechaHoraES(c.ficha_enviada_en) }),
+    c.presupuestado_en && rellenar(T.contactos.presupuestadoEl, { fecha: fechaHoraES(c.presupuestado_en) }),
+    c.recordatorio_cliente_en && rellenar(T.contactos.recordatorioEl, { fecha: fechaHoraES(c.recordatorio_cliente_en) }),
+  ].filter(Boolean)
+  return partes.length ? `<p class="mt-1 text-xs text-ink-soft">${esc(partes.join(' · '))}</p>` : ''
+}
 
 function pintarContactos() {
   const ul = $('#lista-contactos')
@@ -308,19 +321,21 @@ function pintarContactos() {
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0 max-w-2xl">
           <p class="font-display text-lg text-ink">${esc(c.nombre)}${etiqueta(origen.etiqueta)}</p>
-          <p class="mt-0.5 font-mono text-[13px] text-ink-soft">${esc(c.telefono)}</p>
+          <p class="mt-0.5 font-mono text-[13px] text-ink-soft">${esc(c.telefono)}${c.email ? ` · <a href="mailto:${esc(c.email)}" class="ul-grow">${esc(c.email)}</a>` : ''}</p>
           <p class="mt-1 text-[14px] leading-relaxed text-ink-soft">${esc(resumen || T.contactos.sinDatos)}</p>
           <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1"><span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${CLASE_ESTADO[estado] || CLASE_ESTADO.nuevo}">${esc(L.estados[estado] || estado)}</span>
             <span class="text-xs text-ink-soft">${esc(rellenar(T.contactos.recibido, { fecha: fechaHoraES(c.creado_en) }))}${c.consentimiento ? ` · ${esc(rellenar(T.contactos.consentimiento, { version: c.aviso_version || '—' }))}` : ''}</span></p>
+          ${seguimientoContacto(c)}
           ${c.nota_interna ? `<p class="mt-1 text-[13px] text-ink"><span class="font-semibold">${esc(T.contactos.notaPuesta)}</span> ${esc(c.nota_interna)}</p>` : ''}
         </div>
         <div class="flex flex-wrap items-center gap-2">
           ${enlace
             ? `<a href="${esc(enlace)}" target="_blank" rel="noopener" data-accion="responder" class="${BTN}">${esc(T.contactos.whatsapp)}</a>`
             : `<span class="text-xs text-ink-soft">${esc(T.contactos.sinTelefono)}</span>`}
-          ${estado === 'nuevo' ? `<button type="button" data-accion="contactado" class="${BTN}">${esc(T.contactos.contactado)}</button>
-            <button type="button" data-accion="descartado" class="text-[13px] font-semibold text-ink-soft ul-grow">${esc(T.contactos.descartar)}</button>`
-            : `<button type="button" data-accion="nuevo" class="text-[13px] font-semibold text-ink-soft ul-grow">${esc(T.contactos.reabrir)}</button>`}
+          <label class="text-[13px] font-semibold text-ink-soft">${esc(T.contactos.estado)}
+            <select data-estado class="ml-1 rounded-full border-line-strong bg-paper py-1 pl-3 pr-8 text-[13px] text-ink focus:border-ochre focus:ring-ochre">
+              ${Object.entries(L.estados).map(([k, v]) => `<option value="${esc(k)}"${k === estado ? ' selected' : ''}>${esc(v)}</option>`).join('')}
+            </select></label>
           <button type="button" data-accion="nota" class="text-[13px] font-semibold text-ink-soft ul-grow">${esc(T.contactos.nota)}</button>
           <button type="button" data-accion="borrar" class="text-[13px] font-semibold text-ochre-deep ul-grow">${esc(T.contactos.borrar)}</button>
         </div>
@@ -520,7 +535,6 @@ alClic('#lista-contactos', async (accion, id) => {
     if (c && c.estado === 'nuevo') setTimeout(() => cambiarContacto(id, { estado: 'contactado' }), 300)
     return
   }
-  if (accion === 'contactado' || accion === 'descartado' || accion === 'nuevo') return cambiarContacto(id, { estado: accion })
   if (accion === 'nota') {
     const texto = prompt(T.contactos.notaPrompt, c.nota_interna || '')
     if (texto === null) return
@@ -530,6 +544,13 @@ alClic('#lista-contactos', async (accion, id) => {
     if (!confirm(rellenar(T.contactos.borrarConfirma, { nombre: c.nombre }))) return
     try { await datos.borrarContacto(id); contactos = contactos.filter((x) => x.id !== id); pintar(); aviso(T.avisos.borrado) } catch (e) { manejarError(e) }
   }
+})
+
+// Cambiar el estado desde el desplegable de cada contacto.
+$('#lista-contactos').addEventListener('change', (e) => {
+  const sel = e.target.closest('select[data-estado]')
+  const li = e.target.closest('li[data-id]')
+  if (sel && li) cambiarContacto(li.dataset.id, { estado: sel.value })
 })
 
 function reemplazarNoticia(fila) {

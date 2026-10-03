@@ -1,0 +1,434 @@
+{
+  "name": "Captación y seguimiento de contactos",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "cada-5-minutos",
+      "name": "Cada 5 minutos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "probar-ahora",
+      "name": "Probar ahora",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://solera-energ-a.vercel.app/api/admin/contactos",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "leer-pendientes",
+      "name": "Leer pendientes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Contactos recién llegados: ficha al instalador y, si dejó email, su estimación.\n// Si no hay ninguno, devuelve [] y esta rama no hace nada.\nreturn ($input.first().json.fichas || []).map((x) => ({ json: x }));\n"
+      },
+      "id": "fichas-nuevas",
+      "name": "Fichas nuevas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.ficha.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "ficha-a-telegram",
+      "name": "Ficha a Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        760,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "TU-CORREO@gmail.com",
+        "subject": "={{ $('Fichas nuevas').item.json.ficha.asunto }}",
+        "emailType": "html",
+        "message": "={{ $('Fichas nuevas').item.json.ficha.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "ficha-por-email",
+      "name": "Ficha por email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1000,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://solera-energ-a.vercel.app/api/admin/contactos/' + $('Fichas nuevas').item.json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"marcar\":\"ficha\"}",
+        "options": {}
+      },
+      "id": "marcar-ficha-enviada",
+      "name": "Marcar ficha enviada",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Solo los que dejaron email reciben su estimación.\nreturn $input.all().filter((i) => i.json.emailCliente).map((i) => ({ json: i.json.emailCliente }));\n"
+      },
+      "id": "-dej-email-",
+      "name": "¿Dejó email?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.para }}",
+        "subject": "={{ $json.asunto }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "estimaci-n-al-agricultor",
+      "name": "Estimación al agricultor",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1000,
+        220
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Presupuestados hace 3+ días sin respuesta: UN recordatorio al cliente.\n// Si no hay ninguno, devuelve [] y esta rama no hace nada.\nreturn ($input.first().json.recordatorios || []).map((x) => ({ json: x }));\n"
+      },
+      "id": "presupuestos-sin-respuesta",
+      "name": "Presupuestos sin respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.recordatorio.para }}",
+        "subject": "={{ $json.recordatorio.asunto }}",
+        "emailType": "html",
+        "message": "={{ $json.recordatorio.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "recordatorio-al-cliente",
+      "name": "Recordatorio al cliente",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        760,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://solera-energ-a.vercel.app/api/admin/contactos/' + $('Presupuestos sin respuesta').item.json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"marcar\":\"recordatorio\"}",
+        "options": {}
+      },
+      "id": "marcar-recordatorio",
+      "name": "Marcar recordatorio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Contactos que llevan 7+ días sin cambiar de estado: aviso al instalador.\n// Si no hay ninguno, devuelve [] y esta rama no hace nada.\nreturn ($input.first().json.estancados || []).map((x) => ({ json: x }));\n"
+      },
+      "id": "contactos-parados",
+      "name": "Contactos parados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.estancado.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "aviso-parado-a-telegram",
+      "name": "Aviso parado a Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        760,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "TU-CORREO@gmail.com",
+        "subject": "={{ $('Contactos parados').item.json.estancado.asunto }}",
+        "emailType": "html",
+        "message": "={{ $('Contactos parados').item.json.estancado.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "aviso-parado-por-email",
+      "name": "Aviso parado por email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1000,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://solera-energ-a.vercel.app/api/admin/contactos/' + $('Contactos parados').item.json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"marcar\":\"aviso\"}",
+        "options": {}
+      },
+      "id": "marcar-aviso",
+      "name": "Marcar aviso",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        620
+      ]
+    }
+  ],
+  "connections": {
+    "Cada 5 minutos": {
+      "main": [
+        [
+          {
+            "node": "Leer pendientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar ahora": {
+      "main": [
+        [
+          {
+            "node": "Leer pendientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer pendientes": {
+      "main": [
+        [
+          {
+            "node": "Fichas nuevas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Presupuestos sin respuesta",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Contactos parados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fichas nuevas": {
+      "main": [
+        [
+          {
+            "node": "Ficha a Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "¿Dejó email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ficha a Telegram": {
+      "main": [
+        [
+          {
+            "node": "Ficha por email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ficha por email": {
+      "main": [
+        [
+          {
+            "node": "Marcar ficha enviada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Dejó email?": {
+      "main": [
+        [
+          {
+            "node": "Estimación al agricultor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Presupuestos sin respuesta": {
+      "main": [
+        [
+          {
+            "node": "Recordatorio al cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recordatorio al cliente": {
+      "main": [
+        [
+          {
+            "node": "Marcar recordatorio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contactos parados": {
+      "main": [
+        [
+          {
+            "node": "Aviso parado a Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aviso parado a Telegram": {
+      "main": [
+        [
+          {
+            "node": "Aviso parado por email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aviso parado por email": {
+      "main": [
+        [
+          {
+            "node": "Marcar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid"
+  },
+  "pinData": {}
+}

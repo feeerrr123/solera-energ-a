@@ -15,7 +15,7 @@
           <path d="M16 3.5v3M16 23.5v3M27 15h-3M8 15H5M23.8 7.2l-2.1 2.1M10.3 20.7l-2.1 2.1M23.8 22.8l-2.1-2.1M10.3 9.3 8.2 7.2" stroke="#a5611a" stroke-width="2" stroke-linecap="round"/>
         </svg>
         {{ empresa.logoParte1 }} <span class="text-ink-soft">{{ empresa.logoParte2 }}</span>
-        <span class="ml-1 rounded-full border border-line-strong px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">{{ panel.titulo }}</span>
+        <span class="ml-1 whitespace-nowrap rounded-full border border-line-strong px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">{{ panel.titulo }}</span>
       </span>
       <div class="flex items-center gap-4 text-sm">
         <span id="estado" hidden class="rounded-full border border-line-strong px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ochre-deep"></span>
@@ -59,9 +59,9 @@
       </dl>
 
       <div role="tablist" class="mt-10 flex gap-1 overflow-x-auto border-b border-line">
-        <button type="button" role="tab" data-tab="instalaciones" aria-selected="true" class="tab -mb-px border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.instalaciones }}</button>
-        <button type="button" role="tab" data-tab="revisiones" aria-selected="false" class="tab -mb-px border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.revisiones }}</button>
-        <button type="button" role="tab" data-tab="casos" aria-selected="false" class="tab -mb-px border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.casos }}</button>
+        <button type="button" role="tab" data-tab="instalaciones" aria-selected="true" class="tab -mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.instalaciones }}</button>
+        <button type="button" role="tab" data-tab="revisiones" aria-selected="false" class="tab -mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.revisiones }}</button>
+        <button type="button" role="tab" data-tab="casos" aria-selected="false" class="tab -mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.casos }}</button>
         <button type="button" role="tab" data-tab="contactos" aria-selected="false" class="tab -mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.contactos }}</button>
         <button type="button" role="tab" data-tab="noticias" aria-selected="false" class="tab -mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-semibold">{{ panel.textos.pestanas.noticias }}</button>
       </div>

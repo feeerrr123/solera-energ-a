@@ -7,13 +7,14 @@
           "interval": [
             {
               "field": "days",
-              "triggerAtHour": 7
+              "triggerAtHour": 9,
+              "triggerAtMinute": 30
             }
           ]
         }
       },
       "id": "a1",
-      "name": "Cada día a las 7:00",
+      "name": "Cada día a las 9:30",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -194,7 +195,7 @@
     }
   ],
   "connections": {
-    "Cada día a las 7:00": {
+    "Cada día a las 9:30": {
       "main": [
         [
           {

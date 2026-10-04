@@ -177,7 +177,11 @@ guardaba el contacto (dimensionado / calculadora); esta fase añade lo que pasa 
 - WhatsApp automático al agricultor **no**: requiere la API oficial de Meta (alta, plantillas y pago por conversación).
 - Probado: 90 pruebas; navegador con arnés (formularios con email sin desbordes en móvil, alta → n8n lee la ficha → marca →
   ya no está pendiente; n8n no puede cambiar estados; panel: desplegable → "Presupuesto enviado el…"; demo en móvil).
-  Pestañas del panel en una línea en móvil. **Sin probar contra Supabase real ni el flujo en el n8n del usuario.**
+  Pestañas del panel en una línea en móvil.
+- **2026-10-04 — en producción y probado de punta a punta** (PR #3 en `main`, `schema.sql` pegado): formulario de
+  dimensionado con email → n8n "Leer pendientes" → ficha por Telegram y Gmail + estimación al agricultor por Gmail →
+  marcado (no se repite) → en el panel "Ficha enviada el…". Lo ha comprobado el usuario. Recordatorio (3 días) y aviso
+  (7 días) pendientes de verse en real.
 
 ## Stack
 
@@ -302,5 +306,5 @@ hacer commit/push hasta que lo pida. Claves las pega él en Vercel, nunca en el 
 - [ ] Gmail OAuth2 en modo "pruebas": el permiso caduca a los 7 días → pasar la app a "producción" en Google Cloud.
 - [ ] n8n vive en el portátil del usuario: si está suspendido a la hora de la ejecución no se ejecuta. Para un cliente: servidor 24/7.
 - [ ] Mejora: que n8n abra el anuncio completo para que Gemini pueda dar plazos y destinatarios.
-- [ ] Fase 5: pegar `schema.sql` en Supabase, **luego** fusionar en `main`, importar `captacion-seguimiento.json` en n8n
-      (credenciales "Web Solera", Telegram, Gmail; chat ID y correo del instalador) y probar con un contacto real.
+- [x] Fase 5 en producción: `schema.sql`, PR #3, flujo `captacion-seguimiento.json` en n8n con sus credenciales.
+- [ ] Ver en real el recordatorio al cliente (3 días en "presupuestado") y el aviso de contacto parado (7 días).

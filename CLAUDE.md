@@ -153,7 +153,7 @@ El flujo importable está en `automatizaciones/n8n/vigilante-boja.json` (claves 
 
 ## Captación y seguimiento de contactos (Fase 5, 2026-10-03)
 
-Flujo `automatizaciones/n8n/captacion-seguimiento.json` (n8n en el portátil, cada 5 min). La web ya calculaba y
+Flujo `automatizaciones/n8n/captacion-seguimiento.json` (n8n en el portátil, cada 15 min). La web ya calculaba y
 guardaba el contacto (dimensionado / calculadora); esta fase añade lo que pasa **después**:
 1. **Ficha al instalador** por Telegram + Gmail con cada contacto nuevo (kWp, rango de precio, ahorro, botón de WhatsApp).
 2. **Email al agricultor** con su estimación si dejó email (campo **opcional** nuevo en todos los formularios).

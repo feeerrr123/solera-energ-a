@@ -1,0 +1,184 @@
+{
+  "name": "Vigilante de instalaciones",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "v1",
+      "name": "Cada día a las 8:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "v2",
+      "name": "Probar ahora",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Instalaciones de ejemplo. Más adelante saldrán del panel de la web.\n// \"averia\" solo sirve para simular: el vigilante NO la mira, la tiene que adivinar.\nreturn [\n  { nombre: 'Finca El Olivar',     pueblo: 'Martos',    lat: 37.72, lon: -3.97, kWp: 4.5, averia: 'ninguna' },\n  { nombre: 'Cortijo Los Pinos',   pueblo: 'Cazorla',   lat: 37.91, lon: -3.00, kWp: 6,   averia: 'suciedad' },\n  { nombre: 'Invernadero La Vega', pueblo: 'Níjar',     lat: 36.97, lon: -2.21, kWp: 9,   averia: 'fila' },\n  { nombre: 'Pozo San José',       pueblo: 'Zafarraya', lat: 36.98, lon: -4.14, kWp: 7.5, averia: 'inversor' },\n].map(i => ({ json: i }));"
+      },
+      "id": "v3",
+      "name": "Instalaciones",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.open-meteo.com/v1/forecast?latitude={{ $json.lat }}&longitude={{ $json.lon }}&daily=shortwave_radiation_sum&timezone=Europe/Madrid&past_days=14&forecast_days=1",
+        "options": {}
+      },
+      "id": "v4",
+      "name": "Tiempo de ayer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const instalaciones = $('Instalaciones').all();\nconst tiempos = $input.all();\nconst RENDIMIENTO = 0.8;\nconst PRECIO_KWH = 0.15;   // € que le cuesta al cliente cada kWh que no producen sus placas\n\n// ---------- SIMULADOR (en real, este historial lo da la API del inversor) ----------\nfunction factorSimulado(averia, k, total) {\n  if (averia === 'suciedad') return 1 - 0.25 * k / (total - 1);   // baja poco a poco hasta el 75 %\n  if (averia === 'fila')     return k >= total - 4 ? 0.5 : 1;     // cae de golpe hace 4 días\n  if (averia === 'inversor') return k >= total - 2 ? 0 : 1;       // parado desde anteayer\n  return 1;\n}\n\n// ---------- utilidades ----------\nconst media = a => a.reduce((s, x) => s + x, 0) / a.length;\nconst pct = x => Math.round(x * 100) + ' %';\nconst fecha = s => new Date(s + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });\n\nreturn instalaciones.map((inst, i) => {\n  const { nombre, pueblo, kWp, averia } = inst.json;\n  const d = tiempos[i].json.daily;\n\n  // 1. HISTORIAL de los últimos 14 días (quitamos hoy, que aún no ha terminado)\n  const dias = d.time.slice(0, -1);\n  const historial = dias.map((dia, k) => {\n    const sol = d.shortwave_radiation_sum[k] / 3.6;\n    const esperado = kWp * sol * RENDIMIENTO;\n    const real = esperado * factorSimulado(averia, k, dias.length) * (0.95 + Math.random() * 0.06);\n    return { dia, sol, esperado, real, rinde: real / esperado };\n  });\n\n  // 2. Solo se juzgan los días con sol suficiente\n  const validos = historial.filter(h => h.sol >= 1.5);\n  const base = { nombre, pueblo };\n  if (validos.length < 5) {\n    return { json: { ...base, estado: '⚪', diagnostico: 'Pocos días de sol para juzgar', detalle: '' } };\n  }\n\n  const ayer = validos.at(-1);\n  const reciente = media(validos.slice(-3).map(h => h.rinde));   // últimos 3 días\n  const antes = media(validos.slice(0, 5).map(h => h.rinde));    // primeros 5 días\n  const perdidos = historial.reduce((s, h) => s + Math.max(0, h.esperado - h.real), 0);\n  const coste = `Perdidos en 2 semanas: ${perdidos.toFixed(0)} kWh (≈ ${(perdidos * PRECIO_KWH).toFixed(0)} €)`;\n\n  // ¿Hubo una caída de golpe? Buscamos el mayor bajón de un día para otro\n  let salto = { caida: 0 };\n  for (let k = 1; k < validos.length; k++) {\n    const caida = validos[k - 1].rinde - validos[k].rinde;\n    if (caida > salto.caida) salto = { caida, dia: validos[k].dia, de: validos[k - 1].rinde, a: validos[k].rinde };\n  }\n\n  // ¿Cuántos días seguidos lleva sin producir, contando desde ayer hacia atrás?\n  const parados = [];\n  for (let k = validos.length - 1; k >= 0 && validos[k].rinde < 0.05; k--) parados.unshift(validos[k]);\n\n  // 3. EL DIAGNÓSTICO, mirando la historia y no solo ayer\n  let estado, diagnostico, detalle;\n  if (reciente >= 0.85 && ayer.rinde >= 0.85) {\n    estado = '🟢'; diagnostico = 'Produce lo que debe'; detalle = '';\n  } else if (parados.length >= 2) {\n    estado = '🔴'; diagnostico = 'Inversor parado o sin conexión';\n    detalle = `Sin producción desde el ${fecha(parados[0].dia)}. ${coste}`;\n  } else if (parados.length === 1) {\n    estado = '🟡'; diagnostico = 'Ayer no produjo: puede ser un corte puntual';\n    detalle = 'Si mañana sigue igual, se avisará como avería';\n  } else if (salto.caida >= 0.3) {\n    estado = '🔴'; diagnostico = 'Caída de golpe: posible fila de paneles caída';\n    detalle = `El ${fecha(salto.dia)} pasó del ${pct(salto.de)} al ${pct(salto.a)}. ${coste}`;\n  } else if (antes - reciente >= 0.1) {\n    estado = '🟡'; diagnostico = 'Baja poco a poco: suciedad, toca limpieza';\n    detalle = `Del ${pct(antes)} al ${pct(reciente)} en 2 semanas. ${coste}`;\n  } else {\n    estado = '🟡'; diagnostico = 'Produce algo menos de lo normal';\n    detalle = `Rinde un ${pct(reciente)} de lo esperado. ${coste}`;\n  }\n\n  return { json: { ...base, estado, diagnostico, detalle } };\n});"
+      },
+      "id": "v5",
+      "name": "Producción esperada",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const filas = $input.all().map(i => i.json);\n\nconst orden = { '🔴': 0, '🟡': 1, '⚪': 2, '🟢': 3 };\nfilas.sort((a, b) => orden[a.estado] - orden[b.estado]);\n\nconst problemas = filas.filter(f => f.estado === '🔴' || f.estado === '🟡');\nconst ayer = $('Tiempo de ayer').first().json.daily.time.at(-2);\n\nlet texto = `<b>☀️ Vigilante de instalaciones · ${ayer}</b>\\n`;\ntexto += problemas.length\n  ? `⚠️ ${problemas.length} de ${filas.length} instalaciones necesitan atención\\n\\n`\n  : `✅ Las ${filas.length} instalaciones funcionan bien\\n\\n`;\n\nfor (const f of filas) {\n  texto += `${f.estado} <b>${f.nombre}</b> (${f.pueblo})\\n`;\n  if (f.estado !== '🟢') texto += `     ${f.diagnostico}\\n`;\n  if (f.detalle) texto += `     <i>${f.detalle}</i>\\n`;\n}\n\nreturn [{ json: { texto } }];"
+      },
+      "id": "v6",
+      "name": "Preparar aviso",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.texto }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "v7",
+      "name": "Enviar Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1500,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Cada día a las 8:00": {
+      "main": [
+        [
+          {
+            "node": "Instalaciones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar ahora": {
+      "main": [
+        [
+          {
+            "node": "Instalaciones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instalaciones": {
+      "main": [
+        [
+          {
+            "node": "Tiempo de ayer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiempo de ayer": {
+      "main": [
+        [
+          {
+            "node": "Producción esperada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Producción esperada": {
+      "main": [
+        [
+          {
+            "node": "Preparar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar aviso": {
+      "main": [
+        [
+          {
+            "node": "Enviar Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid"
+  },
+  "pinData": {}
+}

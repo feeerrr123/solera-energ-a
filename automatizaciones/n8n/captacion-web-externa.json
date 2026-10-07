@@ -1,0 +1,873 @@
+{
+  "name": "Captación para webs externas (Fercam)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "label:formulario-fercam"
+        },
+        "options": {}
+      },
+      "id": "e1",
+      "name": "Email del formulario",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Saca el texto del email que manda el formulario de la web y le pide a Gemini los datos.\nconst instrucciones = `Te paso un email que ha generado el formulario de contacto de la web de una instaladora solar.\nSaca los datos de la PERSONA que ha escrito y devuelve SOLO un JSON con estas claves:\n{\"nombre\": \"\", \"telefono\": \"\", \"email\": \"\", \"localidad\": \"\", \"interes\": \"\", \"mensaje\": \"\"}\nReglas:\n- \"interes\": en pocas palabras, qué pide (por ejemplo \"bombeo solar para un pozo\", \"placas para casa\").\n- \"mensaje\": lo que ha escrito, resumido en una o dos frases si es largo.\n- El teléfono y el email son los de la persona que escribe, NO los de la empresa ni los de la web.\n- Si un dato no aparece, déjalo vacío. No inventes nada.`;\n\nreturn $input.all().map((item) => {\n  const e = item.json;\n  const texto = String(e.text || e.textAsHtml || e.snippet || '').slice(0, 6000);\n  return {\n    json: {\n      asuntoOriginal: e.subject || '',\n      textoOriginal: texto,\n      peticion: {\n        contents: [{ parts: [{ text: `${instrucciones}\\n\\nASUNTO: ${e.subject || ''}\\n\\nEMAIL:\\n${texto}` }] }],\n        generationConfig: { temperature: 0, responseMimeType: 'application/json' },\n      },\n    },\n  };\n});\n"
+      },
+      "id": "e2",
+      "name": "Preparar petición a Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.peticion) }}",
+        "options": {}
+      },
+      "id": "e3",
+      "name": "Gemini: sacar datos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        200
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== AJUSTES DEL CLIENTE =====\nconst EMPRESA = 'Fercam';\nconst SALUDO_WHATSAPP = (nombre) =>\n  `Hola${nombre ? ' ' + nombre.split(' ')[0] : ''}, soy de ${EMPRESA}. Hemos recibido tu consulta en la web. ¿Cuándo te viene bien que hablemos?`;\n// ================================\n\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst hoy = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });   // \"2026-10-07\"\n// Acepta \"2026-10-07\" y \"07/10/2026\" (por si la hoja cambia el formato)\nconst aDia = (s) => {\n  s = String(s ?? '').trim();\n  let m = s.match(/^(\\d{4})-(\\d{2})-(\\d{2})/); if (m) return Date.UTC(+m[1], m[2] - 1, +m[3]);\n  m = s.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/); if (m) return Date.UTC(+m[3], m[2] - 1, +m[1]);\n  return null;\n};\nconst diasDesde = (s) => { const d = aDia(s), h = aDia(hoy()); return d == null ? null : Math.round((h - d) / 864e5); };\nconst waNumero = (t) => { let d = String(t ?? '').replace(/\\D/g, ''); if (d.startsWith('0034')) d = d.slice(2); if (d.length === 9) d = '34' + d; return d.length >= 11 ? d : ''; };\nconst enlaceWA = (tel, texto) => { const n = waNumero(tel); return n ? `https://wa.me/${n}?text=${encodeURIComponent(texto)}` : ''; };\nconst emailValido = (e) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(e ?? '').trim());\n\nconst pedidos = $('Preparar petición a Gemini').all().map((i) => i.json);\nconst respuestas = $input.all().map((i) => i.json);\n\n// Lo que ha entendido Gemini. Si falla, sacamos al menos el teléfono del texto.\nfunction datosDe(k) {\n  const txt = respuestas[k]?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';\n  try { return { ...JSON.parse(txt.replace(/^```(json)?|```$/g, '').trim()), ia: true }; } catch { return { ia: false }; }\n}\nconst telefonoEn = (t) => (String(t).match(/(?:\\+?34[\\s.-]?)?[6789](?:[\\s.-]?\\d){8}/) || [''])[0];\n\nreturn pedidos.map((p, k) => {\n  const d = datosDe(k);\n  const nombre = String(d.nombre || '').trim();\n  const telefono = String(d.telefono || telefonoEn(p.textoOriginal)).trim();\n  const email = emailValido(d.email) ? String(d.email).trim().toLowerCase() : '';\n  const mensaje = String(d.mensaje || (d.ia ? '' : p.textoOriginal.slice(0, 300))).trim();\n  const wa = enlaceWA(telefono, SALUDO_WHATSAPP(nombre));\n  const titulo = `Nuevo contacto: ${nombre || 'sin nombre'}`;\n  const filas = [['Teléfono', telefono], ['Email', email], ['Localidad', d.localidad], ['Qué pide', d.interes]].filter(([, v]) => v);\n  const avisoIA = d.ia ? '' : 'La IA no ha podido leer el email: revisa el original en el correo.';\n\n  let telegram = `<b>${esc(titulo)}</b>\\n` + filas.map(([a, b]) => `<b>${a}:</b> ${esc(b)}`).join('\\n');\n  if (mensaje) telegram += `\\n\\n<i>${esc(mensaje)}</i>`;\n  if (avisoIA) telegram += `\\n\\n<i>(${esc(avisoIA)})</i>`;\n  if (wa) telegram += `\\n\\n<a href=\"${esc(wa)}\">Contestar por WhatsApp</a>`;\n\n  const html = `<p><strong>${esc(titulo)}</strong></p>\n<table cellpadding=\"4\">${filas.map(([a, b]) => `<tr><td><strong>${a}</strong></td><td>${esc(b)}</td></tr>`).join('')}</table>\n${mensaje ? `<p style=\"color:#555\">${esc(mensaje)}</p>` : ''}${avisoIA ? `<p style=\"color:#a00\">${esc(avisoIA)}</p>` : ''}\n${wa ? `<p><a href=\"${esc(wa)}\" style=\"display:inline-block;background:#25d366;color:#fff;padding:10px 18px;border-radius:20px;text-decoration:none;font-weight:bold\">Contestar por WhatsApp</a></p>` : ''}`;\n\n  const fila = {\n    'ID': `${Date.now().toString(36)}-${k}`, 'Fecha': hoy(), 'Nombre': nombre, 'Teléfono': telefono, 'Email': email,\n    'Localidad': d.localidad || '', 'Qué pide': d.interes || '', 'Mensaje': mensaje,\n    'Estado': 'nuevo', 'Estado visto': 'nuevo', 'Estado desde': hoy(), 'Recordatorio enviado': '', 'Aviso enviado': '', 'Notas': '',\n  };\n  return { json: { asunto: titulo, telegram, html, fila } };\n});\n"
+      },
+      "id": "e4",
+      "name": "Preparar ficha",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "e5",
+      "name": "Ficha a Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        980,
+        40
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "TU-CORREO@gmail.com",
+        "subject": "={{ $json.asunto }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e6",
+      "name": "Ficha por email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        980,
+        200
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lo que se apunta en la pestaña \"Contactos\" de la hoja\nreturn $input.all().map((i) => ({ json: i.json.fila }));\n"
+      },
+      "id": "e7",
+      "name": "Fila para la hoja",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Contactos"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": []
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "e8",
+      "name": "Apuntar en la hoja",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1220,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 9,
+              "triggerAtMinute": 15
+            }
+          ]
+        }
+      },
+      "id": "s1",
+      "name": "Cada día a las 9:15",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        700
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "s2",
+      "name": "Probar seguimiento",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        880
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Contactos"
+        },
+        "filtersUI": {},
+        "options": {}
+      },
+      "id": "s3",
+      "name": "Leer contactos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== AJUSTES DEL CLIENTE =====\nconst EMPRESA = 'Fercam';\nconst DIAS_RECORDATORIO = 3;   // días en \"presupuestado\" antes de recordárselo al cliente (una sola vez)\nconst DIAS_PARADO = 7;         // días sin cambiar de estado antes de avisar a la instaladora\nconst ABIERTOS = ['nuevo', 'contactado', 'presupuestado'];\n// ================================\n\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst hoy = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });   // \"2026-10-07\"\n// Acepta \"2026-10-07\" y \"07/10/2026\" (por si la hoja cambia el formato)\nconst aDia = (s) => {\n  s = String(s ?? '').trim();\n  let m = s.match(/^(\\d{4})-(\\d{2})-(\\d{2})/); if (m) return Date.UTC(+m[1], m[2] - 1, +m[3]);\n  m = s.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/); if (m) return Date.UTC(+m[3], m[2] - 1, +m[1]);\n  return null;\n};\nconst diasDesde = (s) => { const d = aDia(s), h = aDia(hoy()); return d == null ? null : Math.round((h - d) / 864e5); };\nconst waNumero = (t) => { let d = String(t ?? '').replace(/\\D/g, ''); if (d.startsWith('0034')) d = d.slice(2); if (d.length === 9) d = '34' + d; return d.length >= 11 ? d : ''; };\nconst enlaceWA = (tel, texto) => { const n = waNumero(tel); return n ? `https://wa.me/${n}?text=${encodeURIComponent(texto)}` : ''; };\nconst emailValido = (e) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(e ?? '').trim());\n\nconst norm = (s) => String(s ?? '').trim().toLowerCase();\nconst filas = $input.all().map((i) => i.json).filter((r) => r['ID']);\n// Si han cambiado el estado en la hoja, hoy solo se apunta el cambio (y no se avisa de nada)\nconst cambiado = (r) => norm(r['Estado']) !== norm(r['Estado visto']);\n\n// Apunta en la hoja el día en que cambió el estado: así se sabe cuánto lleva parado\nreturn filas.filter(cambiado).map((r) => ({ json: { 'ID': r['ID'], 'Estado visto': norm(r['Estado']), 'Estado desde': hoy() } }));\n"
+      },
+      "id": "s4",
+      "name": "Cambios de estado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Contactos"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "ID"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "s5",
+      "name": "Apuntar cambios",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== AJUSTES DEL CLIENTE =====\nconst EMPRESA = 'Fercam';\nconst DIAS_RECORDATORIO = 3;   // días en \"presupuestado\" antes de recordárselo al cliente (una sola vez)\nconst DIAS_PARADO = 7;         // días sin cambiar de estado antes de avisar a la instaladora\nconst ABIERTOS = ['nuevo', 'contactado', 'presupuestado'];\n// ================================\n\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst hoy = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });   // \"2026-10-07\"\n// Acepta \"2026-10-07\" y \"07/10/2026\" (por si la hoja cambia el formato)\nconst aDia = (s) => {\n  s = String(s ?? '').trim();\n  let m = s.match(/^(\\d{4})-(\\d{2})-(\\d{2})/); if (m) return Date.UTC(+m[1], m[2] - 1, +m[3]);\n  m = s.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/); if (m) return Date.UTC(+m[3], m[2] - 1, +m[1]);\n  return null;\n};\nconst diasDesde = (s) => { const d = aDia(s), h = aDia(hoy()); return d == null ? null : Math.round((h - d) / 864e5); };\nconst waNumero = (t) => { let d = String(t ?? '').replace(/\\D/g, ''); if (d.startsWith('0034')) d = d.slice(2); if (d.length === 9) d = '34' + d; return d.length >= 11 ? d : ''; };\nconst enlaceWA = (tel, texto) => { const n = waNumero(tel); return n ? `https://wa.me/${n}?text=${encodeURIComponent(texto)}` : ''; };\nconst emailValido = (e) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(e ?? '').trim());\n\nconst norm = (s) => String(s ?? '').trim().toLowerCase();\nconst filas = $input.all().map((i) => i.json).filter((r) => r['ID']);\n// Si han cambiado el estado en la hoja, hoy solo se apunta el cambio (y no se avisa de nada)\nconst cambiado = (r) => norm(r['Estado']) !== norm(r['Estado visto']);\n\nreturn filas\n  .filter((r) => !cambiado(r) && ABIERTOS.includes(norm(r['Estado'])))\n  .filter((r) => (diasDesde(r['Estado desde']) ?? 0) >= DIAS_PARADO)\n  // un aviso por cada parón: si ya se avisó después del último cambio, no se repite\n  .filter((r) => !r['Aviso enviado'] || (aDia(r['Aviso enviado']) ?? 0) < (aDia(r['Estado desde']) ?? 0))\n  .map((r) => {\n    const dias = diasDesde(r['Estado desde']);\n    const nombre = r['Nombre'] || 'Un contacto';\n    const wa = enlaceWA(r['Teléfono'], `Hola${r['Nombre'] ? ' ' + String(r['Nombre']).split(' ')[0] : ''}, soy de ${EMPRESA}. ¿Pudiste ver lo que hablamos? Cualquier duda, me dices.`);\n    const asunto = `Contacto parado: ${nombre}`;\n    const linea = `Estado: ${norm(r['Estado'])} · ${r['Teléfono'] || 'sin teléfono'}. ¿Le llamamos?`;\n    const telegram = `<b>${esc(nombre)} lleva ${dias} días sin moverse</b>\\n${esc(linea)}` + (wa ? `\\n<a href=\"${esc(wa)}\">Escribirle por WhatsApp</a>` : '');\n    const html = `<p><strong>${esc(nombre)} lleva ${dias} días sin moverse</strong></p><p>${esc(linea)}</p>` + (wa ? `<p><a href=\"${esc(wa)}\">Escribirle por WhatsApp</a></p>` : '');\n    return { json: { asunto, telegram, html, marca: { 'ID': r['ID'], 'Aviso enviado': hoy() } } };\n  });\n"
+      },
+      "id": "s6",
+      "name": "Contactos parados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "s7",
+      "name": "Aviso parado a Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        720
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "TU-CORREO@gmail.com",
+        "subject": "={{ $json.asunto }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "s8",
+      "name": "Aviso parado por email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        860
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lo que se apunta en la hoja para no repetir el envío\nreturn $input.all().map((i) => ({ json: i.json.marca }));\n"
+      },
+      "id": "s9",
+      "name": "Marca: aviso enviado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Contactos"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "ID"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "s10",
+      "name": "Apuntar aviso",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1200,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== AJUSTES DEL CLIENTE =====\nconst EMPRESA = 'Fercam';\nconst DIAS_RECORDATORIO = 3;   // días en \"presupuestado\" antes de recordárselo al cliente (una sola vez)\nconst DIAS_PARADO = 7;         // días sin cambiar de estado antes de avisar a la instaladora\nconst ABIERTOS = ['nuevo', 'contactado', 'presupuestado'];\n// ================================\n\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst hoy = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });   // \"2026-10-07\"\n// Acepta \"2026-10-07\" y \"07/10/2026\" (por si la hoja cambia el formato)\nconst aDia = (s) => {\n  s = String(s ?? '').trim();\n  let m = s.match(/^(\\d{4})-(\\d{2})-(\\d{2})/); if (m) return Date.UTC(+m[1], m[2] - 1, +m[3]);\n  m = s.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/); if (m) return Date.UTC(+m[3], m[2] - 1, +m[1]);\n  return null;\n};\nconst diasDesde = (s) => { const d = aDia(s), h = aDia(hoy()); return d == null ? null : Math.round((h - d) / 864e5); };\nconst waNumero = (t) => { let d = String(t ?? '').replace(/\\D/g, ''); if (d.startsWith('0034')) d = d.slice(2); if (d.length === 9) d = '34' + d; return d.length >= 11 ? d : ''; };\nconst enlaceWA = (tel, texto) => { const n = waNumero(tel); return n ? `https://wa.me/${n}?text=${encodeURIComponent(texto)}` : ''; };\nconst emailValido = (e) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(e ?? '').trim());\n\nconst norm = (s) => String(s ?? '').trim().toLowerCase();\nconst filas = $input.all().map((i) => i.json).filter((r) => r['ID']);\n// Si han cambiado el estado en la hoja, hoy solo se apunta el cambio (y no se avisa de nada)\nconst cambiado = (r) => norm(r['Estado']) !== norm(r['Estado visto']);\n\nreturn filas\n  .filter((r) => !cambiado(r) && norm(r['Estado']) === 'presupuestado')\n  .filter((r) => (diasDesde(r['Estado desde']) ?? 0) >= DIAS_RECORDATORIO)\n  .filter((r) => !r['Recordatorio enviado'] && emailValido(r['Email']))\n  .map((r) => {\n    const nombre = String(r['Nombre'] || '').split(' ')[0];\n    const html = `<p>Hola${nombre ? ' ' + esc(nombre) : ''}:</p>\n<p>Hace unos días te enviamos el presupuesto de tu instalación. Si tienes cualquier duda o quieres ajustar algo, contesta a este correo o llámanos y lo vemos juntos.</p>\n<p>Un saludo,<br>${esc(EMPRESA)}</p>`;\n    return { json: { para: String(r['Email']).trim(), asunto: `Tu presupuesto · ${EMPRESA}`, html, marca: { 'ID': r['ID'], 'Recordatorio enviado': hoy() } } };\n  });\n"
+      },
+      "id": "s11",
+      "name": "Presupuestos sin respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.para }}",
+        "subject": "={{ $json.asunto }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "s12",
+      "name": "Recordatorio al cliente",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        1000
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lo que se apunta en la hoja para no repetir el envío\nreturn $input.all().map((i) => ({ json: i.json.marca }));\n"
+      },
+      "id": "s13",
+      "name": "Marca: recordatorio enviado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Contactos"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "ID"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "s14",
+      "name": "Apuntar recordatorio",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1200,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "r1",
+      "name": "Cada hora",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        1300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "r2",
+      "name": "Probar reseñas",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1460
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Obras terminadas"
+        },
+        "filtersUI": {},
+        "options": {}
+      },
+      "id": "r3",
+      "name": "Leer obras terminadas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        1380
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== AJUSTES DEL CLIENTE =====\nconst EMPRESA = 'Fercam';\nconst ENLACE_RESENA = 'PEGA_AQUI_EL_ENLACE_DE_RESEÑAS_DE_GOOGLE';   // Perfil de Empresa en Google → \"Pedir reseñas\"\nconst HORARIO = { desde: 9, hasta: 20 };                            // solo se avisa en este horario (hora de Madrid)\n// ================================\n\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst hoy = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });   // \"2026-10-07\"\n// Acepta \"2026-10-07\" y \"07/10/2026\" (por si la hoja cambia el formato)\nconst aDia = (s) => {\n  s = String(s ?? '').trim();\n  let m = s.match(/^(\\d{4})-(\\d{2})-(\\d{2})/); if (m) return Date.UTC(+m[1], m[2] - 1, +m[3]);\n  m = s.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/); if (m) return Date.UTC(+m[3], m[2] - 1, +m[1]);\n  return null;\n};\nconst diasDesde = (s) => { const d = aDia(s), h = aDia(hoy()); return d == null ? null : Math.round((h - d) / 864e5); };\nconst waNumero = (t) => { let d = String(t ?? '').replace(/\\D/g, ''); if (d.startsWith('0034')) d = d.slice(2); if (d.length === 9) d = '34' + d; return d.length >= 11 ? d : ''; };\nconst enlaceWA = (tel, texto) => { const n = waNumero(tel); return n ? `https://wa.me/${n}?text=${encodeURIComponent(texto)}` : ''; };\nconst emailValido = (e) => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(e ?? '').trim());\n\nconst hora = Number(new Date().toLocaleString('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', hour12: false }));\nif (hora < HORARIO.desde || hora >= HORARIO.hasta) return [];\n\nreturn $input.all().map((i) => i.json)\n  .filter((r) => r['Cliente'] && (r['Teléfono'] || r['Email']) && !r['Reseña pedida'])\n  .map((r) => {\n    const nombre = String(r['Cliente']).split(' ')[0];\n    const texto = `Hola ${nombre}, soy de ${EMPRESA}. Gracias por confiar en nosotros. Si estás contento con la instalación, nos ayudaría mucho una reseña en Google (te lleva un minuto): ${ENLACE_RESENA}`;\n    const wa = enlaceWA(r['Teléfono'], texto);\n    const telegram = `<b>⭐ Pedir reseña a ${esc(r['Cliente'])}</b>\\n` +\n      (wa ? `Pulsa y envía, el mensaje ya está escrito:\\n<a href=\"${esc(wa)}\">Abrir WhatsApp con el mensaje</a>` : 'No hay teléfono: se le pide por email.') +\n      (emailValido(r['Email']) ? '\\n<i>También se le ha mandado por email.</i>' : '');\n    const email = emailValido(r['Email']) ? {\n      para: String(r['Email']).trim(),\n      asunto: `¿Qué tal tu instalación? · ${EMPRESA}`,\n      html: `<p>Hola ${esc(nombre)}:</p><p>Gracias por confiar en ${esc(EMPRESA)}. Si estás contento con la instalación, nos ayudaría mucho que nos dejaras una reseña en Google. Te lleva un minuto:</p>\n<p><a href=\"${esc(ENLACE_RESENA)}\" style=\"display:inline-block;background:#1a73e8;color:#fff;padding:10px 18px;border-radius:20px;text-decoration:none;font-weight:bold\">Dejar una reseña ⭐</a></p><p>Un saludo,<br>${esc(EMPRESA)}</p>`,\n    } : null;\n    return { json: { telegram, email, marca: { 'row_number': r.row_number, 'Reseña pedida': hoy() } } };\n  });\n"
+      },
+      "id": "r4",
+      "name": "Reseñas pendientes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        1380
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "r5",
+      "name": "Reseña: aviso a Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        1240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Solo los que tienen email reciben también la petición por correo\nreturn $input.all().filter((i) => i.json.email).map((i) => ({ json: i.json.email }));\n"
+      },
+      "id": "r6",
+      "name": "¿Tiene email?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        1380
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.para }}",
+        "subject": "={{ $json.asunto }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "r7",
+      "name": "Reseña por email al cliente",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        1380
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lo que se apunta en la hoja para no repetir el envío\nreturn $input.all().map((i) => ({ json: i.json.marca }));\n"
+      },
+      "id": "r8",
+      "name": "Marca: reseña pedida",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        1540
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Obras terminadas"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "row_number"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "r9",
+      "name": "Apuntar reseña pedida",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        960,
+        1540
+      ]
+    }
+  ],
+  "connections": {
+    "Email del formulario": {
+      "main": [
+        [
+          {
+            "node": "Preparar petición a Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar petición a Gemini": {
+      "main": [
+        [
+          {
+            "node": "Gemini: sacar datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: sacar datos": {
+      "main": [
+        [
+          {
+            "node": "Preparar ficha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar ficha": {
+      "main": [
+        [
+          {
+            "node": "Ficha a Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ficha por email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fila para la hoja",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila para la hoja": {
+      "main": [
+        [
+          {
+            "node": "Apuntar en la hoja",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cada día a las 9:15": {
+      "main": [
+        [
+          {
+            "node": "Leer contactos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar seguimiento": {
+      "main": [
+        [
+          {
+            "node": "Leer contactos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer contactos": {
+      "main": [
+        [
+          {
+            "node": "Cambios de estado",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Contactos parados",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Presupuestos sin respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cambios de estado": {
+      "main": [
+        [
+          {
+            "node": "Apuntar cambios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contactos parados": {
+      "main": [
+        [
+          {
+            "node": "Aviso parado a Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aviso parado por email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Marca: aviso enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marca: aviso enviado": {
+      "main": [
+        [
+          {
+            "node": "Apuntar aviso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Presupuestos sin respuesta": {
+      "main": [
+        [
+          {
+            "node": "Recordatorio al cliente",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Marca: recordatorio enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marca: recordatorio enviado": {
+      "main": [
+        [
+          {
+            "node": "Apuntar recordatorio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cada hora": {
+      "main": [
+        [
+          {
+            "node": "Leer obras terminadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probar reseñas": {
+      "main": [
+        [
+          {
+            "node": "Leer obras terminadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer obras terminadas": {
+      "main": [
+        [
+          {
+            "node": "Reseñas pendientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reseñas pendientes": {
+      "main": [
+        [
+          {
+            "node": "Reseña: aviso a Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "¿Tiene email?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Marca: reseña pedida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene email?": {
+      "main": [
+        [
+          {
+            "node": "Reseña por email al cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marca: reseña pedida": {
+      "main": [
+        [
+          {
+            "node": "Apuntar reseña pedida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid"
+  },
+  "pinData": {}
+}

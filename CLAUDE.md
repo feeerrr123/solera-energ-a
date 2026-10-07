@@ -183,6 +183,22 @@ guardaba el contacto (dimensionado / calculadora); esta fase añade lo que pasa 
   marcado (no se repite) → en el panel "Ficha enviada el…". Lo ha comprobado el usuario. Recordatorio (3 días) y aviso
   (7 días) pendientes de verse en real.
 
+## Captación para webs que no son nuestras (2026-10-07)
+
+Flujo `automatizaciones/n8n/captacion-web-externa.json` + plantilla `plantilla-hoja-contactos.xlsx` (se sube a Google
+Drive y se abre como Hoja de Google). Para instaladoras que ya tienen web (primer caso: Fercam). Sin tocar su web:
+1. **Contactos:** su formulario ya manda un email → regla de reenvío a nuestro Gmail con etiqueta `formulario-<cliente>` →
+   Gmail Trigger (cada minuto) → **Gemini** saca nombre, teléfono, email, localidad, qué pide (JSON) → ficha por Telegram +
+   Gmail con botón de WhatsApp → fila en la pestaña "Contactos". Si Gemini falla, la ficha sale igual con el teléfono
+   sacado del texto y un aviso.
+2. **Seguimiento (9:15):** la instaladora cambia el "Estado" con un desplegable. n8n detecta el cambio (columna gris
+   "Estado visto") y apunta "Estado desde"; recordatorio al cliente a los 3 días en presupuestado (una vez, si hay email);
+   aviso a la instaladora a los 7 días parado (una vez por parón). Fechas en texto `AAAA-MM-DD` (`cellFormat: RAW`).
+3. **Reseñas (cada hora, 9–20 h):** pestaña "Obras terminadas" → aviso al móvil con el WhatsApp ya escrito + email al
+   cliente si lo hay. Marca "Reseña pedida" (se casa por `row_number`).
+- Ajustes (empresa, enlace de reseñas, días) arriba de cada nodo de código. Lógica probada con datos simulados; **sin
+  probar aún en n8n real** (nodos Google Sheets/Gmail Trigger: revisar al importar). Para un cliente: n8n en un VPS 24/7.
+
 ## Stack
 
 - **Tailwind por CDN** (`cdn.tailwindcss.com?plugins=forms`), config en `src/js/tailwind-config.js`.

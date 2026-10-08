@@ -1,0 +1,11 @@
+{
+  "name": "videos-solera",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fercam": "remotion render src/index.ts Fercam salida/video-fercam.mp4 --codec=h264 --crf=20",
+    "generico": "remotion render src/index.ts Generico salida/video-automatizacion.mp4 --codec=h264 --crf=20",
+    "estudio": "remotion studio src/index.ts"
+  },
+  "dependencies": { "remotion": "4.0.534", "@remotion/cli": "4.0.534", "react": "^19", "react-dom": "^19" }
+}

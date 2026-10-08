@@ -196,8 +196,10 @@ Drive y se abre como Hoja de Google). Para instaladoras que ya tienen web (prime
    aviso a la instaladora a los 7 días parado (una vez por parón). Fechas en texto `AAAA-MM-DD` (`cellFormat: RAW`).
 3. **Reseñas (cada hora, 9–20 h):** pestaña "Obras terminadas" → aviso al móvil con el WhatsApp ya escrito + email al
    cliente si lo hay. Marca "Reseña pedida" (se casa por `row_number`).
-- Ajustes (empresa, enlace de reseñas, días) arriba de cada nodo de código. Lógica probada con datos simulados; **sin
-  probar aún en n8n real** (nodos Google Sheets/Gmail Trigger: revisar al importar). Para un cliente: n8n en un VPS 24/7.
+- Ajustes (empresa, enlace de reseñas, días) arriba de cada nodo de código. Para un cliente: n8n en un VPS 24/7.
+- **2026-10-08 — bloque de contactos probado en el n8n del usuario:** email etiquetado → Gemini → ficha por Telegram
+  y Gmail → fila en la hoja. Al importar: en cada nodo de Sheets hay que volver a elegir la pestaña ("From list"),
+  poner **Map Automatically** y la columna de cruce (ID / row_number). Seguimiento y reseñas: sin probar aún en real.
 
 ## Stack
 

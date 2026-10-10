@@ -265,8 +265,8 @@ function totales() {
 }
 function recalcula() {
   const t = totales()
-  $('tMaterial').textContent = t.hay ? euros(t.mat) : '—'
-  $('tMano').textContent = t.hay ? euros(t.mano) : '—'
+  $('tMaterial').textContent = t.hay && t.mat ? euros(t.mat) : '—'
+  $('tMano').textContent = t.hay && t.mano ? euros(t.mano) : '—'
   $('tSub').textContent = t.hay ? euros(t.sub) : '—'
   $('tIva').textContent = t.hay ? euros(t.iva) : '—'
   $('tTotal').textContent = t.hay ? euros(t.total) : '—'
@@ -365,7 +365,9 @@ function creaPDF(p) {
   filasT.forEach(([k, v], i) => {
     const fy = yf + 11 + i * 5.2
     if (k === 'TOTAL') doc.setFont('helvetica', 'bold')
-    doc.text(k, xt + 2, fy); doc.text(t.hay ? euros(v) : '', xt + 68, fy, { align: 'right' })
+    // Si una parte va sin precio (p. ej. los materiales), se deja en blanco: la pone la oficina
+    const enBlanco = !t.hay || ((k === 'Material' || k === 'M. de Obra') && !v)
+    doc.text(k, xt + 2, fy); doc.text(enBlanco ? '' : euros(v), xt + 68, fy, { align: 'right' })
   })
   doc.rect(xt, yf, 70, 36)
   // Fotos en una segunda hoja

@@ -201,6 +201,21 @@ Drive y se abre como Hoja de Google). Para instaladoras que ya tienen web (prime
   y Gmail → fila en la hoja. Al importar: en cada nodo de Sheets hay que volver a elegir la pestaña ("From list"),
   poner **Map Automatically** y la columna de cruce (ID / row_number). Seguimiento y reseñas: sin probar aún en real.
 
+## Partes de trabajo digitales (2026-10-10)
+
+Carpeta `automatizaciones/partes/` (versión genérica, sin datos de cliente: el repo es público). Primer caso: una
+instaladora eléctrica que hoy rellena partes en papel, los teclea la oficina en su programa de gestión y factura tarde.
+- `parte-digital.html`: página única para el móvil del trabajador (ajustes en el bloque `EMPRESA`): cliente (con
+  **clientes habituales** que se rellenan solos), organismo → nombre y DNI del responsable, materiales y mano de obra
+  (importes opcionales), fotos, **firma con el dedo**. Genera el **albarán en PDF** en el navegador (jsPDF, mismo
+  esquema que el parte de papel) y lo manda al webhook de n8n; si no hay conexión, se descarga igual.
+- `parte-trabajo.json` (n8n): A) webhook `parte-trabajo` → PDF a binario → email al cliente **solo si dejó email** +
+  email a la oficina con el PDF + aviso a Telegram (para nosotros) + fila en la hoja "Partes". B) formulario de n8n →
+  **foto del parte en papel** → Gemini lo lee (con lista de materiales habituales; lo dudoso va en "dudas") → email +
+  Telegram + hoja. El flujo tiene que estar **publicado** para que el webhook responda.
+- **Probado en el n8n del usuario:** foto de un parte real leída bien; parte digital → oficina + Telegram + hoja.
+- Pendiente: saber si su programa de gestión importa Excel/CSV o tiene API (la factura debe salir de su programa).
+
 ## Stack
 
 - **Tailwind por CDN** (`cdn.tailwindcss.com?plugins=forms`), config en `src/js/tailwind-config.js`.

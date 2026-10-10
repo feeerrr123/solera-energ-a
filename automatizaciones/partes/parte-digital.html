@@ -65,7 +65,9 @@
   <section>
     <h2>Cliente</h2>
     <label for="cliente">Cliente</label>
-    <input id="cliente" autocomplete="off" placeholder="Nombre o empresa">
+    <input id="cliente" autocomplete="off" list="clientesHabituales" placeholder="Empieza a escribir: se rellena solo si es habitual">
+    <datalist id="clientesHabituales"></datalist>
+    <p class="nota" id="clienteAviso"></p>
     <div class="fila">
       <div><label for="nif">N.I.F. o C.I.F.</label><input id="nif" autocomplete="off"></div>
       <div><label for="telefono">Teléfono</label><input id="telefono" type="tel" inputmode="tel"></div>
@@ -83,6 +85,9 @@
         <div><label for="dni">DNI del responsable</label><input id="dni"></div>
       </div>
     </div>
+  </section>
+
+    <label class="check"><input type="checkbox" id="guardarCliente"> Guardar como cliente habitual</label>
   </section>
 
   <section>
@@ -158,6 +163,11 @@ const EMPRESA = {
   // A dónde se manda el parte (el flujo de n8n). Si no responde, se puede descargar el PDF igualmente.
   webhook: 'http://localhost:5678/webhook/parte-trabajo',
   // Materiales que más se usan (aparecen como sugerencia al escribir)
+  // Clientes de siempre: al escribir su nombre se rellenan solos (también se van guardando los nuevos)
+  clientes: [
+    { nombre: 'Ayuntamiento de Ejemplo', nif: 'P2300000A', calle: 'Plaza Mayor, 1', localidad: 'Santisteban del Puerto', telefono: '953 00 00 00', email: '', organismo: true },
+    { nombre: 'Comunidad de Regantes Ejemplo', nif: 'G23000000', calle: 'Camino del Pozo, s/n', localidad: 'Navas de San Juan', telefono: '', email: '', organismo: true },
+  ],
   catalogo: ['Cable 1000V 4x2,5', 'Cable 1000V 4x6', 'Terminal 14x60', 'Tuerca 14', 'Clavija 3P+T+N 16A', 'Brida de hierro con collarín 1"', 'Junta de goma 63', 'Diferencial 40A 30mA', 'Magnetotérmico 16A', 'Tubo corrugado 20 mm', 'Caja de registro'],
 }
 // =================================================================
@@ -180,6 +190,32 @@ EMPRESA.trabajadores.forEach((t) => $('trabajador').add(new Option(t, t)))
 if (lee('parte.trabajador')) $('trabajador').value = lee('parte.trabajador')
 $('trabajador').onchange = () => guarda('parte.trabajador', $('trabajador').value)
 EMPRESA.catalogo.forEach((c) => { const o = document.createElement('option'); o.value = c; $('catalogo').append(o) })
+// ---------- Clientes habituales ----------
+const clientesGuardados = () => { try { return JSON.parse(lee('parte.clientes') || '[]') } catch { return [] } }
+const todosClientes = () => { const m = new Map(); [...EMPRESA.clientes, ...clientesGuardados()].forEach((c) => m.set(c.nombre.toLowerCase(), c)); return [...m.values()] }
+function pintaClientes() { $('clientesHabituales').innerHTML = ''; todosClientes().forEach((c) => { const o = document.createElement('option'); o.value = c.nombre; $('clientesHabituales').append(o) }) }
+pintaClientes()
+let rellenado = false
+$('cliente').addEventListener('input', () => {
+  const c = todosClientes().find((x) => x.nombre.toLowerCase() === $('cliente').value.trim().toLowerCase())
+  if (!c) {
+    // Si antes se había rellenado un habitual y ahora es otro cliente, se vacían sus datos
+    if (rellenado) { ['nif', 'calle', 'localidad', 'telefono', 'email'].forEach((k) => { $(k).value = '' }); $('organismo').checked = false; $('organismo').onchange(); rellenado = false }
+    $('clienteAviso').textContent = ''; return
+  }
+  rellenado = true
+  ;['nif', 'calle', 'localidad', 'telefono', 'email'].forEach((k) => { $(k).value = c[k] || '' })
+  $('organismo').checked = !!c.organismo; $('organismo').onchange()
+  $('clienteAviso').textContent = '✓ Cliente habitual: datos rellenados'
+  $('guardarCliente').checked = false
+})
+function guardaCliente(p) {
+  if (!$('guardarCliente').checked) return
+  const lista = clientesGuardados().filter((x) => x.nombre.toLowerCase() !== p.cliente.nombre.toLowerCase())
+  const { email, ...resto } = p.cliente
+  lista.push({ ...resto, email, organismo: !!p.responsable })
+  guarda('parte.clientes', JSON.stringify(lista))
+}
 $('organismo').onchange = () => {
   $('bloqueResponsable').classList.toggle('oculto', !$('organismo').checked)
   $('firmaQuien').textContent = $('organismo').checked ? 'Firma del responsable' : 'Firma con el dedo'
@@ -384,11 +420,13 @@ $('terminar').onclick = async () => {
     enviado = r.ok
   } catch {}
   guarda('parte.numero', String(numero + 1))
+  guardaCliente(p)
   $('formulario').classList.add('oculto'); $('barra').classList.add('oculto'); $('hecho').classList.remove('oculto')
   $('hechoNum').textContent = p.numero
   $('hechoTexto').innerHTML = enviado
     ? (p.cliente.email ? `El albarán firmado ya va de camino a <b>${p.cliente.email}</b>, y la oficina tiene todos los datos para facturar.` : 'La oficina ya tiene el albarán firmado y todos los datos para facturar.')
     : 'No se ha podido enviar ahora (¿sin conexión?). Descarga el albarán y se reenvía después.'
+  if (enviado && !p.cliente.email) $('hechoTexto').innerHTML = 'La oficina ya tiene el albarán firmado y todos los datos: lo enviará junto con la factura.'
   const enlace = $('descargar'); enlace.href = URL.createObjectURL(doc.output('blob')); enlace.download = archivo
   window.scrollTo(0, 0)
 }

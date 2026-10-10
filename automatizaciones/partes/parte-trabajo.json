@@ -1,0 +1,467 @@
+{
+  "name": "Partes de trabajo (digital y foto)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "parte-trabajo",
+        "responseMode": "onReceived",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "p1",
+      "name": "Recibir parte",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "webhookId": "parte-trabajo"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== AJUSTES =====\nconst EMPRESA = 'Tu empresa';\n// ===================\n\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst euros = (n) => Number(n || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';\nconst lista = (xs, f) => (xs || []).map(f).filter(Boolean).join(' · ');\n\nreturn $input.all().map((item) => {\n  const { parte: p, archivo, pdfBase64 } = item.json.body;\n  const c = p.cliente || {};\n  const firmante = p.responsable ? `${p.responsable.nombre} (DNI ${p.responsable.dni})` : c.nombre;\n  const mats = lista(p.materiales, (m) => [m.cant, m.desc].filter(Boolean).join(' '));\n  const mano = lista(p.manoObra, (m) => [m.desc, m.horas ? m.horas + ' h' : ''].filter(Boolean).join(' '));\n  const total = p.totales?.hay ? euros(p.totales.total) : 'sin importe (lo pone la oficina)';\n\n  const htmlCliente = `<p>Hola:</p>\n<p>Le enviamos el albarán <b>Nº ${esc(p.numero)}</b> del trabajo realizado el ${esc(p.fechaTexto)}, firmado por ${esc(firmante)}.</p>\n<p>Lo tiene adjunto en PDF. Cualquier duda, responda a este correo.</p><p>Un saludo,<br>${esc(EMPRESA)}</p>`;\n\n  const htmlOficina = `<p><b>Parte Nº ${esc(p.numero)}</b> · ${esc(p.fechaTexto)} ${esc(p.hora)} · ${esc(p.trabajador)}</p>\n<table cellpadding=\"4\">\n<tr><td><b>Cliente</b></td><td>${esc(c.nombre)} · ${esc(c.nif)}</td></tr>\n<tr><td><b>Dirección</b></td><td>${esc(c.calle)}, ${esc(c.localidad)}</td></tr>\n<tr><td><b>Trabajo</b></td><td>${esc(p.trabajo)}</td></tr>\n<tr><td><b>Materiales</b></td><td>${esc(mats)}</td></tr>\n<tr><td><b>Mano de obra</b></td><td>${esc(mano)}</td></tr>\n<tr><td><b>Total</b></td><td>${esc(total)}</td></tr>\n<tr><td><b>Firmado por</b></td><td>${esc(firmante)}</td></tr>\n</table><p>Albarán firmado adjunto. Listo para facturar.</p>`;\n\n  const telegram = `<b>📄 Parte Nº ${esc(p.numero)} firmado</b>\\n${esc(c.nombre)} · ${esc(c.localidad)}\\n${esc(p.trabajador)} · ${esc(p.fechaTexto)} ${esc(p.hora)}\\n<b>Total:</b> ${esc(total)}\\n<i>Firmado por ${esc(firmante)}</i>`;\n\n  const fila = {\n    'Nº': p.numero, 'Fecha': p.fecha, 'Hora': p.hora, 'Trabajador': p.trabajador, 'Cliente': c.nombre, 'NIF/CIF': c.nif,\n    'Localidad': c.localidad, 'Trabajo': p.trabajo, 'Materiales': mats, 'Mano de obra': mano,\n    'Total': p.totales?.hay ? Number(p.totales.total.toFixed(2)) : '', 'Firmado por': firmante, 'Origen': 'Parte digital', 'Facturado': '',\n  };\n  return { json: { numero: p.numero, emailCliente: c.email || '', asuntoCliente: `Albarán Nº ${p.numero} · ${EMPRESA}`, htmlCliente,\n    asuntoOficina: `Parte Nº ${p.numero} · ${c.nombre} · listo para facturar`, htmlOficina, telegram, fila, archivo, pdfBase64 } };\n});\n"
+      },
+      "id": "p2",
+      "name": "Preparar parte",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "pdfBase64",
+        "binaryPropertyName": "albaran",
+        "options": {
+          "fileName": "={{ $json.archivo }}",
+          "mimeType": "application/pdf"
+        }
+      },
+      "id": "p3",
+      "name": "PDF del albarán",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Solo se le manda al cliente si dejó email (el PDF va adjunto). Cada ejecución trae un solo parte.\nreturn $('Preparar parte').first().json.emailCliente ? $input.all() : [];\n"
+      },
+      "id": "p4",
+      "name": "¿Dejó email?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Preparar parte').first().json.emailCliente }}",
+        "subject": "={{ $('Preparar parte').first().json.asuntoCliente }}",
+        "emailType": "html",
+        "message": "={{ $('Preparar parte').first().json.htmlCliente }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "albaran"
+              }
+            ]
+          }
+        }
+      },
+      "id": "p5",
+      "name": "Albarán al cliente",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        60
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "TU-CORREO@gmail.com",
+        "subject": "={{ $('Preparar parte').first().json.asuntoOficina }}",
+        "emailType": "html",
+        "message": "={{ $('Preparar parte').first().json.htmlOficina }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "albaran"
+              }
+            ]
+          }
+        }
+      },
+      "id": "p6",
+      "name": "Albarán a la oficina",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        200
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "p7",
+      "name": "Aviso a Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        340
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map((i) => ({ json: i.json.fila }));"
+      },
+      "id": "p8",
+      "name": "Fila para la hoja",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Partes"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": []
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "p9",
+      "name": "Apuntar parte",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        960,
+        480
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "formTitle": "Parte de trabajo en papel",
+        "formDescription": "Haz una foto al parte (recto y con luz) y súbela. La IA lo lee y lo pasa a la oficina.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Foto del parte",
+              "fieldType": "file",
+              "requiredField": true,
+              "multipleFiles": false,
+              "acceptFileTypes": ".jpg,.jpeg,.png,.webp"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f1",
+      "name": "Subir foto del parte",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        760
+      ],
+      "webhookId": "foto-parte"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Coge la foto que se ha subido y se la manda a Gemini para que la lea\nconst instrucciones = `Esta foto es un PARTE DE TRABAJO de una empresa de instalaciones eléctricas, rellenado a mano.\nPuede estar girada. Lee lo escrito a mano y devuelve SOLO un JSON con esta forma:\n{\"numero\":\"\",\"fecha\":\"\",\"cliente\":\"\",\"nif\":\"\",\"calle\":\"\",\"localidad\":\"\",\"telefono\":\"\",\n \"materiales\":[{\"cant\":\"\",\"descripcion\":\"\",\"referencia\":\"\",\"importe\":\"\"}],\n \"mano_obra\":[{\"codigo\":\"\",\"descripcion\":\"\",\"horas\":\"\",\"importe\":\"\"}],\n \"dudas\":\"\"}\nReglas:\n- Copia lo que pone; puedes corregir abreviaturas obvias de material eléctrico (mt = metros, \"tuercas\" etc.).\n- Si algo no se lee bien, ponlo igualmente y explícalo en \"dudas\". No inventes nada que no esté escrito.\n- Lo impreso (nombre de la empresa, CIF, direcciones de la empresa) NO es el cliente.`;\nconst salida = [];\nfor (let i = 0; i < $input.all().length; i++) {\n  const item = $input.all()[i];\n  const clave = Object.keys(item.binary || {})[0];\n  if (!clave) continue;\n  const buf = await this.helpers.getBinaryDataBuffer(i, clave);\n  salida.push({ json: { peticion: {\n    contents: [{ parts: [{ text: instrucciones }, { inline_data: { mime_type: item.binary[clave].mimeType || 'image/jpeg', data: buf.toString('base64') } }] }],\n    generationConfig: { temperature: 0, responseMimeType: 'application/json' },\n  } } });\n}\nreturn salida;\n"
+      },
+      "id": "f2",
+      "name": "Preparar foto para Gemini",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.peticion) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "f3",
+      "name": "Gemini: leer el parte",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        760
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst euros = (n) => Number(n || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';\nconst lista = (xs, f) => (xs || []).map(f).filter(Boolean).join(' · ');\n\nreturn $input.all().map((item) => {\n  const txt = item.json.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';\n  let d; try { d = JSON.parse(txt.replace(/^```(json)?|```$/g, '').trim()); } catch { d = null; }\n  if (!d) return { json: { telegram: '<b>⚠️ No he podido leer el parte de la foto.</b>\\nPrueba con otra foto más recta y con luz.', fila: null } };\n  const mats = lista(d.materiales, (m) => [m.cant, m.descripcion].filter(Boolean).join(' '));\n  const mano = lista(d.mano_obra, (m) => [m.descripcion, m.horas ? m.horas + ' h' : ''].filter(Boolean).join(' '));\n  const telegram = `<b>📷 Parte leído de la foto${d.numero ? ' · Nº ' + esc(d.numero) : ''}</b>\\n` +\n    `<b>Cliente:</b> ${esc(d.cliente || '¿?')} · ${esc(d.localidad || '')}\\n<b>Fecha:</b> ${esc(d.fecha || '¿?')}\\n\\n<b>Materiales</b>\\n` +\n    (d.materiales || []).map((m) => `• ${esc(m.cant)} ${esc(m.descripcion)}${m.importe ? ' — ' + esc(m.importe) : ''}`).join('\\n') +\n    ((d.mano_obra || []).length ? `\\n\\n<b>Mano de obra</b>\\n` + d.mano_obra.map((m) => `• ${esc(m.descripcion)} ${m.horas ? esc(m.horas) + ' h' : ''}`).join('\\n') : '') +\n    (d.dudas ? `\\n\\n<i>⚠️ Revisar: ${esc(d.dudas)}</i>` : '');\n  const fila = { 'Nº': d.numero, 'Fecha': d.fecha, 'Hora': '', 'Trabajador': '', 'Cliente': d.cliente, 'NIF/CIF': d.nif, 'Localidad': d.localidad,\n    'Trabajo': '', 'Materiales': mats, 'Mano de obra': mano, 'Total': '', 'Firmado por': '', 'Origen': 'Foto de parte en papel', 'Facturado': '' };\n  return { json: { telegram, fila } };\n});\n"
+      },
+      "id": "f4",
+      "name": "Ordenar lo leído",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "TU_CHAT_ID",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "f5",
+      "name": "Parte leído a Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        680
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().filter((i) => i.json.fila).map((i) => ({ json: i.json.fila }));"
+      },
+      "id": "f6",
+      "name": "Fila de la foto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Partes"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": []
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "f7",
+      "name": "Apuntar parte de la foto",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1200,
+        840
+      ],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Recibir parte": {
+      "main": [
+        [
+          {
+            "node": "Preparar parte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar parte": {
+      "main": [
+        [
+          {
+            "node": "PDF del albarán",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aviso a Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fila para la hoja",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF del albarán": {
+      "main": [
+        [
+          {
+            "node": "¿Dejó email?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Albarán a la oficina",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Dejó email?": {
+      "main": [
+        [
+          {
+            "node": "Albarán al cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila para la hoja": {
+      "main": [
+        [
+          {
+            "node": "Apuntar parte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subir foto del parte": {
+      "main": [
+        [
+          {
+            "node": "Preparar foto para Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar foto para Gemini": {
+      "main": [
+        [
+          {
+            "node": "Gemini: leer el parte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: leer el parte": {
+      "main": [
+        [
+          {
+            "node": "Ordenar lo leído",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ordenar lo leído": {
+      "main": [
+        [
+          {
+            "node": "Parte leído a Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fila de la foto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila de la foto": {
+      "main": [
+        [
+          {
+            "node": "Apuntar parte de la foto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid"
+  },
+  "pinData": {}
+}

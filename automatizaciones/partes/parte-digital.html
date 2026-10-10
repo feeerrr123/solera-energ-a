@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Parte de trabajo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --azul: #1d4f9c; --azul-2: #2f6bc4; --azul-claro: #e8f0fb; --tinta: #1a2230; --suave: #5d6b80;
+    --linea: #d5deea; --fondo: #f3f6fa; --blanco: #fff; --verde: #1f9d55; --rojo: #c73b3b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--tinta); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--azul); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+  header .marca { font-weight: 800; letter-spacing: .5px; font-size: 19px; }
+  header .marca small { display: block; font-weight: 500; font-size: 12px; opacity: .8; letter-spacing: 0; }
+  header .num { text-align: right; font-size: 12px; opacity: .9; }
+  header .num b { display: block; font-size: 20px; color: #ffd36b; }
+  main { max-width: 640px; margin: 0 auto; padding: 14px 14px 120px; }
+  section { background: var(--blanco); border: 1px solid var(--linea); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+  h2 { margin: 0 0 12px; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--azul); }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--suave); margin: 10px 0 4px; }
+  input, select, textarea { width: 100%; font: inherit; padding: 11px 12px; border: 1.5px solid var(--linea); border-radius: 10px; background: #fff; color: var(--tinta); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--azul-2); box-shadow: 0 0 0 3px var(--azul-claro); }
+  .fila { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+  .linea { display: grid; gap: 6px; grid-template-columns: 64px 1fr 34px; align-items: end; padding: 10px 0; border-top: 1px dashed var(--linea); }
+  .linea:first-of-type { border-top: 0; }
+  .linea .extra { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .linea input { padding: 9px 10px; }
+  .quitar { height: 40px; border: 0; background: none; color: var(--rojo); font-size: 22px; cursor: pointer; }
+  .mini { font-size: 11px; color: var(--suave); margin: 0 0 2px; font-weight: 600; }
+  .anadir { width: 100%; margin-top: 8px; padding: 11px; border: 1.5px dashed var(--azul-2); color: var(--azul); background: var(--azul-claro); border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; }
+  .check { display: flex; gap: 10px; align-items: center; margin-top: 12px; font-weight: 600; }
+  .check input { width: 22px; height: 22px; }
+  .oculto { display: none; }
+  .totales div { display: flex; justify-content: space-between; padding: 4px 0; }
+  .totales .total { font-size: 20px; font-weight: 800; color: var(--azul); border-top: 2px solid var(--linea); margin-top: 6px; padding-top: 8px; }
+  .nota { font-size: 12px; color: var(--suave); margin-top: 6px; }
+  #firma { width: 100%; height: 190px; border: 2px dashed var(--azul-2); border-radius: 12px; background: #fbfdff; touch-action: none; display: block; }
+  .firma-pie { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 13px; color: var(--suave); }
+  .firma-pie button { border: 0; background: none; color: var(--rojo); font: inherit; font-weight: 600; cursor: pointer; }
+  .fotos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .fotos img { width: 74px; height: 74px; object-fit: cover; border-radius: 8px; border: 1px solid var(--linea); }
+  .barra { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); background: rgba(243,246,250,.95); backdrop-filter: blur(8px); border-top: 1px solid var(--linea); }
+  .barra button { display: block; width: 100%; max-width: 612px; margin: 0 auto; padding: 16px; border: 0; border-radius: 14px; background: var(--azul); color: #fff; font: inherit; font-size: 18px; font-weight: 800; cursor: pointer; }
+  .barra button:disabled { opacity: .6; }
+  .error { color: var(--rojo); font-size: 13px; font-weight: 600; margin-top: 6px; }
+  #hecho { text-align: center; padding: 40px 18px; }
+  #hecho .ok { width: 84px; height: 84px; border-radius: 50%; background: var(--verde); color: #fff; font-size: 48px; display: grid; place-items: center; margin: 10px auto 18px; }
+  #hecho h1 { margin: 0 0 8px; font-size: 24px; }
+  #hecho p { color: var(--suave); margin: 6px 0; }
+  #hecho .acciones { display: grid; gap: 10px; margin-top: 24px; }
+  #hecho .acciones a, #hecho .acciones button { padding: 14px; border-radius: 12px; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; border: 1.5px solid var(--azul); color: var(--azul); background: #fff; }
+  #hecho .acciones .principal { background: var(--azul); color: #fff; }
+</style>
+</head>
+<body>
+<header>
+  <div class="marca" id="marca"></div>
+  <div class="num">Parte Nº<b id="numero"></b><span id="fechaTxt"></span></div>
+</header>
+
+<main id="formulario">
+  <section>
+    <h2>Cliente</h2>
+    <label for="cliente">Cliente</label>
+    <input id="cliente" autocomplete="off" placeholder="Nombre o empresa">
+    <div class="fila">
+      <div><label for="nif">N.I.F. o C.I.F.</label><input id="nif" autocomplete="off"></div>
+      <div><label for="telefono">Teléfono</label><input id="telefono" type="tel" inputmode="tel"></div>
+    </div>
+    <label for="calle">Calle</label>
+    <input id="calle" autocomplete="off">
+    <label for="localidad">Localidad</label>
+    <input id="localidad" autocomplete="off">
+    <label for="email">Email para enviarle el albarán</label>
+    <input id="email" type="email" inputmode="email" placeholder="opcional">
+    <label class="check"><input type="checkbox" id="organismo"> Organismo o empresa: firma el responsable</label>
+    <div id="bloqueResponsable" class="oculto">
+      <div class="fila">
+        <div><label for="responsable">Nombre del responsable</label><input id="responsable"></div>
+        <div><label for="dni">DNI del responsable</label><input id="dni"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Trabajo</h2>
+    <div class="fila">
+      <div><label for="trabajador">Trabajador</label><select id="trabajador"></select></div>
+      <div><label for="fecha">Fecha</label><input id="fecha" type="date"></div>
+    </div>
+    <label for="trabajoHecho">Trabajo realizado</label>
+    <textarea id="trabajoHecho" rows="3" placeholder="Ej.: Sustitución de cuadro de bomba y conexión de sonda de nivel"></textarea>
+  </section>
+
+  <section>
+    <h2>Materiales</h2>
+    <div id="materiales"></div>
+    <button class="anadir" type="button" id="masMaterial">+ Añadir material</button>
+    <datalist id="catalogo"></datalist>
+  </section>
+
+  <section>
+    <h2>Mano de obra</h2>
+    <div id="manoObra"></div>
+    <button class="anadir" type="button" id="masMano">+ Añadir mano de obra</button>
+  </section>
+
+  <section>
+    <h2>Fotos del trabajo</h2>
+    <input id="fotos" type="file" accept="image/*" capture="environment" multiple>
+    <div class="fotos" id="miniaturas"></div>
+  </section>
+
+  <section class="totales" id="seccionTotales">
+    <h2>Importe</h2>
+    <div><span>Material</span><span id="tMaterial">—</span></div>
+    <div><span>Mano de obra</span><span id="tMano">—</span></div>
+    <div><span>Subtotal</span><span id="tSub">—</span></div>
+    <div><span>I.V.A. <span id="ivaPct"></span> %</span><span id="tIva">—</span></div>
+    <div class="total"><span>TOTAL</span><span id="tTotal">—</span></div>
+    <p class="nota">Los importes son opcionales: si los dejáis en blanco, los pone la oficina al facturar.</p>
+  </section>
+
+  <section>
+    <h2>Conforme el cliente</h2>
+    <canvas id="firma"></canvas>
+    <div class="firma-pie"><span id="firmaQuien">Firma con el dedo</span><button type="button" id="borrarFirma">Borrar firma</button></div>
+  </section>
+  <p class="error" id="error"></p>
+</main>
+
+<div id="hecho" class="oculto">
+  <div class="ok">✓</div>
+  <h1>Parte <span id="hechoNum"></span> terminado</h1>
+  <p id="hechoTexto"></p>
+  <div class="acciones">
+    <a id="descargar" class="principal" download>Ver el albarán (PDF)</a>
+    <button type="button" id="nuevo">Hacer otro parte</button>
+  </div>
+</div>
+
+<div class="barra" id="barra"><button type="button" id="terminar">Terminar y enviar albarán</button></div>
+
+<script>
+// ===================== AJUSTES DE LA EMPRESA =====================
+const EMPRESA = {
+  nombre: 'TU EMPRESA',
+  subtitulo: 'Montajes eléctricos',
+  cif: 'B-00.000.000',
+  direccion: 'Calle, número · Localidad (Provincia)',
+  contacto: 'info@empresa.es · www.empresa.es',
+  trabajadores: ['Trabajador 1', 'Trabajador 2', 'Trabajador 3'],
+  iva: 21,
+  primerNumero: 9184,
+  // A dónde se manda el parte (el flujo de n8n). Si no responde, se puede descargar el PDF igualmente.
+  webhook: 'http://localhost:5678/webhook/parte-trabajo',
+  // Materiales que más se usan (aparecen como sugerencia al escribir)
+  catalogo: ['Cable 1000V 4x2,5', 'Cable 1000V 4x6', 'Terminal 14x60', 'Tuerca 14', 'Clavija 3P+T+N 16A', 'Brida de hierro con collarín 1"', 'Junta de goma 63', 'Diferencial 40A 30mA', 'Magnetotérmico 16A', 'Tubo corrugado 20 mm', 'Caja de registro'],
+}
+// =================================================================
+
+const $ = (id) => document.getElementById(id)
+const euros = (n) => n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'
+const num = (v) => { const n = parseFloat(String(v).replace(/\./g, '').replace(',', '.')); return isFinite(n) ? n : 0 }
+const guarda = (k, v) => { try { localStorage.setItem(k, v) } catch {} }
+const lee = (k) => { try { return localStorage.getItem(k) } catch { return null } }
+
+// ---------- Cabecera ----------
+$('marca').innerHTML = `${EMPRESA.nombre}<small>${EMPRESA.subtitulo} · Parte de trabajo</small>`
+const numero = Number(lee('parte.numero')) || EMPRESA.primerNumero
+$('numero').textContent = numero
+const hoy = new Date()
+$('fecha').value = hoy.toISOString().slice(0, 10)
+$('fechaTxt').textContent = hoy.toLocaleDateString('es-ES')
+$('ivaPct').textContent = EMPRESA.iva
+EMPRESA.trabajadores.forEach((t) => $('trabajador').add(new Option(t, t)))
+if (lee('parte.trabajador')) $('trabajador').value = lee('parte.trabajador')
+$('trabajador').onchange = () => guarda('parte.trabajador', $('trabajador').value)
+EMPRESA.catalogo.forEach((c) => { const o = document.createElement('option'); o.value = c; $('catalogo').append(o) })
+$('organismo').onchange = () => {
+  $('bloqueResponsable').classList.toggle('oculto', !$('organismo').checked)
+  $('firmaQuien').textContent = $('organismo').checked ? 'Firma del responsable' : 'Firma con el dedo'
+}
+
+// ---------- Líneas de materiales y mano de obra ----------
+function lineaMaterial(d = {}) {
+  const el = document.createElement('div')
+  el.className = 'linea'
+  el.innerHTML = `
+    <div><p class="mini">Cant.</p><input data-k="cant" inputmode="decimal" value="${d.cant ?? ''}"></div>
+    <div><p class="mini">Descripción</p><input data-k="desc" list="catalogo" value="${d.desc ?? ''}"></div>
+    <button class="quitar" type="button" aria-label="Quitar">×</button>
+    <div class="extra">
+      <div><p class="mini">Referencia</p><input data-k="ref" value="${d.ref ?? ''}"></div>
+      <div><p class="mini">Importe (€)</p><input data-k="importe" inputmode="decimal" value="${d.importe ?? ''}"></div>
+    </div>`
+  el.querySelector('.quitar').onclick = () => { el.remove(); recalcula() }
+  el.oninput = recalcula
+  $('materiales').append(el)
+}
+function lineaMano(d = {}) {
+  const el = document.createElement('div')
+  el.className = 'linea'
+  el.innerHTML = `
+    <div><p class="mini">Horas</p><input data-k="horas" inputmode="decimal" value="${d.horas ?? ''}"></div>
+    <div><p class="mini">Descripción</p><input data-k="desc" value="${d.desc ?? ''}" placeholder="Oficial, peón, desplazamiento…"></div>
+    <button class="quitar" type="button" aria-label="Quitar">×</button>
+    <div class="extra">
+      <div><p class="mini">Nº código</p><input data-k="codigo" value="${d.codigo ?? ''}"></div>
+      <div><p class="mini">Importe (€)</p><input data-k="importe" inputmode="decimal" value="${d.importe ?? ''}"></div>
+    </div>`
+  el.querySelector('.quitar').onclick = () => { el.remove(); recalcula() }
+  el.oninput = recalcula
+  $('manoObra').append(el)
+}
+$('masMaterial').onclick = () => lineaMaterial()
+$('masMano').onclick = () => lineaMano()
+const lineas = (id) => [...$(id).querySelectorAll('.linea')].map((l) => Object.fromEntries([...l.querySelectorAll('input')].map((i) => [i.dataset.k, i.value.trim()])))
+  .filter((x) => Object.values(x).some(Boolean))
+
+function totales() {
+  const mat = lineas('materiales').reduce((s, l) => s + num(l.importe), 0)
+  const mano = lineas('manoObra').reduce((s, l) => s + num(l.importe), 0)
+  const sub = mat + mano, iva = sub * EMPRESA.iva / 100
+  return { mat, mano, sub, iva, total: sub + iva, hay: sub > 0 }
+}
+function recalcula() {
+  const t = totales()
+  $('tMaterial').textContent = t.hay ? euros(t.mat) : '—'
+  $('tMano').textContent = t.hay ? euros(t.mano) : '—'
+  $('tSub').textContent = t.hay ? euros(t.sub) : '—'
+  $('tIva').textContent = t.hay ? euros(t.iva) : '—'
+  $('tTotal').textContent = t.hay ? euros(t.total) : '—'
+}
+lineaMaterial(); lineaMano()
+
+// ---------- Fotos ----------
+let fotos = []
+$('fotos').onchange = async () => {
+  fotos = await Promise.all([...$('fotos').files].slice(0, 4).map(reduceFoto))
+  $('miniaturas').innerHTML = fotos.map((f) => `<img src="${f}" alt="">`).join('')
+}
+function reduceFoto(file) {
+  return new Promise((ok) => {
+    const img = new Image()
+    img.onload = () => {
+      const k = Math.min(1, 1000 / Math.max(img.width, img.height))
+      const c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height)
+      ok(c.toDataURL('image/jpeg', 0.75))
+    }
+    img.src = URL.createObjectURL(file)
+  })
+}
+
+// ---------- Firma con el dedo ----------
+const lienzo = $('firma'), ctx = lienzo.getContext('2d')
+let firmado = false, dibujando = false
+function ajustaLienzo() {
+  const r = lienzo.getBoundingClientRect(), dpr = window.devicePixelRatio || 1
+  lienzo.width = r.width * dpr; lienzo.height = r.height * dpr
+  ctx.scale(dpr, dpr); ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#13306b'
+  firmado = false
+}
+ajustaLienzo()
+const punto = (e) => { const r = lienzo.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top] }
+lienzo.addEventListener('pointerdown', (e) => { dibujando = true; lienzo.setPointerCapture(e.pointerId); ctx.beginPath(); ctx.moveTo(...punto(e)) })
+lienzo.addEventListener('pointermove', (e) => { if (!dibujando) return; ctx.lineTo(...punto(e)); ctx.stroke(); firmado = true })
+lienzo.addEventListener('pointerup', () => { dibujando = false })
+$('borrarFirma').onclick = () => { ctx.clearRect(0, 0, lienzo.width, lienzo.height); firmado = false }
+
+// ---------- El albarán en PDF (mismo esquema que el parte de papel) ----------
+function creaPDF(p) {
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  const AZ = [29, 79, 156], W = 297
+  doc.setDrawColor(...AZ); doc.setLineWidth(0.4)
+  // Cabecera
+  doc.setTextColor(...AZ); doc.setFont('helvetica', 'bold'); doc.setFontSize(22); doc.text(EMPRESA.nombre, 12, 18)
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.text(EMPRESA.subtitulo, 12, 23)
+  doc.setTextColor(60); doc.setFontSize(8)
+  doc.text([`C.I.F. ${EMPRESA.cif}`, EMPRESA.direccion, EMPRESA.contacto], 12, 29)
+  doc.setTextColor(200, 40, 40); doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.text(`Nº ${p.numero}`, W - 12, 16, { align: 'right' })
+  doc.setTextColor(30); doc.setFontSize(9); doc.setFont('helvetica', 'normal')
+  doc.text(`Fecha: ${p.fechaTexto}   ·   Hora: ${p.hora}   ·   Trabajador: ${p.trabajador}`, W - 12, 22, { align: 'right' })
+  // Datos del cliente
+  doc.roundedRect(120, 26, W - 132, 22, 2, 2)
+  doc.setFontSize(9)
+  const c = p.cliente
+  doc.text(`Cliente: ${c.nombre}`, 124, 32); doc.text(`N.I.F. o C.I.F.: ${c.nif}`, 220, 32)
+  doc.text(`Calle: ${c.calle}`, 124, 38); doc.text(`Teléfono: ${c.telefono}`, 220, 38)
+  doc.text(`Localidad: ${c.localidad}`, 124, 44)
+  if (p.trabajo) { doc.setFontSize(9); doc.text(doc.splitTextToSize(`Trabajo realizado: ${p.trabajo}`, W - 24), 12, 54) }
+  // Tablas
+  const y0 = 62, alto = 92, mitad = W / 2
+  const tabla = (x, w, titulo, cols, filas) => {
+    doc.setFillColor(...AZ); doc.rect(x, y0, w, 7, 'F')
+    doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text(titulo, x + w / 2, y0 + 5, { align: 'center' })
+    doc.setTextColor(...AZ); doc.setFontSize(8)
+    let cx = x; cols.forEach(([n, cw]) => { doc.text(n, cx + 1.5, y0 + 12); cx += cw })
+    doc.rect(x, y0, w, alto)
+    doc.setTextColor(25); doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
+    filas.slice(0, 14).forEach((f, i) => {
+      const fy = y0 + 19 + i * 5.5
+      let fx = x; f.forEach((v, k) => { const cw = cols[k][1]; doc.text(doc.splitTextToSize(String(v ?? ''), cw - 2)[0] || '', fx + 1.5, fy); fx += cw })
+      doc.setDrawColor(215); doc.line(x, fy + 1.6, x + w, fy + 1.6); doc.setDrawColor(...AZ)
+    })
+  }
+  tabla(12, mitad - 16, 'MATERIALES', [['Cant.', 14], ['Descripción', 74], ['Referencia', 22], ['Importe', 22.5]],
+    p.materiales.map((m) => [m.cant, m.desc, m.ref, m.importe ? euros(num(m.importe)) : '']))
+  tabla(mitad + 4, mitad - 16, 'MANO DE OBRA', [['Nº Código', 20], ['Descripción', 70], ['Horas', 18], ['Importe', 24.5]],
+    p.manoObra.map((m) => [m.codigo, m.desc, m.horas, m.importe ? euros(num(m.importe)) : '']))
+  // Firma
+  const yf = y0 + alto + 6
+  doc.rect(12, yf, 120, 34)
+  doc.setTextColor(...AZ); doc.setFontSize(8); doc.text('Conforme el cliente:', 14, yf + 5)
+  if (p.firma) doc.addImage(p.firma, 'PNG', 30, yf + 6, 80, 22)
+  doc.setTextColor(60); doc.setFontSize(7.5)
+  const firmante = p.responsable ? `${p.responsable.nombre} · DNI ${p.responsable.dni}` : c.nombre
+  doc.text(`Firmado por ${firmante} el ${p.fechaTexto} a las ${p.hora}`, 14, yf + 32)
+  // Totales
+  const t = p.totales, xt = W - 82
+  doc.setFillColor(...AZ); doc.rect(xt, yf, 70, 6, 'F'); doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.text('VENTA', xt + 35, yf + 4.3, { align: 'center' })
+  doc.setTextColor(25); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5)
+  const filasT = [['Material', t.mat], ['M. de Obra', t.mano], ['Subtotal', t.sub], [`I.V.A. ${EMPRESA.iva} %`, t.iva], ['TOTAL', t.total]]
+  filasT.forEach(([k, v], i) => {
+    const fy = yf + 11 + i * 5.2
+    if (k === 'TOTAL') doc.setFont('helvetica', 'bold')
+    doc.text(k, xt + 2, fy); doc.text(t.hay ? euros(v) : '', xt + 68, fy, { align: 'right' })
+  })
+  doc.rect(xt, yf, 70, 36)
+  // Fotos en una segunda hoja
+  if (p.fotos.length) {
+    doc.addPage(); doc.setTextColor(...AZ); doc.setFont('helvetica', 'bold'); doc.setFontSize(12)
+    doc.text(`Fotos del trabajo · Parte Nº ${p.numero}`, 12, 16)
+    p.fotos.forEach((f, i) => doc.addImage(f, 'JPEG', 12 + (i % 2) * 140, 22 + Math.floor(i / 2) * 92, 130, 86))
+  }
+  return doc
+}
+
+// ---------- Terminar ----------
+function datosParte() {
+  const ahora = new Date()
+  return {
+    numero,
+    fecha: $('fecha').value,
+    fechaTexto: new Date($('fecha').value + 'T12:00').toLocaleDateString('es-ES'),
+    hora: ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+    trabajador: $('trabajador').value,
+    trabajo: $('trabajoHecho').value.trim(),
+    cliente: { nombre: $('cliente').value.trim(), nif: $('nif').value.trim(), calle: $('calle').value.trim(), localidad: $('localidad').value.trim(), telefono: $('telefono').value.trim(), email: $('email').value.trim() },
+    responsable: $('organismo').checked ? { nombre: $('responsable').value.trim(), dni: $('dni').value.trim() } : null,
+    materiales: lineas('materiales'),
+    manoObra: lineas('manoObra'),
+    totales: totales(),
+    fotos,
+    firma: firmado ? lienzo.toDataURL('image/png') : null,
+  }
+}
+function valida(p) {
+  if (!p.cliente.nombre) return 'Falta el nombre del cliente.'
+  if (!p.materiales.length && !p.manoObra.length) return 'Añade al menos un material o la mano de obra.'
+  if (p.responsable && (!p.responsable.nombre || !p.responsable.dni)) return 'Falta el nombre o el DNI del responsable que firma.'
+  if (!p.firma) return 'Falta la firma del cliente.'
+  if (p.cliente.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.cliente.email)) return 'El email del cliente no parece correcto.'
+  return ''
+}
+$('terminar').onclick = async () => {
+  const p = datosParte()
+  const fallo = valida(p)
+  $('error').textContent = fallo
+  if (fallo) return
+  $('terminar').disabled = true; $('terminar').textContent = 'Enviando…'
+  const doc = creaPDF(p)
+  const pdfBase64 = doc.output('datauristring').split(',')[1]
+  const archivo = `Albaran-${p.numero}.pdf`
+  let enviado = false
+  try {
+    const { fotos: _f, firma: _s, ...resto } = p
+    const r = await fetch(EMPRESA.webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ parte: resto, archivo, pdfBase64 }) })
+    enviado = r.ok
+  } catch {}
+  guarda('parte.numero', String(numero + 1))
+  $('formulario').classList.add('oculto'); $('barra').classList.add('oculto'); $('hecho').classList.remove('oculto')
+  $('hechoNum').textContent = p.numero
+  $('hechoTexto').innerHTML = enviado
+    ? (p.cliente.email ? `El albarán firmado ya va de camino a <b>${p.cliente.email}</b>, y la oficina tiene todos los datos para facturar.` : 'La oficina ya tiene el albarán firmado y todos los datos para facturar.')
+    : 'No se ha podido enviar ahora (¿sin conexión?). Descarga el albarán y se reenvía después.'
+  const enlace = $('descargar'); enlace.href = URL.createObjectURL(doc.output('blob')); enlace.download = archivo
+  window.scrollTo(0, 0)
+}
+$('nuevo').onclick = () => location.reload()
+</script>
+</body>
+</html>

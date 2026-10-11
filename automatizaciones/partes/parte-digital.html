@@ -84,9 +84,12 @@
         <div><label for="responsable">Nombre del responsable</label><input id="responsable"></div>
         <div><label for="dni">DNI del responsable</label><input id="dni"></div>
       </div>
+      <label for="cargo">Cargo (opcional)</label>
+      <input id="cargo" placeholder="Ej.: Encargado de mantenimiento">
+      <label for="sello">Foto del sello de la empresa (opcional)</label>
+      <input id="sello" type="file" accept="image/*" capture="environment">
+      <div class="fotos" id="selloVista"></div>
     </div>
-  </section>
-
     <label class="check"><input type="checkbox" id="guardarCliente"> Guardar como cliente habitual</label>
   </section>
 
@@ -159,6 +162,8 @@ const EMPRESA = {
   contacto: 'info@empresa.es · www.empresa.es',
   trabajadores: ['Trabajador 1', 'Trabajador 2', 'Trabajador 3'],
   iva: 21,
+  // false = albaranes SIN VALORAR: no se ve ningún precio (los pone la oficina al facturar)
+  valorar: false,
   primerNumero: 9184,
   // A dónde se manda el parte (el flujo de n8n). Si no responde, se puede descargar el PDF igualmente.
   webhook: 'http://localhost:5678/webhook/parte-trabajo',
@@ -222,6 +227,8 @@ $('organismo').onchange = () => {
 }
 
 // ---------- Líneas de materiales y mano de obra ----------
+const campoImporte = (d) => EMPRESA.valorar ? `<div><p class="mini">Importe (€)</p><input data-k="importe" inputmode="decimal" value="${d.importe ?? ''}"></div>` : '<div></div>'
+if (!EMPRESA.valorar) $('seccionTotales').classList.add('oculto')
 function lineaMaterial(d = {}) {
   const el = document.createElement('div')
   el.className = 'linea'
@@ -231,7 +238,7 @@ function lineaMaterial(d = {}) {
     <button class="quitar" type="button" aria-label="Quitar">×</button>
     <div class="extra">
       <div><p class="mini">Referencia</p><input data-k="ref" value="${d.ref ?? ''}"></div>
-      <div><p class="mini">Importe (€)</p><input data-k="importe" inputmode="decimal" value="${d.importe ?? ''}"></div>
+      ${campoImporte(d)}
     </div>`
   el.querySelector('.quitar').onclick = () => { el.remove(); recalcula() }
   el.oninput = recalcula
@@ -246,7 +253,7 @@ function lineaMano(d = {}) {
     <button class="quitar" type="button" aria-label="Quitar">×</button>
     <div class="extra">
       <div><p class="mini">Nº código</p><input data-k="codigo" value="${d.codigo ?? ''}"></div>
-      <div><p class="mini">Importe (€)</p><input data-k="importe" inputmode="decimal" value="${d.importe ?? ''}"></div>
+      ${campoImporte(d)}
     </div>`
   el.querySelector('.quitar').onclick = () => { el.remove(); recalcula() }
   el.oninput = recalcula
@@ -290,6 +297,13 @@ function reduceFoto(file) {
     }
     img.src = URL.createObjectURL(file)
   })
+}
+
+let sello = null
+$('sello').onchange = async () => {
+  const f = $('sello').files[0]
+  sello = f ? await reduceFoto(f) : null
+  $('selloVista').innerHTML = sello ? `<img src="${sello}" alt="Sello">` : ''
 }
 
 // ---------- Firma con el dedo ----------
@@ -345,20 +359,37 @@ function creaPDF(p) {
       doc.setDrawColor(215); doc.line(x, fy + 1.6, x + w, fy + 1.6); doc.setDrawColor(...AZ)
     })
   }
-  tabla(12, mitad - 16, 'MATERIALES', [['Cant.', 14], ['Descripción', 74], ['Referencia', 22], ['Importe', 22.5]],
-    p.materiales.map((m) => [m.cant, m.desc, m.ref, m.importe ? euros(num(m.importe)) : '']))
-  tabla(mitad + 4, mitad - 16, 'MANO DE OBRA', [['Nº Código', 20], ['Descripción', 70], ['Horas', 18], ['Importe', 24.5]],
-    p.manoObra.map((m) => [m.codigo, m.desc, m.horas, m.importe ? euros(num(m.importe)) : '']))
+  if (EMPRESA.valorar) {
+    tabla(12, mitad - 16, 'MATERIALES', [['Cant.', 14], ['Descripción', 74], ['Referencia', 22], ['Importe', 22.5]],
+      p.materiales.map((m) => [m.cant, m.desc, m.ref, m.importe ? euros(num(m.importe)) : '']))
+    tabla(mitad + 4, mitad - 16, 'MANO DE OBRA', [['Nº Código', 20], ['Descripción', 70], ['Horas', 18], ['Importe', 24.5]],
+      p.manoObra.map((m) => [m.codigo, m.desc, m.horas, m.importe ? euros(num(m.importe)) : '']))
+  } else {
+    tabla(12, mitad - 16, 'MATERIALES', [['Cant.', 16], ['Descripción', 87], ['Referencia', 29.5]],
+      p.materiales.map((m) => [m.cant, m.desc, m.ref]))
+    tabla(mitad + 4, mitad - 16, 'MANO DE OBRA', [['Nº Código', 22], ['Descripción', 88], ['Horas', 22.5]],
+      p.manoObra.map((m) => [m.codigo, m.desc, m.horas]))
+  }
   // Firma
   const yf = y0 + alto + 6
   doc.rect(12, yf, 120, 34)
   doc.setTextColor(...AZ); doc.setFontSize(8); doc.text('Conforme el cliente:', 14, yf + 5)
-  if (p.firma) doc.addImage(p.firma, 'PNG', 30, yf + 6, 80, 22)
+  if (p.firma) doc.addImage(p.firma, 'PNG', p.sello ? 16 : 30, yf + 6, p.sello ? 64 : 80, 22)
+  if (p.sello) {
+    // El sello, encajado sin deformarlo en un hueco de 44 x 22 mm
+    const ip = doc.getImageProperties(p.sello), k = Math.min(44 / ip.width, 22 / ip.height)
+    doc.addImage(p.sello, 'JPEG', 84 + (44 - ip.width * k) / 2, yf + 5, ip.width * k, ip.height * k)
+  }
   doc.setTextColor(60); doc.setFontSize(7.5)
-  const firmante = p.responsable ? `${p.responsable.nombre} · DNI ${p.responsable.dni}` : c.nombre
+  const firmante = p.responsable ? `${p.responsable.nombre}${p.responsable.cargo ? ' (' + p.responsable.cargo + ')' : ''} · DNI ${p.responsable.dni}` : c.nombre
   doc.text(`Firmado por ${firmante} el ${p.fechaTexto} a las ${p.hora}`, 14, yf + 32)
-  // Totales
+  // Totales (solo si se valora); si no, la marca de "sin valorar"
   const t = p.totales, xt = W - 82
+  if (!EMPRESA.valorar) {
+    doc.setDrawColor(...AZ); doc.rect(xt, yf, 70, 18)
+    doc.setTextColor(...AZ); doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('ALBARÁN SIN VALORAR', xt + 35, yf + 8, { align: 'center' })
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(80); doc.text('Los precios figurarán en la factura.', xt + 35, yf + 13.5, { align: 'center' })
+  } else {
   doc.setFillColor(...AZ); doc.rect(xt, yf, 70, 6, 'F'); doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.text('VENTA', xt + 35, yf + 4.3, { align: 'center' })
   doc.setTextColor(25); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5)
   const filasT = [['Material', t.mat], ['M. de Obra', t.mano], ['Subtotal', t.sub], [`I.V.A. ${EMPRESA.iva} %`, t.iva], ['TOTAL', t.total]]
@@ -370,6 +401,7 @@ function creaPDF(p) {
     doc.text(k, xt + 2, fy); doc.text(enBlanco ? '' : euros(v), xt + 68, fy, { align: 'right' })
   })
   doc.rect(xt, yf, 70, 36)
+  }
   // Fotos en una segunda hoja
   if (p.fotos.length) {
     doc.addPage(); doc.setTextColor(...AZ); doc.setFont('helvetica', 'bold'); doc.setFontSize(12)
@@ -390,7 +422,8 @@ function datosParte() {
     trabajador: $('trabajador').value,
     trabajo: $('trabajoHecho').value.trim(),
     cliente: { nombre: $('cliente').value.trim(), nif: $('nif').value.trim(), calle: $('calle').value.trim(), localidad: $('localidad').value.trim(), telefono: $('telefono').value.trim(), email: $('email').value.trim() },
-    responsable: $('organismo').checked ? { nombre: $('responsable').value.trim(), dni: $('dni').value.trim() } : null,
+    responsable: $('organismo').checked ? { nombre: $('responsable').value.trim(), dni: $('dni').value.trim(), cargo: $('cargo').value.trim() } : null,
+    sello: $('organismo').checked ? sello : null,
     materiales: lineas('materiales'),
     manoObra: lineas('manoObra'),
     totales: totales(),
@@ -401,8 +434,8 @@ function datosParte() {
 function valida(p) {
   if (!p.cliente.nombre) return 'Falta el nombre del cliente.'
   if (!p.materiales.length && !p.manoObra.length) return 'Añade al menos un material o la mano de obra.'
-  if (p.responsable && (!p.responsable.nombre || !p.responsable.dni)) return 'Falta el nombre o el DNI del responsable que firma.'
-  if (!p.firma) return 'Falta la firma del cliente.'
+  if (p.responsable && !p.sello && (!p.responsable.nombre || !p.responsable.dni)) return 'Falta el nombre y el DNI del responsable (o la foto del sello).'
+  if (!p.firma && !p.sello) return 'Falta la firma del cliente.'
   if (p.cliente.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.cliente.email)) return 'El email del cliente no parece correcto.'
   return ''
 }
@@ -417,7 +450,7 @@ $('terminar').onclick = async () => {
   const archivo = `Albaran-${p.numero}.pdf`
   let enviado = false
   try {
-    const { fotos: _f, firma: _s, ...resto } = p
+    const { fotos: _f, firma: _s, sello: _x, ...resto } = p
     const r = await fetch(EMPRESA.webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ parte: resto, archivo, pdfBase64 }) })
     enviado = r.ok
   } catch {}

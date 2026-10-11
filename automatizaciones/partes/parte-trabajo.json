@@ -22,7 +22,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// ===== AJUSTES =====\nconst EMPRESA = 'Tu empresa';\n// ===================\n\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst euros = (n) => Number(n || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';\nconst lista = (xs, f) => (xs || []).map(f).filter(Boolean).join(' · ');\n\nreturn $input.all().map((item) => {\n  const { parte: p, archivo, pdfBase64 } = item.json.body;\n  const c = p.cliente || {};\n  const firmante = p.responsable ? `${p.responsable.nombre} (DNI ${p.responsable.dni})` : c.nombre;\n  const mats = lista(p.materiales, (m) => [m.cant, m.desc].filter(Boolean).join(' '));\n  const mano = lista(p.manoObra, (m) => [m.desc, m.horas ? m.horas + ' h' : ''].filter(Boolean).join(' '));\n  const total = p.totales?.hay ? euros(p.totales.total) : 'sin importe (lo pone la oficina)';\n\n  const htmlCliente = `<p>Hola:</p>\n<p>Le enviamos el albarán <b>Nº ${esc(p.numero)}</b> del trabajo realizado el ${esc(p.fechaTexto)}, firmado por ${esc(firmante)}.</p>\n<p>Lo tiene adjunto en PDF. Cualquier duda, responda a este correo.</p><p>Un saludo,<br>${esc(EMPRESA)}</p>`;\n\n  const htmlOficina = `<p><b>Parte Nº ${esc(p.numero)}</b> · ${esc(p.fechaTexto)} ${esc(p.hora)} · ${esc(p.trabajador)}</p>\n<table cellpadding=\"4\">\n<tr><td><b>Cliente</b></td><td>${esc(c.nombre)} · ${esc(c.nif)}</td></tr>\n<tr><td><b>Dirección</b></td><td>${esc(c.calle)}, ${esc(c.localidad)}</td></tr>\n<tr><td><b>Trabajo</b></td><td>${esc(p.trabajo)}</td></tr>\n<tr><td><b>Materiales</b></td><td>${esc(mats)}</td></tr>\n<tr><td><b>Mano de obra</b></td><td>${esc(mano)}</td></tr>\n<tr><td><b>Total</b></td><td>${esc(total)}</td></tr>\n<tr><td><b>Firmado por</b></td><td>${esc(firmante)}</td></tr>\n</table><p>Albarán firmado adjunto. Listo para facturar.</p>`;\n\n  const telegram = `<b>📄 Parte Nº ${esc(p.numero)} firmado</b>\\n${esc(c.nombre)} · ${esc(c.localidad)}\\n${esc(p.trabajador)} · ${esc(p.fechaTexto)} ${esc(p.hora)}\\n<b>Total:</b> ${esc(total)}\\n<i>Firmado por ${esc(firmante)}</i>`;\n\n  const fila = {\n    'Nº': p.numero, 'Fecha': p.fecha, 'Hora': p.hora, 'Trabajador': p.trabajador, 'Cliente': c.nombre, 'NIF/CIF': c.nif,\n    'Localidad': c.localidad, 'Trabajo': p.trabajo, 'Materiales': mats, 'Mano de obra': mano,\n    'Total': p.totales?.hay ? Number(p.totales.total.toFixed(2)) : '', 'Firmado por': firmante, 'Origen': 'Parte digital', 'Facturado': '',\n  };\n  return { json: { numero: p.numero, emailCliente: c.email || '', asuntoCliente: `Albarán Nº ${p.numero} · ${EMPRESA}`, htmlCliente,\n    asuntoOficina: `Parte Nº ${p.numero} · ${c.nombre} · listo para facturar`, htmlOficina, telegram, fila, archivo, pdfBase64 } };\n});\n"
+        "jsCode": "// ===== AJUSTES =====\nconst EMPRESA = 'Tu empresa';\n// ===================\n\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst euros = (n) => Number(n || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';\nconst lista = (xs, f) => (xs || []).map(f).filter(Boolean).join(' · ');\n\nreturn $input.all().map((item) => {\n  const { parte: p, archivo, pdfBase64 } = item.json.body;\n  const c = p.cliente || {};\n  const firmante = p.responsable\n    ? [p.responsable.nombre, p.responsable.cargo ? `(${p.responsable.cargo})` : '', p.responsable.dni ? `DNI ${p.responsable.dni}` : '', p.responsable.nombre ? '' : 'con sello'].filter(Boolean).join(' ')\n    : c.nombre;\n  const mats = lista(p.materiales, (m) => [m.cant, m.desc].filter(Boolean).join(' '));\n  const mano = lista(p.manoObra, (m) => [m.desc, m.horas ? m.horas + ' h' : ''].filter(Boolean).join(' '));\n  const total = p.totales?.hay ? euros(p.totales.total) : 'sin valorar (los precios, en la factura)';\n\n  const htmlCliente = `<p>Hola:</p>\n<p>Le enviamos el albarán <b>Nº ${esc(p.numero)}</b> del trabajo realizado el ${esc(p.fechaTexto)}, firmado por ${esc(firmante)}.</p>\n<p>Lo tiene adjunto en PDF. Cualquier duda, responda a este correo.</p><p>Un saludo,<br>${esc(EMPRESA)}</p>`;\n\n  const htmlOficina = `<p><b>Parte Nº ${esc(p.numero)}</b> · ${esc(p.fechaTexto)} ${esc(p.hora)} · ${esc(p.trabajador)}</p>\n<table cellpadding=\"4\">\n<tr><td><b>Cliente</b></td><td>${esc(c.nombre)} · ${esc(c.nif)}</td></tr>\n<tr><td><b>Dirección</b></td><td>${esc(c.calle)}, ${esc(c.localidad)}</td></tr>\n<tr><td><b>Trabajo</b></td><td>${esc(p.trabajo)}</td></tr>\n<tr><td><b>Materiales</b></td><td>${esc(mats)}</td></tr>\n<tr><td><b>Mano de obra</b></td><td>${esc(mano)}</td></tr>\n<tr><td><b>Total</b></td><td>${esc(total)}</td></tr>\n<tr><td><b>Firmado por</b></td><td>${esc(firmante)}</td></tr>\n</table><p>Albarán firmado adjunto. Listo para facturar.</p>`;\n\n  const telegram = `<b>📄 Parte Nº ${esc(p.numero)} firmado</b>\\n${esc(c.nombre)} · ${esc(c.localidad)}\\n${esc(p.trabajador)} · ${esc(p.fechaTexto)} ${esc(p.hora)}\\n<b>Total:</b> ${esc(total)}\\n<i>Firmado por ${esc(firmante)}</i>`;\n\n  const fila = {\n    'Nº': p.numero, 'Fecha': p.fecha, 'Hora': p.hora, 'Trabajador': p.trabajador, 'Cliente': c.nombre, 'NIF/CIF': c.nif,\n    'Localidad': c.localidad, 'Trabajo': p.trabajo, 'Materiales': mats, 'Mano de obra': mano,\n    'Total': p.totales?.hay ? Number(p.totales.total.toFixed(2)) : '', 'Firmado por': firmante, 'Origen': 'Parte digital', 'Facturado': '',\n  };\n  // Una fila por línea del albarán, para importarlas en el programa de gestión (pestaña \"Líneas\")\n  const base = { 'Nº albarán': p.numero, 'Fecha': p.fecha, 'Cliente': c.nombre, 'NIF/CIF': c.nif };\n  const lineas = [\n    ...(p.materiales || []).map((m) => ({ ...base, 'Tipo': 'Material', 'Cantidad': m.cant, 'Descripción': m.desc, 'Referencia': m.ref || '' })),\n    ...(p.manoObra || []).map((m) => ({ ...base, 'Tipo': 'Mano de obra', 'Cantidad': m.horas, 'Descripción': m.desc, 'Referencia': m.codigo || '' })),\n  ];\n  return { json: { lineas, numero: p.numero, emailCliente: c.email || '', asuntoCliente: `Albarán Nº ${p.numero} · ${EMPRESA}`, htmlCliente,\n    asuntoOficina: `Parte Nº ${p.numero} · ${c.nombre} · listo para facturar`, htmlOficina, telegram, fila, archivo, pdfBase64 } };\n});\n"
       },
       "id": "p2",
       "name": "Preparar parte",
@@ -185,6 +185,51 @@
     },
     {
       "parameters": {
+        "jsCode": "// Una salida por cada línea del albarán (materiales y mano de obra)\nreturn $input.all().flatMap((i) => (i.json.lineas || []).map((l) => ({ json: l })));\n"
+      },
+      "id": "p10",
+      "name": "Líneas para GoldenSoft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Líneas"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": []
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "p11",
+      "name": "Apuntar líneas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        960,
+        620
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
         "formTitle": "Parte de trabajo en papel",
         "formDescription": "Haz una foto al parte (recto y con luz) y súbela. La IA lo lee y lo pasa a la oficina.",
         "formFields": {
@@ -251,7 +296,7 @@
     },
     {
       "parameters": {
-        "jsCode": "\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst euros = (n) => Number(n || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';\nconst lista = (xs, f) => (xs || []).map(f).filter(Boolean).join(' · ');\n\nreturn $input.all().map((item) => {\n  const txt = item.json.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';\n  let d; try { d = JSON.parse(txt.replace(/^```(json)?|```$/g, '').trim()); } catch { d = null; }\n  if (!d) return { json: { telegram: '<b>⚠️ No he podido leer el parte de la foto.</b>\\nPrueba con otra foto más recta y con luz.', fila: null } };\n  const mats = lista(d.materiales, (m) => [m.cant, m.descripcion].filter(Boolean).join(' '));\n  const mano = lista(d.mano_obra, (m) => [m.descripcion, m.horas ? m.horas + ' h' : ''].filter(Boolean).join(' '));\n  const telegram = `<b>📷 Parte leído de la foto${d.numero ? ' · Nº ' + esc(d.numero) : ''}</b>\\n` +\n    `<b>Cliente:</b> ${esc(d.cliente || '¿?')} · ${esc(d.localidad || '')}\\n<b>Fecha:</b> ${esc(d.fecha || '¿?')}\\n\\n<b>Materiales</b>\\n` +\n    (d.materiales || []).map((m) => `• ${esc(m.cant)} ${esc(m.descripcion)}${m.importe ? ' — ' + esc(m.importe) : ''}`).join('\\n') +\n    ((d.mano_obra || []).length ? `\\n\\n<b>Mano de obra</b>\\n` + d.mano_obra.map((m) => `• ${esc(m.descripcion)} ${m.horas ? esc(m.horas) + ' h' : ''}`).join('\\n') : '') +\n    (d.dudas ? `\\n\\n<i>⚠️ Revisar: ${esc(d.dudas)}</i>` : '');\n  const fila = { 'Nº': d.numero, 'Fecha': d.fecha, 'Hora': '', 'Trabajador': '', 'Cliente': d.cliente, 'NIF/CIF': d.nif, 'Localidad': d.localidad,\n    'Trabajo': '', 'Materiales': mats, 'Mano de obra': mano, 'Total': '', 'Firmado por': '', 'Origen': 'Foto de parte en papel', 'Facturado': '' };\n  return { json: { telegram, fila } };\n});\n"
+        "jsCode": "\nconst esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst euros = (n) => Number(n || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';\nconst lista = (xs, f) => (xs || []).map(f).filter(Boolean).join(' · ');\n\nreturn $input.all().map((item) => {\n  const txt = item.json.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';\n  let d; try { d = JSON.parse(txt.replace(/^```(json)?|```$/g, '').trim()); } catch { d = null; }\n  if (!d) return { json: { telegram: '<b>⚠️ No he podido leer el parte de la foto.</b>\\nPrueba con otra foto más recta y con luz.', fila: null } };\n  const mats = lista(d.materiales, (m) => [m.cant, m.descripcion].filter(Boolean).join(' '));\n  const mano = lista(d.mano_obra, (m) => [m.descripcion, m.horas ? m.horas + ' h' : ''].filter(Boolean).join(' '));\n  const telegram = `<b>📷 Parte leído de la foto${d.numero ? ' · Nº ' + esc(d.numero) : ''}</b>\\n` +\n    `<b>Cliente:</b> ${esc(d.cliente || '¿?')} · ${esc(d.localidad || '')}\\n<b>Fecha:</b> ${esc(d.fecha || '¿?')}\\n\\n<b>Materiales</b>\\n` +\n    (d.materiales || []).map((m) => `• ${esc(m.cant)} ${esc(m.descripcion)}${m.importe ? ' — ' + esc(m.importe) : ''}`).join('\\n') +\n    ((d.mano_obra || []).length ? `\\n\\n<b>Mano de obra</b>\\n` + d.mano_obra.map((m) => `• ${esc(m.descripcion)} ${m.horas ? esc(m.horas) + ' h' : ''}`).join('\\n') : '') +\n    (d.dudas ? `\\n\\n<i>⚠️ Revisar: ${esc(d.dudas)}</i>` : '');\n  const fila = { 'Nº': d.numero, 'Fecha': d.fecha, 'Hora': '', 'Trabajador': '', 'Cliente': d.cliente, 'NIF/CIF': d.nif, 'Localidad': d.localidad,\n    'Trabajo': '', 'Materiales': mats, 'Mano de obra': mano, 'Total': '', 'Firmado por': '', 'Origen': 'Foto de parte en papel', 'Facturado': '' };\n  const base = { 'Nº albarán': d.numero, 'Fecha': d.fecha, 'Cliente': d.cliente, 'NIF/CIF': d.nif };\n  const lineas = [\n    ...(d.materiales || []).map((m) => ({ ...base, 'Tipo': 'Material', 'Cantidad': m.cant, 'Descripción': m.descripcion, 'Referencia': m.referencia || '' })),\n    ...(d.mano_obra || []).map((m) => ({ ...base, 'Tipo': 'Mano de obra', 'Cantidad': m.horas, 'Descripción': m.descripcion, 'Referencia': m.codigo || '' })),\n  ];\n  return { json: { telegram, fila, lineas } };\n});\n"
       },
       "id": "f4",
       "name": "Ordenar lo leído",
@@ -325,6 +370,51 @@
         840
       ],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Una salida por cada línea del albarán (materiales y mano de obra)\nreturn $input.all().flatMap((i) => (i.json.lineas || []).map((l) => ({ json: l })));\n"
+      },
+      "id": "f8",
+      "name": "Líneas de la foto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        980
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PEGA_AQUI_LA_URL_DE_TU_HOJA_DE_GOOGLE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Líneas"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": []
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "f9",
+      "name": "Apuntar líneas de la foto",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1200,
+        980
+      ],
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -354,6 +444,11 @@
           },
           {
             "node": "Fila para la hoja",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Líneas para GoldenSoft",
             "type": "main",
             "index": 0
           }
@@ -392,6 +487,17 @@
         [
           {
             "node": "Apuntar parte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Líneas para GoldenSoft": {
+      "main": [
+        [
+          {
+            "node": "Apuntar líneas",
             "type": "main",
             "index": 0
           }
@@ -443,6 +549,11 @@
             "node": "Fila de la foto",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Líneas de la foto",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -452,6 +563,17 @@
         [
           {
             "node": "Apuntar parte de la foto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Líneas de la foto": {
+      "main": [
+        [
+          {
+            "node": "Apuntar líneas de la foto",
             "type": "main",
             "index": 0
           }

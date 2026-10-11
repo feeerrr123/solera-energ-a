@@ -214,7 +214,10 @@ instaladora eléctrica que hoy rellena partes en papel, los teclea la oficina en
   **foto del parte en papel** → Gemini lo lee (con lista de materiales habituales; lo dudoso va en "dudas") → email +
   Telegram + hoja. El flujo tiene que estar **publicado** para que el webhook responda.
 - **Probado en el n8n del usuario:** foto de un parte real leída bien; parte digital → oficina + Telegram + hoja.
-- Pendiente: saber si su programa de gestión importa Excel/CSV o tiene API (la factura debe salir de su programa).
+- 2026-10-11, respuestas del cliente: **albaranes sin valorar** (`valorar: false`: sin importes en el móvil ni en el PDF,
+  que lleva "ALBARÁN SIN VALORAR"); firma + DNI **o sello** (foto del sello opcional, cargo opcional); su programa
+  (GoldenSoft) parece importar Excel → n8n apunta cada línea del albarán en la pestaña **"Líneas"** (se descarga en
+  Excel); facturas por email, en mano o WhatsApp, y por FACe a ayuntamientos > 5.000 €. Falta su formato de importación.
 
 ## Stack
 

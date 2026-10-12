@@ -7,6 +7,9 @@ reales** de ese nicho (no autoconsumo generalista): todo lo que cambia de una
 instaladora a otra vive en un único archivo de configuración. Ver `PRODUCT.md`
 (negocio, incluye por qué se estrechó el nicho) y `DESIGN.md` (sistema visual).
 
+**Estado:** en producción en https://solera-energ-a.vercel.app (Supabase real; noticias del BOJA y captación
+de contactos probadas de punta a punta). Lo que se hizo y cuándo: `docs/historial.md`.
+
 ## Cómo está montado
 
 Sin framework. Un script de Node sin dependencias (`build.mjs`) junta plantillas
@@ -141,12 +144,6 @@ El flujo importable está en `automatizaciones/n8n/vigilante-boja.json` (claves 
   publicadas, `noticias-remotas.js` las pone en su lugar. Tarjeta = un solo parcial (`partials/noticia-card.html`), lista con filete.
 - **Menú:** 8 enlaces; se mantiene en una línea a 1280 px (`whitespace-nowrap`, `gap-5`, `2xl:gap-7`). Comprobado en navegador.
 - **Supabase:** volver a pegar `supabase/schema.sql` (añade la tabla `noticias`; idempotente). Vercel: añadir `NOTICIAS_TOKEN`.
-- Probado: 80 pruebas; en navegador (Tailwind compilado en local porque el CDN no se alcanza desde el contenedor): demo
-  local (panel: bloquea publicar con importe, editar y publicar) y arnés con los endpoints reales (POST de n8n 201/200/401,
-  login, publicar, la noticia sale en la web).
-- **2026-10-02 — en producción y probado de punta a punta** (https://solera-energ-a.vercel.app, PR #1 fusionada en `main`):
-  Supabase real conectado (`/api/noticias` y `/api/admin/login` responden sin `demo`), n8n → Gemini Lite → Telegram +
-  Gmail (OAuth2) + "Guardar en la web" → borradores en el panel → publicar. Lo ha comprobado el usuario.
 - Pendiente del flujo: el RSS solo trae título y metadatos → Gemini no sabe plazos ni destinatarios. Mejora: que n8n
   abra el enlace del anuncio y le pase el texto completo. Gmail por SMTP con contraseña de aplicación fallaba (535 5.7.8)
   en la cuenta del usuario: por eso el nodo Gmail va con OAuth2.
@@ -175,59 +172,14 @@ guardaba el contacto (dimensionado / calculadora); esta fase añade lo que pasa 
   `ficha_enviada_en`, `recordatorio_cliente_en`, `aviso_instalador_en` y los 5 estados. Sin ellas, el formulario falla.
 - **Privacidad:** `avisoVersion` pasa a `2026-10` (email opcional, envío del resultado y un recordatorio del presupuesto).
 - WhatsApp automático al agricultor **no**: requiere la API oficial de Meta (alta, plantillas y pago por conversación).
-- Probado: 90 pruebas; navegador con arnés (formularios con email sin desbordes en móvil, alta → n8n lee la ficha → marca →
-  ya no está pendiente; n8n no puede cambiar estados; panel: desplegable → "Presupuesto enviado el…"; demo en móvil).
-  Pestañas del panel en una línea en móvil.
-- **2026-10-04 — en producción y probado de punta a punta** (PR #3 en `main`, `schema.sql` pegado): formulario de
-  dimensionado con email → n8n "Leer pendientes" → ficha por Telegram y Gmail + estimación al agricultor por Gmail →
-  marcado (no se repite) → en el panel "Ficha enviada el…". Lo ha comprobado el usuario. Recordatorio (3 días) y aviso
-  (7 días) pendientes de verse en real.
 
-## Captación para webs que no son nuestras (2026-10-07)
+## Automatizaciones para clientes → repo `automatizaciones`
 
-Flujo `automatizaciones/n8n/captacion-web-externa.json` + plantilla `plantilla-hoja-contactos.xlsx` (se sube a Google
-Drive y se abre como Hoja de Google). Para instaladoras que ya tienen web (primer caso: Fercam). Sin tocar su web:
-1. **Contactos:** su formulario ya manda un email → regla de reenvío a nuestro Gmail con etiqueta `formulario-<cliente>` →
-   Gmail Trigger (cada minuto) → **Gemini** saca nombre, teléfono, email, localidad, qué pide (JSON) → ficha por Telegram +
-   Gmail con botón de WhatsApp → fila en la pestaña "Contactos". Si Gemini falla, la ficha sale igual con el teléfono
-   sacado del texto y un aviso.
-2. **Seguimiento (9:15):** la instaladora cambia el "Estado" con un desplegable. n8n detecta el cambio (columna gris
-   "Estado visto") y apunta "Estado desde"; recordatorio al cliente a los 3 días en presupuestado (una vez, si hay email);
-   aviso a la instaladora a los 7 días parado (una vez por parón). Fechas en texto `AAAA-MM-DD` (`cellFormat: RAW`).
-3. **Reseñas (cada hora, 9–20 h):** pestaña "Obras terminadas" → aviso al móvil con el WhatsApp ya escrito + email al
-   cliente si lo hay. Marca "Reseña pedida" (se casa por `row_number`).
-- Ajustes (empresa, enlace de reseñas, días) arriba de cada nodo de código. Para un cliente: n8n en un VPS 24/7.
-- **2026-10-08 — bloque de contactos probado en el n8n del usuario:** email etiquetado → Gemini → ficha por Telegram
-  y Gmail → fila en la hoja. Al importar: en cada nodo de Sheets hay que volver a elegir la pestaña ("From list"),
-  poner **Map Automatically** y la columna de cruce (ID / row_number). Seguimiento y reseñas: sin probar aún en real.
-
-## Partes de trabajo digitales (2026-10-10)
-
-Carpeta `automatizaciones/partes/` (versión genérica, sin datos de cliente: el repo es público). Primer caso: una
-instaladora eléctrica que hoy rellena partes en papel, los teclea la oficina en su programa de gestión y factura tarde.
-- `parte-digital.html`: página única para el móvil del trabajador (ajustes en el bloque `EMPRESA`): cliente (con
-  **clientes habituales** que se rellenan solos), organismo → nombre y DNI del responsable, materiales y mano de obra
-  (importes opcionales), fotos, **firma con el dedo**. Genera el **albarán en PDF** en el navegador (jsPDF, mismo
-  esquema que el parte de papel) y lo manda al webhook de n8n; si no hay conexión, se descarga igual.
-- `parte-trabajo.json` (n8n): A) webhook `parte-trabajo` → PDF a binario → email al cliente **solo si dejó email** +
-  email a la oficina con el PDF + aviso a Telegram (para nosotros) + fila en la hoja "Partes". B) formulario de n8n →
-  **foto del parte en papel** → Gemini lo lee (con lista de materiales habituales; lo dudoso va en "dudas") → email +
-  Telegram + hoja. El flujo tiene que estar **publicado** para que el webhook responda.
-- **Probado en el n8n del usuario:** foto de un parte real leída bien; parte digital → oficina + Telegram + hoja.
-- 2026-10-11, respuestas del cliente: **albaranes sin valorar** (`valorar: false`: sin importes en el móvil ni en el PDF,
-  que lleva "ALBARÁN SIN VALORAR"); firma + DNI **o sello** (foto del sello opcional, cargo opcional); su programa
-  (GoldenSoft) parece importar Excel → n8n apunta cada línea del albarán en la pestaña **"Líneas"** (se descarga en
-  Excel); facturas por email, en mano o WhatsApp, y por FACe a ayuntamientos > 5.000 €. Falta su formato de importación.
-- 2026-10-12: GoldenSoft importa albaranes de venta desde Excel/CSV con un **"Diseño de importación"** (asistente que asigna
-  cada columna a un campo; se guarda y se reutiliza; datos en **una sola hoja**). Bloque C del flujo: **cada día a las 19:00**
-  lee "Líneas", coge las que tienen vacío **"Exportado"**, manda a la oficina un Excel (`Albaranes-AAAA-MM-DD.xlsx`, fechas
-  dd/mm/aaaa) y apunta la fecha en "Exportado" (cruce por `row_number`). Columnas definitivas: pendientes de ver su diseño.
-- **PIN por trabajador:** la página lo pide la primera vez (`pedirPin`); el webhook responde con "Respond to Webhook": 401 si
-  el PIN no está en `PINES` (nodo "Comprobar PIN") + aviso a Telegram; la página vuelve a pedirlo sin perder el parte.
-  Lo que falta para un piloto real: n8n en un VPS de la UE con https, página en hosting https, Gemini de pago, hoja y
-  Gmail en cuentas del cliente, contrato de encargado del tratamiento (RGPD art. 28).
-- **2026-10-12 — probado en el n8n del usuario:** PIN malo → rechazado + aviso a Telegram; PIN bueno → oficina, hoja y
-  Líneas; Excel del día por email con la fecha en "Exportado" y, al repetir, no sale nada. Reunión con el cliente: miércoles 14, 17:30 (Meet).
+Los productos con n8n que no dependen de esta web (partes de trabajo, captación para webs ajenas,
+vigilante de instalaciones, vídeos de venta) y lo de cada cliente (Fercam) viven en el repo **privado**
+`feeerrr123/automatizaciones`, con su propio `CLAUDE.md`. Aquí solo quedan los flujos de n8n que usan
+la API de esta web: `automatizaciones/n8n/vigilante-boja.json` y `captacion-seguimiento.json`.
+Historial de fases: `docs/historial.md`.
 
 ## Stack
 
@@ -262,8 +214,6 @@ instaladora eléctrica que hoy rellena partes en papel, los teclea la oficina en
   En demo usa `localStorage` con contactos ficticios. Endpoints: `api/contactos.js`,
   `api/admin/contactos/{index,[id]}.js` (8 funciones de 12 posibles en Hobby).
 - **Supabase:** hay que **volver a pegar `supabase/schema.sql`** (añade la tabla `contactos`; es idempotente).
-- Probado: 67 pruebas; en navegador (demo local): las 4 herramientas + panel + sin desbordes en móvil.
-  **Sin probar contra Supabase real**; menú de 7 enlaces sin mirar en pantalla ancha.
 
 ## Vidrio esmerilado (glass) e interactividad
 
@@ -310,33 +260,6 @@ instaladora eléctrica que hoy rellena partes en papel, los teclea la oficina en
   Con clientes reales, la publicación exige su autorización expresa (campo `autoriza_publicar`).
 - Ayudas y subvenciones: "según convocatoria vigente", nunca importes garantizados.
 
-## Estado
-
-- 2026-09-14: pivote a bombeo solar agrícola; multipágina, vidrio, widget diésel/sol, Casos.
-- 2026-09-25 — **Fase 0**: plantillas + config única (contra las páginas anteriores: idéntico
-  salvo cambios deliberados; Córdoba añadida a la zona; pie "Site" → "Sitio").
-- 2026-09-26 — **Fase 1 hecha y probada** (sin commit ni push aún): panel, reseñas por WhatsApp,
-  revisiones, casos de éxito y página pública leyendo de Supabase. 50 pruebas en verde. Probado
-  en navegador en modo demo local **y** contra los endpoints reales con repositorio en memoria
-  (login, cookie, CRUD, foto, publicar, rechazo sin autorización, casos públicos, salir).
-  **Sin probar contra Supabase de verdad** (falta el proyecto y las variables: lo hace el usuario).
-  Cambios de diseño de la fase: tarjetas de caso rediseñadas para destacar los números
-  (superficie, amortización, % menos gasto); etiqueta "Caso ilustrativo".
-
-## Plan de ampliación (las 3 fases hechas)
-
-Se para al terminar cada fase y no se empieza la siguiente hasta que lo diga el usuario. No
-hacer commit/push hasta que lo pida. Claves las pega él en Vercel, nunca en el chat.
-
-- **Fase 2 (HECHA):** comprobador de ayudas (en config, sin cantidades, siempre orientativo) +
-  pre-dimensionado (P hidráulica = 2,725·Q·H, coeficientes en config, siempre un **rango** de
-  precio) + tabla `contactos` (origen, datos, consentimiento) + sección Contactos en el panel +
-  botón wa.me con los datos + aviso de privacidad y casilla de consentimiento en cada formulario.
-- **Fase 3 (HECHA):** calculadora v2 (gasóil/red/ambos, acumulado a 10 y 20 años, gráfico SVG) que
-  reutiliza los datos del pre-dimensionado; informe completo a cambio del contacto.
-- Matices acordados: precios = rangos de ejemplo editables; el texto legal definitivo lo pone la
-  instaladora real (RGPD).
-
 ## Pendiente
 
 - [ ] **Usuario:** crear el proyecto de Supabase y pegar las 4 variables en Vercel (ver "Puesta en marcha").
@@ -348,9 +271,7 @@ hacer commit/push hasta que lo pida. Claves las pega él en Vercel, nunca en el 
 - [ ] Al borrar o cambiar la foto de un caso, la antigua queda en el bucket (no se limpia).
 - [ ] Texto de privacidad: lo revisa la instaladora real (RGPD). `og:image`; aviso legal; JSON-LD `LocalBusiness` solo con datos reales.
 - [ ] Confirmar en Vercel que `node build.mjs` + `dist` se aplican la primera vez.
-- [x] Noticias en producción: `schema.sql`, `NOTICIAS_TOKEN` en Vercel y n8n, "Guardar en la web" y Gmail (OAuth2) activos.
 - [ ] Gmail OAuth2 en modo "pruebas": el permiso caduca a los 7 días → pasar la app a "producción" en Google Cloud.
 - [ ] n8n vive en el portátil del usuario: si está suspendido a la hora de la ejecución no se ejecuta. Para un cliente: servidor 24/7.
 - [ ] Mejora: que n8n abra el anuncio completo para que Gemini pueda dar plazos y destinatarios.
-- [x] Fase 5 en producción: `schema.sql`, PR #3, flujo `captacion-seguimiento.json` en n8n con sus credenciales.
 - [ ] Ver en real el recordatorio al cliente (3 días en "presupuestado") y el aviso de contacto parado (7 días).

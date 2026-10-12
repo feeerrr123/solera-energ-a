@@ -182,13 +182,13 @@ const EMPRESA = {
   webhook: 'http://localhost:5678/webhook/parte-trabajo',
   // true = cada trabajador mete su PIN la primera vez (los PIN se dan de alta en n8n, nodo "Comprobar PIN")
   pedirPin: true,
-  // Materiales que más se usan (aparecen como sugerencia al escribir)
   // Clientes de siempre: al escribir su nombre se rellenan solos (también se van guardando los nuevos)
   clientes: [
     { nombre: 'Ayuntamiento de Ejemplo', nif: 'P2300000A', calle: 'Plaza Mayor, 1', localidad: 'Santisteban del Puerto', telefono: '953 00 00 00', email: '', organismo: true },
     { nombre: 'Comunidad de Regantes Ejemplo', nif: 'G23000000', calle: 'Camino del Pozo, s/n', localidad: 'Navas de San Juan', telefono: '', email: '', organismo: true },
   ],
-  catalogo: ['Cable 1000V 4x2,5', 'Cable 1000V 4x6', 'Terminal 14x60', 'Tuerca 14', 'Clavija 3P+T+N 16A', 'Brida de hierro con collarín 1"', 'Junta de goma 63', 'Diferencial 40A 30mA', 'Magnetotérmico 16A', 'Tubo corrugado 20 mm', 'Caja de registro'],
+  // Sugerencias al escribir un material. Vacío = el trabajador escribe libremente lo que ha usado.
+  catalogo: [],
 }
 // =================================================================
 

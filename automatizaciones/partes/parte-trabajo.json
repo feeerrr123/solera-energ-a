@@ -608,7 +608,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Texto del email con el Excel del día\nconst filas = $('Líneas sin exportar').all().map((i) => i.json);\nconst albaranes = [...new Set(filas.map((f) => f['Nº albarán']))];\nconst hoy = new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' }).replace(/\\//g, '-');\nreturn $input.all().map((i) => ({ json: {\n  asunto: `Albaranes para importar · ${hoy} · ${albaranes.length} albarán${albaranes.length === 1 ? '' : 'es'}`,\n  html: `<p>Hola:</p><p>Adjunto el Excel con <b>${albaranes.length} albarán${albaranes.length === 1 ? '' : 'es'}</b> (${filas.length} líneas) para importar en el programa de gestión: Nº ${albaranes.join(', ')}.</p><p>Las líneas ya quedan marcadas como exportadas en la hoja, así que mañana no se repiten.</p>`,\n}, binary: i.binary }));\n"
+        "jsCode": "// Texto del email con el Excel del día\nconst filas = $('Líneas sin exportar').all().map((i) => i.json);\nconst albaranes = [...new Set(filas.map((f) => f['Nº albarán']))];\nconst hoy = new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' }).replace(/\\//g, '-');\nconst cuantos = albaranes.length === 1 ? '1 albarán' : `${albaranes.length} albaranes`;\nreturn $input.all().map((i) => ({ json: {\n  asunto: `Albaranes para importar · ${hoy} · ${cuantos}`,\n  html: `<p>Hola:</p><p>Adjunto el Excel con <b>${cuantos}</b> (${filas.length} líneas) para importar en el programa de gestión: Nº ${albaranes.join(', ')}.</p><p>Las líneas ya quedan marcadas como exportadas en la hoja, así que mañana no se repiten.</p>`,\n}, binary: i.binary }));\n"
       },
       "id": "x6",
       "name": "Preparar email del Excel",

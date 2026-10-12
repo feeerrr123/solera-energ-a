@@ -226,6 +226,8 @@ instaladora eléctrica que hoy rellena partes en papel, los teclea la oficina en
   el PIN no está en `PINES` (nodo "Comprobar PIN") + aviso a Telegram; la página vuelve a pedirlo sin perder el parte.
   Lo que falta para un piloto real: n8n en un VPS de la UE con https, página en hosting https, Gemini de pago, hoja y
   Gmail en cuentas del cliente, contrato de encargado del tratamiento (RGPD art. 28).
+- **2026-10-12 — probado en el n8n del usuario:** PIN malo → rechazado + aviso a Telegram; PIN bueno → oficina, hoja y
+  Líneas; Excel del día por email con la fecha en "Exportado" y, al repetir, no sale nada. Reunión con el cliente: miércoles 14, 17:30 (Meet).
 
 ## Stack
 

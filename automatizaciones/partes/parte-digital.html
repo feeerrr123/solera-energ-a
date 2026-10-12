@@ -53,6 +53,11 @@
   #hecho .acciones { display: grid; gap: 10px; margin-top: 24px; }
   #hecho .acciones a, #hecho .acciones button { padding: 14px; border-radius: 12px; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; border: 1.5px solid var(--azul); color: var(--azul); background: #fff; }
   #hecho .acciones .principal { background: var(--azul); color: #fff; }
+  #pinPantalla { max-width: 360px; margin: 60px auto; padding: 0 18px; text-align: center; }
+  #pinPantalla h1 { font-size: 22px; margin: 0 0 6px; }
+  #pinPantalla p { color: var(--suave); margin: 0 0 18px; }
+  #pinPantalla input { text-align: center; font-size: 28px; letter-spacing: 10px; }
+  #pinPantalla button { width: 100%; margin-top: 12px; padding: 15px; border: 0; border-radius: 12px; background: var(--azul); color: #fff; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -60,6 +65,14 @@
   <div class="marca" id="marca"></div>
   <div class="num">Parte Nº<b id="numero"></b><span id="fechaTxt"></span></div>
 </header>
+
+<div id="pinPantalla" class="oculto">
+  <h1>Tu PIN</h1>
+  <p>Escribe el PIN que te ha dado la oficina. Solo se pide la primera vez en este móvil.</p>
+  <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8">
+  <button type="button" id="entrarPin">Entrar</button>
+  <p class="error" id="pinError"></p>
+</div>
 
 <main id="formulario">
   <section>
@@ -167,6 +180,8 @@ const EMPRESA = {
   primerNumero: 9184,
   // A dónde se manda el parte (el flujo de n8n). Si no responde, se puede descargar el PDF igualmente.
   webhook: 'http://localhost:5678/webhook/parte-trabajo',
+  // true = cada trabajador mete su PIN la primera vez (los PIN se dan de alta en n8n, nodo "Comprobar PIN")
+  pedirPin: true,
   // Materiales que más se usan (aparecen como sugerencia al escribir)
   // Clientes de siempre: al escribir su nombre se rellenan solos (también se van guardando los nuevos)
   clientes: [
@@ -182,6 +197,21 @@ const euros = (n) => n.toLocaleString('es-ES', { minimumFractionDigits: 2, maxim
 const num = (v) => { const n = parseFloat(String(v).replace(/\./g, '').replace(',', '.')); return isFinite(n) ? n : 0 }
 const guarda = (k, v) => { try { localStorage.setItem(k, v) } catch {} }
 const lee = (k) => { try { return localStorage.getItem(k) } catch { return null } }
+
+// ---------- PIN ----------
+const pantallaPin = (mensaje = '') => {
+  $('pinPantalla').classList.remove('oculto'); $('formulario').classList.add('oculto'); $('barra').classList.add('oculto')
+  $('pinError').textContent = mensaje; $('pin').value = ''; $('pin').focus()
+}
+$('entrarPin').onclick = () => {
+  const pin = $('pin').value.trim()
+  if (!/^\d{4,8}$/.test(pin)) { $('pinError').textContent = 'El PIN son de 4 a 8 números.'; return }
+  guarda('parte.pin', pin)
+  $('pinPantalla').classList.add('oculto'); $('formulario').classList.remove('oculto'); $('barra').classList.remove('oculto')
+  if (lienzo.width === 0) ajustaLienzo() // el recuadro de la firma se mide al verse por primera vez
+}
+$('pin').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('entrarPin').click() })
+if (EMPRESA.pedirPin && !lee('parte.pin')) pantallaPin()
 
 // ---------- Cabecera ----------
 $('marca').innerHTML = `${EMPRESA.nombre}<small>${EMPRESA.subtitulo} · Parte de trabajo</small>`
@@ -451,7 +481,14 @@ $('terminar').onclick = async () => {
   let enviado = false
   try {
     const { fotos: _f, firma: _s, sello: _x, ...resto } = p
-    const r = await fetch(EMPRESA.webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ parte: resto, archivo, pdfBase64 }) })
+    const r = await fetch(EMPRESA.webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: lee('parte.pin') || '', parte: resto, archivo, pdfBase64 }) })
+    if (r.status === 401) {
+      // PIN mal: no se pierde nada, se pide otra vez y se vuelve a pulsar "Terminar"
+      try { localStorage.removeItem('parte.pin') } catch {}
+      $('terminar').disabled = false; $('terminar').textContent = 'Terminar y enviar albarán'
+      pantallaPin('PIN incorrecto. Escríbelo otra vez y vuelve a pulsar «Terminar».')
+      return
+    }
     enviado = r.ok
   } catch {}
   guarda('parte.numero', String(numero + 1))

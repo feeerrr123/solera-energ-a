@@ -218,6 +218,14 @@ instaladora eléctrica que hoy rellena partes en papel, los teclea la oficina en
   que lleva "ALBARÁN SIN VALORAR"); firma + DNI **o sello** (foto del sello opcional, cargo opcional); su programa
   (GoldenSoft) parece importar Excel → n8n apunta cada línea del albarán en la pestaña **"Líneas"** (se descarga en
   Excel); facturas por email, en mano o WhatsApp, y por FACe a ayuntamientos > 5.000 €. Falta su formato de importación.
+- 2026-10-12: GoldenSoft importa albaranes de venta desde Excel/CSV con un **"Diseño de importación"** (asistente que asigna
+  cada columna a un campo; se guarda y se reutiliza; datos en **una sola hoja**). Bloque C del flujo: **cada día a las 19:00**
+  lee "Líneas", coge las que tienen vacío **"Exportado"**, manda a la oficina un Excel (`Albaranes-AAAA-MM-DD.xlsx`, fechas
+  dd/mm/aaaa) y apunta la fecha en "Exportado" (cruce por `row_number`). Columnas definitivas: pendientes de ver su diseño.
+- **PIN por trabajador:** la página lo pide la primera vez (`pedirPin`); el webhook responde con "Respond to Webhook": 401 si
+  el PIN no está en `PINES` (nodo "Comprobar PIN") + aviso a Telegram; la página vuelve a pedirlo sin perder el parte.
+  Lo que falta para un piloto real: n8n en un VPS de la UE con https, página en hosting https, Gemini de pago, hoja y
+  Gmail en cuentas del cliente, contrato de encargado del tratamiento (RGPD art. 28).
 
 ## Stack
 
